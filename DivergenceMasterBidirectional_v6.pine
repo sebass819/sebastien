@@ -1,0 +1,349 @@
+//@version=6
+indicator("Divergence Master BIDIRECTIONAL", overlay=true, max_labels_count=500)
+
+// ========== PARAMÈTRES D'ENTRÉE ==========
+group1 = "RSI Settings"
+rsi_length = input.int(14, "RSI Period", group=group1)
+rsi_oversold = input.int(35, "RSI Oversold Level", group=group1)
+rsi_overbought = input.int(65, "RSI Overbought Level", group=group1)
+
+group2 = "MACD Settings"
+fast_length = input.int(12, "MACD Fast", group=group2)
+slow_length = input.int(26, "MACD Slow", group=group2)
+signal_length = input.int(9, "MACD Signal", group=group2)
+
+group3 = "Divergence Settings"
+lookback = input.int(10, "Lookback Period", minval=5, maxval=50, group=group3)
+min_bars = input.int(3, "Min Bars Between Pivots", group=group3)
+
+group4 = "Visual Settings"
+show_divergences = input.bool(true, "Show Divergences", group=group4)
+show_score = input.bool(true, "Show Score Table", group=group4)
+show_signals = input.bool(true, "Show Trade Signals", group=group4)
+show_debug = input.bool(false, "Show Debug Info", group=group4)
+table_position = input.string("Top Right", "Table Position", options=["Top Right", "Top Left", "Bottom Right", "Bottom Left", "Middle Right", "Middle Left"], group=group4)
+
+group5 = "Signal Settings"
+sensitivity_mode = input.string("Normal", "Sensitivity Mode", options=["Conservative", "Normal", "Aggressive"], group=group5)
+use_trend_filter = input.bool(false, "Use Trend Filter (SMA 200)", group=group5)
+
+// Seuils dynamiques selon le mode
+min_score_trade = sensitivity_mode == "Conservative" ? 60 : sensitivity_mode == "Aggressive" ? 40 : 50
+min_score_strong = sensitivity_mode == "Conservative" ? 80 : sensitivity_mode == "Aggressive" ? 60 : 70
+
+// ========== CALCULS DE BASE ==========
+// RSI
+rsi = ta.rsi(close, rsi_length)
+rsi_1h = request.security(syminfo.tickerid, "60", rsi)
+rsi_4h = request.security(syminfo.tickerid, "240", rsi)
+
+// MACD
+[macd_line, signal_line, hist] = ta.macd(close, fast_length, slow_length, signal_length)
+hist_change = hist - hist[1]
+
+// Volume
+vol_sma = ta.sma(volume, 20)
+vol_ratio = volume / vol_sma
+obv = ta.obv
+obv_slope = (obv - obv[5]) / 5
+
+// Stochastic
+k = ta.stoch(close, high, low, 14)
+d = ta.sma(k, 3)
+
+// Bollinger Bands
+[bb_upper, bb_middle, bb_lower] = ta.bb(close, 20, 2)
+
+// Moyennes mobiles
+sma200 = ta.sma(close, 200)
+ema50 = ta.ema(close, 50)
+ema20 = ta.ema(close, 20)
+
+// ========== DÉTECTION DES PIVOTS ==========
+// Pour les LONGS (creux)
+pivotlow_price = ta.pivotlow(low, lookback, lookback)
+pivotlow_rsi = ta.pivotlow(rsi, lookback, lookback)
+
+// Pour les SHORTS (sommets)
+pivothigh_price = ta.pivothigh(high, lookback, lookback)
+pivothigh_rsi = ta.pivothigh(rsi, lookback, lookback)
+
+// Variables pour stocker les pivots LONGS
+var float prev_low_price = na
+var float prev_low_rsi = na
+var int prev_low_bar = na
+var float curr_low_price = na
+var float curr_low_rsi = na
+var int curr_low_bar = na
+
+// Variables pour stocker les pivots SHORTS
+var float prev_high_price = na
+var float prev_high_rsi = na
+var int prev_high_bar = na
+var float curr_high_price = na
+var float curr_high_rsi = na
+var int curr_high_bar = na
+
+// Mise à jour des pivots LONGS
+if not na(pivotlow_price)
+    prev_low_price := curr_low_price
+    prev_low_rsi := curr_low_rsi
+    prev_low_bar := curr_low_bar
+    curr_low_price := low[lookback]
+    curr_low_rsi := rsi[lookback]
+    curr_low_bar := bar_index - lookback
+
+// Mise à jour des pivots SHORTS
+if not na(pivothigh_price)
+    prev_high_price := curr_high_price
+    prev_high_rsi := curr_high_rsi
+    prev_high_bar := curr_high_bar
+    curr_high_price := high[lookback]
+    curr_high_rsi := rsi[lookback]
+    curr_high_bar := bar_index - lookback
+
+// ========== DÉTECTION DES DIVERGENCES ==========
+// DIVERGENCES HAUSSIÈRES (pour LONG)
+rsi_bull_div = false
+if not na(curr_low_price) and not na(prev_low_price)
+    if curr_low_price < prev_low_price and curr_low_rsi > prev_low_rsi and curr_low_bar - prev_low_bar > min_bars
+        rsi_bull_div := true
+
+macd_bull_div = hist < 0 and hist > hist[1] and hist[1] < hist[2]
+vol_bull_div = close < close[5] and obv > obv[5]
+
+// DIVERGENCES BAISSIÈRES (pour SHORT)
+rsi_bear_div = false
+if not na(curr_high_price) and not na(prev_high_price)
+    if curr_high_price > prev_high_price and curr_high_rsi < prev_high_rsi and curr_high_bar - prev_high_bar > min_bars
+        rsi_bear_div := true
+
+macd_bear_div = hist > 0 and hist < hist[1] and hist[1] > hist[2]
+vol_bear_div = close > close[5] and obv < obv[5]
+
+// ========== PATTERNS DE RETOURNEMENT ==========
+// Patterns HAUSSIERS (pour LONG)
+hammer = close > open and (high - math.max(open, close)) < (close - open) * 0.5 and (math.min(open, close) - low) > (close - open) * 1.5
+bullish_engulf = close > open and close > open[1] and open <= close[1] and volume > vol_sma
+morning_star = close[2] < open[2] and math.abs(close[1] - open[1]) < (high[1] - low[1]) * 0.3 and close > open and close > (close[2] + open[2]) / 2
+
+// Patterns BAISSIERS (pour SHORT)
+shooting_star = open > close and (low - math.min(open, close)) < (open - close) * 0.5 and (math.max(open, close) - high) > (open - close) * 1.5
+bearish_engulf = close < open and close < open[1] and open >= close[1] and volume > vol_sma
+evening_star = close[2] > open[2] and math.abs(close[1] - open[1]) < (high[1] - low[1]) * 0.3 and close < open and close < (close[2] + open[2]) / 2
+
+bullish_pattern = hammer or bullish_engulf or morning_star
+bearish_pattern = shooting_star or bearish_engulf or evening_star
+
+// ========== CALCUL DES SCORES ==========
+// === SCORE LONG (positif) ===
+// RSI Score LONG
+rsi_long_score = 0.0
+if rsi < 30
+    rsi_long_score := 35
+else if rsi < rsi_oversold
+    rsi_long_score := 25
+else if rsi < 45
+    rsi_long_score := 15
+else if rsi < 50
+    rsi_long_score := 5
+
+// Divergences Score LONG
+div_long_score = 0.0
+if rsi_bull_div
+    div_long_score += 15
+if macd_bull_div
+    div_long_score += 10
+if vol_bull_div
+    div_long_score += 10
+if rsi < 45 and rsi_1h < 50 and rsi_4h < 55
+    div_long_score += 5
+
+// Structure Score LONG
+struct_long_score = 0.0
+near_support = math.abs(low - sma200) / sma200 < 0.03 or math.abs(low - ema50) / ema50 < 0.02
+if near_support
+    struct_long_score += 10
+if bullish_pattern
+    struct_long_score += 10
+if vol_ratio > 1.5 and close > open
+    struct_long_score += 5
+
+// Momentum Score LONG
+momentum_long_score = 0.0
+if k < 20
+    momentum_long_score += 5
+if macd_line < 0 and hist > hist[1]
+    momentum_long_score += 5
+if low <= bb_lower
+    momentum_long_score += 5
+
+// === SCORE SHORT (négatif) ===
+// RSI Score SHORT
+rsi_short_score = 0.0
+if rsi > 70
+    rsi_short_score := 35
+else if rsi > rsi_overbought
+    rsi_short_score := 25
+else if rsi > 55
+    rsi_short_score := 15
+else if rsi > 50
+    rsi_short_score := 5
+
+// Divergences Score SHORT
+div_short_score = 0.0
+if rsi_bear_div
+    div_short_score += 15
+if macd_bear_div
+    div_short_score += 10
+if vol_bear_div
+    div_short_score += 10
+if rsi > 55 and rsi_1h > 50 and rsi_4h > 45
+    div_short_score += 5
+
+// Structure Score SHORT
+struct_short_score = 0.0
+near_resistance = math.abs(high - sma200) / sma200 < 0.03 or math.abs(high - ema50) / ema50 < 0.02
+if near_resistance
+    struct_short_score += 10
+if bearish_pattern
+    struct_short_score += 10
+if vol_ratio > 1.5 and close < open
+    struct_short_score += 5
+
+// Momentum Score SHORT
+momentum_short_score = 0.0
+if k > 80
+    momentum_short_score += 5
+if macd_line > 0 and hist < hist[1]
+    momentum_short_score += 5
+if high >= bb_upper
+    momentum_short_score += 5
+
+// ========== SCORE FINAL BIDIRECTIONNEL ==========
+long_score = rsi_long_score + div_long_score + struct_long_score + momentum_long_score
+short_score = rsi_short_score + div_short_score + struct_short_score + momentum_short_score
+
+// Déterminer la direction dominante
+is_long_bias = long_score > short_score
+final_score = is_long_bias ? long_score : -short_score
+
+// ========== CONDITIONS DE TRADING ==========
+// Filtre de tendance
+trend_filter_long = use_trend_filter ? close > sma200 : true
+trend_filter_short = use_trend_filter ? close < sma200 : true
+
+// Signaux LONG
+long_signal = long_score >= min_score_trade and is_long_bias and trend_filter_long
+strong_long = long_score >= min_score_strong and is_long_bias and trend_filter_long
+
+// Signaux SHORT
+short_signal = short_score >= min_score_trade and not is_long_bias and trend_filter_short
+strong_short = short_score >= min_score_strong and not is_long_bias and trend_filter_short
+
+// ========== VISUALISATION ==========
+// Lignes de divergence
+if show_divergences
+    if rsi_bull_div and not na(prev_low_bar)
+        line.new(prev_low_bar, prev_low_price, curr_low_bar, curr_low_price, 
+                 color=color.green, width=2, style=line.style_dashed)
+    
+    if rsi_bear_div and not na(prev_high_bar)
+        line.new(prev_high_bar, prev_high_price, curr_high_bar, curr_high_price, 
+                 color=color.red, width=2, style=line.style_dashed)
+
+// Signaux de trading
+if show_signals
+    // Signaux LONG
+    if strong_long
+        label.new(bar_index, low * 0.995, "🎯 STRONG\nLONG\n" + str.tostring(long_score, "#"),
+                  color=color.green, textcolor=color.white, style=label.style_label_up, size=size.normal)
+    else if long_signal
+        label.new(bar_index, low * 0.995, "📈 LONG\n" + str.tostring(long_score, "#"),
+                  color=color.new(color.green, 20), textcolor=color.white, style=label.style_label_up, size=size.small)
+    
+    // Signaux SHORT
+    if strong_short
+        label.new(bar_index, high * 1.005, "🎯 STRONG\nSHORT\n" + str.tostring(short_score, "#"),
+                  color=color.red, textcolor=color.white, style=label.style_label_down, size=size.normal)
+    else if short_signal
+        label.new(bar_index, high * 1.005, "📉 SHORT\n" + str.tostring(short_score, "#"),
+                  color=color.new(color.red, 20), textcolor=color.white, style=label.style_label_down, size=size.small)
+
+// Table des scores
+var table score_table = na
+if barstate.isfirst
+    selected_pos = table_position == "Top Left" ? position.top_left :
+                   table_position == "Top Right" ? position.top_right :
+                   table_position == "Bottom Right" ? position.bottom_right :
+                   table_position == "Bottom Left" ? position.bottom_left :
+                   table_position == "Middle Right" ? position.middle_right :
+                   table_position == "Middle Left" ? position.middle_left :
+                   position.top_right
+    score_table := table.new(selected_pos, 2, 8, bgcolor=color.new(color.black, 90))
+
+if show_score and not na(score_table)
+    direction_text = is_long_bias ? "📈 LONG" : "📉 SHORT"
+    direction_color = is_long_bias ? color.green : color.red
+    
+    table.cell(score_table, 0, 0, "DIRECTION", text_color=color.white, bgcolor=color.new(color.blue, 50))
+    table.cell(score_table, 1, 0, direction_text, text_color=direction_color, bgcolor=color.new(color.blue, 50))
+    
+    table.cell(score_table, 0, 1, "Score Total", text_color=color.gray)
+    table.cell(score_table, 1, 1, str.tostring(math.abs(final_score), "#.#"), 
+               text_color=math.abs(final_score) >= min_score_trade ? direction_color : color.white)
+    
+    table.cell(score_table, 0, 2, "Long Score", text_color=color.gray)
+    table.cell(score_table, 1, 2, str.tostring(long_score, "#"), 
+               text_color=long_score > short_score ? color.green : color.white)
+    
+    table.cell(score_table, 0, 3, "Short Score", text_color=color.gray)
+    table.cell(score_table, 1, 3, str.tostring(short_score, "#"), 
+               text_color=short_score > long_score ? color.red : color.white)
+    
+    table.cell(score_table, 0, 4, "RSI", text_color=color.gray)
+    rsi_color = rsi < rsi_oversold ? color.green : rsi > rsi_overbought ? color.red : color.white
+    table.cell(score_table, 1, 4, str.tostring(rsi, "#.#"), text_color=rsi_color)
+    
+    table.cell(score_table, 0, 5, "Volume Ratio", text_color=color.gray)
+    table.cell(score_table, 1, 5, str.tostring(vol_ratio, "#.#"), 
+               text_color=vol_ratio > 1.5 ? color.orange : color.white)
+    
+    table.cell(score_table, 0, 6, "Mode", text_color=color.gray)
+    mode_color = sensitivity_mode == "Aggressive" ? color.orange : sensitivity_mode == "Conservative" ? color.blue : color.green
+    table.cell(score_table, 1, 6, sensitivity_mode, text_color=mode_color)
+    
+    table.cell(score_table, 0, 7, "Signal", text_color=color.gray)
+    signal_text = strong_long ? "🎯 STRONG LONG" : long_signal ? "📈 LONG" : 
+                  strong_short ? "🎯 STRONG SHORT" : short_signal ? "📉 SHORT" : "⏳ Attendre"
+    signal_color = long_signal or strong_long ? color.green : short_signal or strong_short ? color.red : color.gray
+    table.cell(score_table, 1, 7, signal_text, text_color=signal_color)
+
+// ========== ALERTES ==========
+alertcondition(long_signal, title="Signal LONG", message="Signal LONG détecté!")
+alertcondition(strong_long, title="Signal STRONG LONG", message="Signal STRONG LONG détecté!")
+alertcondition(short_signal, title="Signal SHORT", message="Signal SHORT détecté!")
+alertcondition(strong_short, title="Signal STRONG SHORT", message="Signal STRONG SHORT détecté!")
+alertcondition(rsi_bull_div, title="Divergence Haussière", message="Divergence haussière RSI détectée!")
+alertcondition(rsi_bear_div, title="Divergence Baissière", message="Divergence baissière RSI détectée!")
+
+// ========== COLORATION DE FOND ==========
+bgcolor(
+    strong_long ? color.new(color.green, 90)
+  : long_signal ? color.new(color.green, 95)
+  : strong_short ? color.new(color.red, 90)
+  : short_signal ? color.new(color.red, 95)
+  : na
+)
+
+// Debug Info
+if show_debug and barstate.islast
+    debug_text = "RSI: " + str.tostring(rsi, "#.#") + "\n" +
+                 "Long Score: " + str.tostring(long_score, "#.#") + "\n" +
+                 "Short Score: " + str.tostring(short_score, "#.#") + "\n" +
+                 "Volume Ratio: " + str.tostring(vol_ratio, "#.#") + "\n" +
+                 "K Stoch: " + str.tostring(k, "#.#") + "\n" +
+                 "Direction: " + (is_long_bias ? "LONG" : "SHORT")
+    
+    label.new(bar_index + 5, high * 1.02, debug_text,
+              color=color.black, textcolor=color.white, style=label.style_label_down, size=size.small)
