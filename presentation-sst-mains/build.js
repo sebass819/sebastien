@@ -8,6 +8,18 @@ const sharp = require("sharp");
 const React = require("react");
 const RD = require("react-dom/server");
 const fa = require("react-icons/fa6");
+const C = require("./script-content");
+const NL = String.fromCharCode(10);
+
+// Notes du présentateur = texte complet de la prestation (source : script-content.js)
+function talk(n) {
+  const sc = C.slides.find((x) => x.n === n);
+  let t = "[" + sc.duree + "]" + NL + NL + sc.dites.join(NL + NL);
+  if (sc.demandez) t += NL + NL + "DEMANDEZ : " + sc.demandez;
+  if (sc.transition) t += NL + NL + "TRANSITION : " + sc.transition;
+  t += NL + NL + "À RETENIR : " + sc.retenir;
+  return t;
+}
 
 // ---------- Palette Dhilmar ----------
 const BG    = "141210"; // fond charbon chaud, presque noir
@@ -110,7 +122,7 @@ async function s1() {
     { text: "Dhilmar — Mine Éléonore", options: { color: TXT, bold: true, fontSize: 14 } },
   ], { x: 0.62, y: 5.9, w: 7.5, h: 0.9, fontFace: SANS, margin: 0, lineSpacingMultiple: 1.2 });
 
-  s.addNotes("Ouverture. Ton : sérieux mais bienveillant. Objectif : nos mains sont notre outil no 1 et elles sont exposées chaque jour. Vidéo d'ouverture Higgsfield (tunnel) — voir MEDIA.md pour le lien. Insérer le clip sur cette diapo (glisser-déposer le MP4).");
+  s.addNotes(talk(1) + NL + NL + "— Clip : vidéo d'ouverture Higgsfield (tunnel). Glisser le MP4 sur la diapo — voir MEDIA.md.");
 }
 
 // =====================================================================
@@ -136,7 +148,7 @@ async function s2() {
     s.addText(items[i][2], { x: x + 1.6, y: y + 1.02, w: cw - 1.9, h: 1.0, fontFace: SANS, fontSize: 14, color: MUT, margin: 0, lineSpacingMultiple: 1.05 });
   }
   footer(s, 2);
-  s.addNotes("Cadrer la rencontre. 4 objectifs. Insister : la sécurité des mains n'est pas une contrainte, c'est un réflexe qui protège toute une carrière.");
+  s.addNotes(talk(2));
 }
 
 // =====================================================================
@@ -177,7 +189,7 @@ async function s3() {
 
   footer(s, 3);
   s.addText("Source : OSHA / BLS.", { x: 8.35, y: H - 0.44, w: 4.3, h: 0.3, fontFace: SANS, fontSize: 8.5, italic: true, color: MUT2, align: "right", margin: 0 });
-  s.addNotes("Accroche émotionnelle. Faire lever la main : « qui utilise ses mains toute la journée ? ». 27 os par main. Aucune pièce de rechange. Source : anatomie humaine; OSHA/BLS pour le 1 M+.");
+  s.addNotes(talk(3));
 }
 
 // =====================================================================
@@ -203,7 +215,7 @@ async function s4() {
     s.addText(stats[i][2], { x: x + 0.4, y: y + ch - 0.42, w: cw - 0.8, h: 0.3, fontFace: SANS, fontSize: 10, italic: true, color: MUT2, margin: 0 });
   }
   footer(s, 4);
-  s.addNotes("Marteler les chiffres. Le 70 % (aucun gant) et le 71 % (évitable) sont le cœur du message : la très grande majorité de ces blessures sont évitables. Sources indiquées sur chaque carte : NSC, OSHA, CNESST, NIOSH.");
+  s.addNotes(talk(4));
 }
 
 // =====================================================================
@@ -240,7 +252,7 @@ async function s5() {
   ], { x: cx + 0.35, y: 5.05, w: cw - 0.7, h: 1.05, fontFace: SANS, fontSize: 13.5, margin: 0, lineSpacingMultiple: 1.1 });
   s.addText("Source : IRSST.", { x: cx, y: H - 0.44, w: cw, h: 0.3, fontFace: SANS, fontSize: 8.5, italic: true, color: MUT2, align: "right", margin: 0 });
   footer(s, 5);
-  s.addNotes("Les lacérations (53 %) et fractures (26 %) dominent. Le coût médian (13 700–16 200 $) parle aux gestionnaires ET rappelle l'impact humain. Vibrations : enjeu réel avec la foreuse et les outils — gants anti-vibration + rotation des tâches. Sources : MSHA/NIOSH, IRSST.");
+  s.addNotes(talk(5));
 }
 
 // =====================================================================
@@ -279,7 +291,7 @@ async function s6() {
     s.addText(t, { x: lx - 1.1, y: ly - 0.15, w: 2.2, h: 0.3, align: "center", fontFace: SANS, fontSize: 10, bold: true, color: GOLD, charSpacing: 1, margin: 0 });
   }
   footer(s, 6);
-  s.addNotes("Concept central de la présentation. La « ligne de tir » (line of fire) = trajectoire d'une énergie qui peut atteindre la main. Faire nommer aux participants des exemples concrets à Éléonore. Réflexe : « si ça bouge, où va ma main ? »");
+  s.addNotes(talk(6));
 }
 
 // =====================================================================
@@ -306,7 +318,7 @@ async function s7() {
     s.addText(items[i][2], { x: x + 0.35, y: y + 1.72, w: cw - 0.55, h: 0.5, fontFace: SANS, fontSize: 11.5, color: MUT, margin: 0, lineSpacingMultiple: 1.02 });
   }
   footer(s, 7);
-  s.addNotes("Six familles de causes. La plupart se recoupent avec la ligne de tir. Souligner cadenassage (énergie) et le choix du gant, qui reviennent plus loin.");
+  s.addNotes(talk(7));
 }
 
 // =====================================================================
@@ -338,7 +350,7 @@ async function videoSlide(n, eyebrow, title, caption, points, note, clip) {
   s.addShape("roundRect", { x: cx, y: 5.6, w: cw, h: 0.85, rectRadius: 0.08, fill: { color: CARD }, line: { color: LINE, width: 0.75 } });
   s.addText([{ text: "▶  ", options: { color: AMBER } }, { text: note, options: { color: MUT } }], { x: cx + 0.15, y: 5.6, w: cw - 0.3, h: 0.85, valign: "middle", fontFace: SANS, fontSize: 10.5, margin: 0, lineSpacingMultiple: 1.0 });
   footer(s, n);
-  s.addNotes("Diapo vidéo. " + caption + " Insérer le clip Higgsfield (" + clip + ") dans le cadre : Insertion > Vidéo > à partir d'un fichier, puis ajuster au cadre. Lien direct du MP4 dans MEDIA.md.");
+  s.addNotes(talk(n) + NL + NL + "— Clip : insérer la vidéo Higgsfield (" + clip + ") dans le cadre (Insertion > Vidéo > à partir d'un fichier). Lien MP4 dans MEDIA.md.");
   return s;
 }
 
@@ -378,7 +390,7 @@ async function s9() {
   s.addText("Le gant protège —", { x: 9.6, y: 5.6, w: 2.9, h: 0.4, fontFace: SERIF, fontSize: 16, bold: true, color: WHITE, margin: 0 });
   s.addText([{ text: "il ne remplace jamais ", options: { color: MUT } }, { text: "un protecteur ou un cadenassage.", options: { color: GOLD, bold: true } }], { x: 9.6, y: 5.98, w: 2.95, h: 0.7, fontFace: SANS, fontSize: 12, margin: 0, lineSpacingMultiple: 1.05 });
   footer(s, 9);
-  s.addNotes("Message clé de culture SST : le gant est en BAS de la hiérarchie. On élimine et on protège la source AVANT de compter sur l'ÉPI. Le gant reste essentiel comme dernière barrière.");
+  s.addNotes(talk(9));
 }
 
 // =====================================================================
@@ -410,7 +422,7 @@ async function s10() {
   s.addText("ARRÊTEZ.", { x: rx + 0.35, y: 4.95, w: rw - 0.7, h: 0.7, align: "center", fontFace: SERIF, fontSize: 34, bold: true, color: AMBER, margin: 0 });
   s.addText("Aucune tâche n'est urgente au point de risquer une main.", { x: rx + 0.4, y: 5.75, w: rw - 0.8, h: 0.55, align: "center", fontFace: SANS, fontSize: 11.5, italic: true, color: MUT, margin: 0, lineSpacingMultiple: 1.05 });
   footer(s, 10);
-  s.addNotes("Checklist des réflexes. Insister sur le cadenassage et le fait de ne jamais retirer un gant près d'une rotation (risque d'entraînement). La règle d'or : le droit et le devoir d'arrêter le travail.");
+  s.addNotes(talk(10));
 }
 
 // =====================================================================
@@ -444,7 +456,7 @@ async function s11() {
   s.addText("Un gant usé, troué ou mal ajusté ne protège plus. Inspectez-le avant chaque quart.", { x: nx + 0.25, y: 4.75, w: nw - 0.5, h: 1.4, align: "center", fontFace: SANS, fontSize: 11.5, italic: true, color: MUT, margin: 0, lineSpacingMultiple: 1.1 });
   s.addText("Source : ASP Mines — aide à la sélection des gants.", { x: 0.6, y: H - 0.44, w: 9, h: 0.3, fontFace: SANS, fontSize: 8.5, italic: true, color: MUT2, margin: 0 });
   footer(s, 11);
-  s.addNotes("Tableau de sélection. Rappeler qu'un gant anti-coupure NE protège PAS contre les pièces en rotation (risque d'entraînement). Adapter le gant à la tâche. Source : ASP Mines, normes EN 388 / EN 374 / EN ISO 10819 / EN 511.");
+  s.addNotes(talk(11));
 }
 
 // =====================================================================
@@ -477,7 +489,7 @@ async function s13() {
     { text: "  La déclaration n'est jamais une faute — c'est une force.", options: { color: MUT } },
   ], { x: 1.65, y: 5.3, w: 10.9, h: 1.0, valign: "middle", fontFace: SANS, fontSize: 14.5, margin: 0, lineSpacingMultiple: 1.05 });
   footer(s, 13);
-  s.addNotes("Processus en 4 étapes. Message anti-sous-déclaration : déclarer une égratignure ou un « presqu'accident » permet de corriger avant l'accident grave. Rappeler les numéros/infirmerie du site.");
+  s.addNotes(talk(13));
 }
 
 // =====================================================================
@@ -502,7 +514,7 @@ async function s14() {
     { text: "Questions & discussion.", options: { color: MUT, fontSize: 14, fontFace: SANS } },
   ], { x: 0.62, y: 6.05, w: 8, h: 0.5, margin: 0 });
   s.addText("Dhilmar — Mine Éléonore · Santé-Sécurité", { x: 0.62, y: H - 0.5, w: 8, h: 0.3, fontFace: SANS, fontSize: 10, color: MUT2, margin: 0 });
-  s.addNotes("Clôture. Rappeler l'engagement collectif et le droit d'arrêt de travail. Vidéo de clôture Higgsfield (équipe, lever de soleil) — voir MEDIA.md. Ouvrir la discussion.");
+  s.addNotes(talk(14) + NL + NL + "— Clip : vidéo de clôture Higgsfield (équipe, lever de soleil). Glisser sur la diapo — voir MEDIA.md.");
 }
 
 (async () => {
