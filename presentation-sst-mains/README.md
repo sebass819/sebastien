@@ -17,6 +17,18 @@ générées avec Higgsfield**.
 > la hiérarchie des moyens de prévention, les bons réflexes, le choix des gants, la
 > conduite en cas de blessure, et l'engagement de clôture.
 
+## Texte de la prestation (guide d'animation)
+
+Pour **livrer** la rencontre : le script complet, diapo par diapo (ce qu'on dit, les
+questions à poser au groupe, les messages clés et le minutage — total ≈ 15-20 min).
+
+| Fichier | Usage |
+|--------|-------|
+| **`Dhilmar-Prestation-Blessures-Mains-Script.docx`** | Guide d'animation Word, imprimable et éditable. |
+| **`SCRIPT-PRESTATION.md`** | Même texte en Markdown (lecture rapide / version). |
+
+Source unique : `script-content.js` → `node build-docx.js` régénère le Word et le Markdown.
+
 ## Vidéos
 
 4 clips (1080p, 5 s, sans audio — le présentateur commente par-dessus), générés avec
