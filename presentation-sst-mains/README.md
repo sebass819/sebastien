@@ -10,7 +10,7 @@ générées avec Higgsfield**.
 | Fichier | Usage |
 |--------|-------|
 | **`presentation.html`** | Deck principal — **les 4 vidéos Higgsfield jouent dans les diapos**. Ouvrez-le dans un navigateur (Chrome/Edge/Firefox), puis touche **F** pour le plein écran. Navigation : ◀ ▶ / Espace. |
-| **`Dhilmar-Prevention-Blessures-Mains.pptx`** | Version PowerPoint éditable / hors-ligne pour la salle de formation. Design vectoriel; les 2 diapos vidéo contiennent un cadre où **insérer le clip** (voir `MEDIA.md`). |
+| **`Dhilmar-Prevention-Blessures-Mains.pptx`** | Version PowerPoint pour la salle de formation, avec **les 4 vidéos Higgsfield intégrées** (diapos 1, 8, 12, 14) et le **script complet dans les notes du présentateur**. Cliquez une vidéo pour la lire. |
 
 > La présentation compte **14 diapositives** : titre, objectifs, l'importance des mains,
 > les chiffres, le portrait minier, la « ligne de tir », les causes, 2 séquences vidéo,
