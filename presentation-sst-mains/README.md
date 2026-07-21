@@ -36,6 +36,13 @@ ou remettre aux travailleurs : les chiffres clés, la « ligne de tir », les bo
 le choix du gant, la conduite en cas de blessure et la règle d'or. Régénérer :
 `node render-aide.js` (à partir de `aide-memoire.html`).
 
+## Affiche murale A3 (à poser)
+
+**`Dhilmar-Affiche-A3-Securite-Mains.pdf`** — affiche A3 (fond sombre, fort impact
+visuel) à afficher dans les aires de travail : la « ligne de tir », le réflexe clé, les
+chiffres et la règle d'or « ARRÊTEZ ». Régénérer : `node render-affiche.js`
+(à partir de `affiche-a3.html`).
+
 ## Vidéos
 
 4 clips (1080p, 5 s, sans audio — le présentateur commente par-dessus), générés avec
