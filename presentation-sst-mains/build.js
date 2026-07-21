@@ -5,6 +5,7 @@
  */
 const pptxgen = require("pptxgenjs");
 const sharp = require("sharp");
+const fs = require("fs");
 const React = require("react");
 const RD = require("react-dom/server");
 const fa = require("react-icons/fa6");
@@ -51,6 +52,32 @@ async function ic(comp, hex, px = 420) {
   const data = "image/png;base64," + png.toString("base64");
   _iconCache.set(key, data);
   return data;
+}
+
+// ---------- Vidéos intégrées (si les MP4 existent dans assets/video) ----------
+const VIDEO_MAP = { 1: "v1-tunnel", 8: "v2-pincement", 12: "v3-gants", 14: "v4-equipe" };
+function videoPath(n) {
+  const key = VIDEO_MAP[n];
+  const mp4 = key ? "assets/video/" + key + ".mp4" : null;
+  return mp4 && fs.existsSync(mp4) ? mp4 : null;
+}
+async function poster(label) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720">
+    <rect width="1280" height="720" fill="#141210"/>
+    <rect width="1280" height="720" fill="#1B1712" opacity="0.45"/>
+    <circle cx="640" cy="320" r="64" fill="none" stroke="#F2A93C" stroke-width="6"/>
+    <path d="M621 287 L686 320 L621 353 Z" fill="#F2A93C"/>
+    <text x="640" y="452" font-family="Georgia, serif" font-size="30" fill="#F7C775" text-anchor="middle" font-style="italic">${label}</text>
+    <text x="640" y="498" font-family="Arial, sans-serif" font-size="17" fill="#8A8375" text-anchor="middle" letter-spacing="3">CLIQUEZ POUR LIRE</text>
+  </svg>`;
+  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  return "image/png;base64," + png.toString("base64");
+}
+async function addVideo(s, n, x, y, w, h, label) {
+  const p = videoPath(n);
+  if (!p) return false;
+  s.addMedia({ type: "video", path: p, x, y, w, h, cover: await poster(label) });
+  return true;
 }
 
 const pres = new pptxgen();
@@ -103,11 +130,16 @@ async function s1() {
   const s = pres.addSlide(); bg(s);
   // panneau visuel à droite
   s.addShape("rect", { x: 8.7, y: 0, w: W - 8.7, h: H, fill: { color: BG2 }, line: { type: "none" } });
-  s.addShape("oval", { x: 9.15, y: 1.6, w: 4.3, h: 4.3, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-  s.addShape("oval", { x: 9.75, y: 2.2, w: 3.1, h: 3.1, fill: { color: CARD }, line: { color: AMBERD, width: 1.25 } });
-  s.addImage({ data: await ic(fa.FaRegHand, AMBER, 640), x: 10.4, y: 2.75, w: 1.8, h: 1.8 });
-  s.addShape("roundRect", { x: 9.55, y: 5.55, w: 3.5, h: 0.5, rectRadius: 0.08, fill: { color: CARD2 }, line: { color: AMBERD, width: 0.75 } });
-  s.addText([{ text: "▶  ", options: { color: AMBER } }, { text: "Vidéo d'ouverture Higgsfield", options: { color: TXT } }], { x: 9.55, y: 5.55, w: 3.5, h: 0.5, align: "center", valign: "middle", fontFace: SANS, fontSize: 11, margin: 0 });
+  if (await addVideo(s, 1, 8.95, 2.7, 4.15, 2.34, "Ouverture — Tunnel")) {
+    s.addText("▶ VIDÉO D'OUVERTURE", { x: 8.95, y: 2.2, w: 4.15, h: 0.35, align: "center", fontFace: SANS, fontSize: 11, bold: true, color: AMBER, charSpacing: 2, margin: 0 });
+    s.addText("Mine Éléonore", { x: 8.95, y: 5.18, w: 4.15, h: 0.3, align: "center", fontFace: SANS, fontSize: 11, italic: true, color: MUT, margin: 0 });
+  } else {
+    s.addShape("oval", { x: 9.15, y: 1.6, w: 4.3, h: 4.3, fill: { type: "none" }, line: { color: LINE, width: 1 } });
+    s.addShape("oval", { x: 9.75, y: 2.2, w: 3.1, h: 3.1, fill: { color: CARD }, line: { color: AMBERD, width: 1.25 } });
+    s.addImage({ data: await ic(fa.FaRegHand, AMBER, 640), x: 10.4, y: 2.75, w: 1.8, h: 1.8 });
+    s.addShape("roundRect", { x: 9.55, y: 5.55, w: 3.5, h: 0.5, rectRadius: 0.08, fill: { color: CARD2 }, line: { color: AMBERD, width: 0.75 } });
+    s.addText([{ text: "▶  ", options: { color: AMBER } }, { text: "Vidéo d'ouverture Higgsfield", options: { color: TXT } }], { x: 9.55, y: 5.55, w: 3.5, h: 0.5, align: "center", valign: "middle", fontFace: SANS, fontSize: 11, margin: 0 });
+  }
 
   logo(s, 0.6, 0.5, 1.15);
   s.addText([{ text: "MINE ", options: { color: MUT2 } }, { text: "ÉLÉONORE", options: { color: AMBER } }], { x: 0.6, y: 1.05, w: 5, h: 0.3, fontFace: SANS, fontSize: 11, bold: true, charSpacing: 3, margin: 0 });
@@ -330,9 +362,12 @@ async function videoSlide(n, eyebrow, title, caption, points, note, clip) {
   // cadre vidéo
   const fx = 0.6, fy = 2.0, fw = 8.0, fh = 4.5;
   s.addShape("roundRect", { x: fx, y: fy, w: fw, h: fh, rectRadius: 0.12, fill: { color: "0C0A08" }, line: { color: AMBERD, width: 1.25 } });
-  // bouton play
-  s.addShape("oval", { x: fx + fw / 2 - 0.75, y: fy + fh / 2 - 0.75, w: 1.5, h: 1.5, fill: { type: "none" }, line: { color: AMBER, width: 2.5 } });
-  s.addShape("triangle", { x: fx + fw / 2 - 0.2, y: fy + fh / 2 - 0.34, w: 0.6, h: 0.68, rotate: 90, fill: { color: AMBER }, line: { type: "none" } });
+  // vidéo intégrée si présente, sinon bouton play
+  const hasVid = await addVideo(s, n, fx + 0.05, fy + 0.05, fw - 0.1, fh - 0.1, title);
+  if (!hasVid) {
+    s.addShape("oval", { x: fx + fw / 2 - 0.75, y: fy + fh / 2 - 0.75, w: 1.5, h: 1.5, fill: { type: "none" }, line: { color: AMBER, width: 2.5 } });
+    s.addShape("triangle", { x: fx + fw / 2 - 0.2, y: fy + fh / 2 - 0.34, w: 0.6, h: 0.68, rotate: 90, fill: { color: AMBER }, line: { type: "none" } });
+  }
   // pastille VIDÉO
   s.addShape("roundRect", { x: fx + 0.3, y: fy + 0.3, w: 1.5, h: 0.44, rectRadius: 0.08, fill: { color: AMBER }, line: { type: "none" } });
   s.addText("● VIDÉO", { x: fx + 0.3, y: fy + 0.3, w: 1.5, h: 0.44, align: "center", valign: "middle", fontFace: SANS, fontSize: 11, bold: true, color: BG, margin: 0 });
@@ -498,11 +533,16 @@ async function s13() {
 async function s14() {
   const s = pres.addSlide(); bg(s);
   s.addShape("rect", { x: 8.9, y: 0, w: W - 8.9, h: H, fill: { color: BG2 }, line: { type: "none" } });
-  s.addShape("oval", { x: 9.3, y: 1.9, w: 3.9, h: 3.9, fill: { type: "none" }, line: { color: LINE, width: 1 } });
-  s.addShape("oval", { x: 9.85, y: 2.45, w: 2.8, h: 2.8, fill: { color: CARD }, line: { color: AMBERD, width: 1.25 } });
-  await iconChip(s, 10.6, 3.2, 1.3, fa.FaHandshake, AMBER, AMBER, CARD, 0.6);
-  s.addShape("roundRect", { x: 9.35, y: 5.95, w: 3.6, h: 0.5, rectRadius: 0.08, fill: { color: CARD2 }, line: { color: AMBERD, width: 0.75 } });
-  s.addText([{ text: "▶  ", options: { color: AMBER } }, { text: "Vidéo de clôture Higgsfield", options: { color: TXT } }], { x: 9.35, y: 5.95, w: 3.6, h: 0.5, align: "center", valign: "middle", fontFace: SANS, fontSize: 11, margin: 0 });
+  if (await addVideo(s, 14, 9.0, 2.5, 3.95, 2.22, "Clôture — Équipe")) {
+    s.addText("▶ VIDÉO DE CLÔTURE", { x: 8.95, y: 2.0, w: 4.05, h: 0.35, align: "center", fontFace: SANS, fontSize: 11, bold: true, color: AMBER, charSpacing: 2, margin: 0 });
+    s.addText("Toutes nos mains, à chaque quart.", { x: 8.95, y: 5.0, w: 4.05, h: 0.4, align: "center", fontFace: SERIF, fontSize: 12, italic: true, color: MUT, margin: 0 });
+  } else {
+    s.addShape("oval", { x: 9.3, y: 1.9, w: 3.9, h: 3.9, fill: { type: "none" }, line: { color: LINE, width: 1 } });
+    s.addShape("oval", { x: 9.85, y: 2.45, w: 2.8, h: 2.8, fill: { color: CARD }, line: { color: AMBERD, width: 1.25 } });
+    await iconChip(s, 10.6, 3.2, 1.3, fa.FaHandshake, AMBER, AMBER, CARD, 0.6);
+    s.addShape("roundRect", { x: 9.35, y: 5.95, w: 3.6, h: 0.5, rectRadius: 0.08, fill: { color: CARD2 }, line: { color: AMBERD, width: 0.75 } });
+    s.addText([{ text: "▶  ", options: { color: AMBER } }, { text: "Vidéo de clôture Higgsfield", options: { color: TXT } }], { x: 9.35, y: 5.95, w: 3.6, h: 0.5, align: "center", valign: "middle", fontFace: SANS, fontSize: 11, margin: 0 });
+  }
 
   logo(s, 0.6, 0.5, 1.1);
   s.addText("NOTRE ENGAGEMENT", { x: 0.62, y: 2.15, w: 7.9, h: 0.35, fontFace: SANS, fontSize: 13, bold: true, color: AMBER, charSpacing: 3, margin: 0 });
