@@ -1,5 +1,4 @@
 node_modules/
 qa/
-*.pdf
 __min.*
 .DS_Store

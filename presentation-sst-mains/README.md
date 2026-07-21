@@ -29,6 +29,13 @@ questions à poser au groupe, les messages clés et le minutage — total ≈ 15
 
 Source unique : `script-content.js` → `node build-docx.js` régénère le Word et le Markdown.
 
+## Aide-mémoire une page (à distribuer)
+
+**`Dhilmar-Aide-Memoire-Blessures-Mains.pdf`** — feuillet recto A4 à imprimer, afficher
+ou remettre aux travailleurs : les chiffres clés, la « ligne de tir », les bons réflexes,
+le choix du gant, la conduite en cas de blessure et la règle d'or. Régénérer :
+`node render-aide.js` (à partir de `aide-memoire.html`).
+
 ## Vidéos
 
 4 clips (1080p, 5 s, sans audio — le présentateur commente par-dessus), générés avec
