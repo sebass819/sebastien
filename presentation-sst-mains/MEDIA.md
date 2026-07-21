@@ -11,7 +11,7 @@ Base : `https://d8j0ntlcm91z4.cloudfront.net/user_32OPpzD5zkswcfWaZNfKYmSRTp0/`
 | Clip | Diapo | Rôle | Fichier |
 |------|-------|------|---------|
 | V1 — Tunnel / mineur | 1 (titre) | Ouverture, immersion fond de mine | `hf_20260721_063257_3ececcad-bc94-47e5-a236-2c165ca1bb93.mp4` |
-| V2 — Ligne de feu (pincement) | 8 | Le danger en un instant | `hf_20260721_063302_6454c003-c382-4518-8de7-b462e2d94aa8.mp4` |
+| V2 — Ligne de tir (pincement) | 8 | Le danger en un instant | `hf_20260721_063302_6454c003-c382-4518-8de7-b462e2d94aa8.mp4` |
 | V3 — Bonne méthode (gants) | 12 | Mains protégées et dégagées | `hf_20260721_063305_428666b2-1270-469b-92d2-085b524441a0.mp4` |
 | V4 — Équipe / lever de soleil | 14 (clôture) | Engagement collectif | `hf_20260721_063309_22564b74-ee3c-4dc9-95f9-aa15e5b46f1c.mp4` |
 

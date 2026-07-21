@@ -13,7 +13,7 @@ générées avec Higgsfield**.
 | **`Dhilmar-Prevention-Blessures-Mains.pptx`** | Version PowerPoint éditable / hors-ligne pour la salle de formation. Design vectoriel; les 2 diapos vidéo contiennent un cadre où **insérer le clip** (voir `MEDIA.md`). |
 
 > La présentation compte **14 diapositives** : titre, objectifs, l'importance des mains,
-> les chiffres, le portrait minier, la « ligne de feu », les causes, 2 séquences vidéo,
+> les chiffres, le portrait minier, la « ligne de tir », les causes, 2 séquences vidéo,
 > la hiérarchie des moyens de prévention, les bons réflexes, le choix des gants, la
 > conduite en cas de blessure, et l'engagement de clôture.
 

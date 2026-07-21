@@ -121,7 +121,7 @@ async function s2() {
   head(s, "Pourquoi cette rencontre", "Objectifs de la rencontre");
   const items = [
     [fa.FaEye, "Comprendre", "Pourquoi nos mains sont autant exposées dans nos opérations."],
-    [fa.FaCrosshairs, "Reconnaître", "Repérer la « ligne de feu » et les points de pincement."],
+    [fa.FaCrosshairs, "Reconnaître", "Repérer la « ligne de tir » et les points de pincement."],
     [fa.FaMitten, "Choisir", "Sélectionner et porter le bon gant pour chaque tâche."],
     [fa.FaKitMedical, "Réagir", "Réagir vite et déclarer — même une simple égratignure."],
   ];
@@ -244,11 +244,11 @@ async function s5() {
 }
 
 // =====================================================================
-// SLIDE 6 — La ligne de feu (concept + cible)
+// SLIDE 6 — La ligne de tir (concept + cible)
 // =====================================================================
 async function s6() {
   const s = pres.addSlide(); bg(s);
-  head(s, "Le concept clé", "La « ligne de feu »");
+  head(s, "Le concept clé", "La « ligne de tir »");
   s.addText([
     { text: "Toute zone où votre main peut être ", options: { color: TXT } },
     { text: "happée, écrasée, coupée ou pincée", options: { color: AMBER, bold: true } },
@@ -279,7 +279,7 @@ async function s6() {
     s.addText(t, { x: lx - 1.1, y: ly - 0.15, w: 2.2, h: 0.3, align: "center", fontFace: SANS, fontSize: 10, bold: true, color: GOLD, charSpacing: 1, margin: 0 });
   }
   footer(s, 6);
-  s.addNotes("Concept central de la présentation. La « ligne de feu » (line of fire) = trajectoire d'une énergie qui peut atteindre la main. Faire nommer aux participants des exemples concrets à Éléonore. Réflexe : « si ça bouge, où va ma main ? »");
+  s.addNotes("Concept central de la présentation. La « ligne de tir » (line of fire) = trajectoire d'une énergie qui peut atteindre la main. Faire nommer aux participants des exemples concrets à Éléonore. Réflexe : « si ça bouge, où va ma main ? »");
 }
 
 // =====================================================================
@@ -306,7 +306,7 @@ async function s7() {
     s.addText(items[i][2], { x: x + 0.35, y: y + 1.72, w: cw - 0.55, h: 0.5, fontFace: SANS, fontSize: 11.5, color: MUT, margin: 0, lineSpacingMultiple: 1.02 });
   }
   footer(s, 7);
-  s.addNotes("Six familles de causes. La plupart se recoupent avec la ligne de feu. Souligner cadenassage (énergie) et le choix du gant, qui reviennent plus loin.");
+  s.addNotes("Six familles de causes. La plupart se recoupent avec la ligne de tir. Souligner cadenassage (énergie) et le choix du gant, qui reviennent plus loin.");
 }
 
 // =====================================================================
@@ -388,7 +388,7 @@ async function s10() {
   const s = pres.addSlide(); bg(s);
   head(s, "Au quotidien", "Les bons réflexes");
   const checks = [
-    "Gardez vos mains hors de la ligne de feu.",
+    "Gardez vos mains hors de la ligne de tir.",
     "Cadenassez et déchargez l'énergie avant d'intervenir.",
     "Utilisez poussoirs, crochets et outils — jamais les doigts.",
     "Inspectez vos gants; remplacez-les dès qu'ils sont usés.",
@@ -513,16 +513,16 @@ async function s14() {
   await s5();
   await s6();
   await s7();
-  await videoSlide(8, "Vidéo — la ligne de feu", "Le danger en un instant",
-    "Une main dans la ligne de feu : ça va vite.",
+  await videoSlide(8, "Vidéo — la ligne de tir", "Le danger en un instant",
+    "Une main dans la ligne de tir : ça va vite.",
     ["Où sont les mains par rapport aux pièces mobiles ?", "Le point de pincement était-il visible ?", "Qu'est-ce qui aurait éliminé le risque ?"],
-    "Clip fourni : insérez-le dans le cadre.", "danger / ligne de feu");
+    "Clip fourni : insérez-le dans le cadre.", "danger / ligne de tir");
   await s9();
   await s10();
   await s11();
   await videoSlide(12, "Vidéo — la bonne méthode", "La bonne méthode",
     "Mains protégées, contrôlées, dégagées.",
-    ["Gant adapté à la tâche et en bon état.", "Prise ferme, mouvement contrôlé.", "Mains toujours hors de la ligne de feu."],
+    ["Gant adapté à la tâche et en bon état.", "Prise ferme, mouvement contrôlé.", "Mains toujours hors de la ligne de tir."],
     "Clip fourni : insérez-le dans le cadre.", "bonne méthode / gants");
   await s13();
   await s14();
