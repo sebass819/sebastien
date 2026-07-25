@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Aide-mémoire — Prévention des blessures aux mains</title>
+<style>
+  @page { size: A4; margin: 0; }
+  :root{
+    --ink:#221E18; --mut:#6E675B; --amber:#D98A24; --amber2:#A9660F; --gold:#E8A33D;
+    --dark:#141210; --fill:#FBF3E4; --line:#E7DCC5; --ok:#2F7D32;
+    --serif:Georgia,"Times New Roman",serif; --sans:"Segoe UI",Arial,Helvetica,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:210mm;height:297mm;display:flex;flex-direction:column;overflow:hidden}
+  /* header */
+  .head{background:var(--dark);color:#fff;padding:11mm 12mm 8mm;display:flex;justify-content:space-between;align-items:flex-start}
+  .logo{display:flex;align-items:center;gap:9px}
+  .logo .mark{width:26px;height:26px;border-radius:6px;background:var(--amber);position:relative}
+  .logo .mark::before{content:"";position:absolute;left:9px;top:7px;border-style:solid;border-width:6px 0 6px 9px;border-color:transparent transparent transparent var(--dark)}
+  .logo .word{font-family:var(--serif);font-weight:700;font-size:17px}
+  .head .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.26em;color:var(--gold)}
+  .head h1{font-family:var(--serif);font-size:26px;font-weight:700;margin-top:3px;line-height:1.05}
+  .head .site{font-size:10px;font-weight:700;letter-spacing:.18em;color:#9c9488;text-align:right;padding-top:4px}
+  .head .site b{color:var(--gold)}
+  /* stat strip */
+  .strip{background:var(--fill);border-bottom:1px solid var(--line);padding:5mm 12mm;display:flex;gap:8mm;justify-content:space-between}
+  .strip .s{display:flex;flex-direction:column}
+  .strip .n{font-family:var(--serif);font-weight:700;color:var(--amber2);font-size:23px;line-height:1}
+  .strip .t{font-size:10.5px;color:var(--mut);margin-top:2px}
+  /* body */
+  .body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .col{padding:8mm 12mm}
+  .col.r{border-left:1px solid var(--line);padding-left:9mm}
+  .sec{margin-bottom:7mm}
+  .sec h2{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--amber2);text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:3mm}
+  .sec h2::before{content:"";width:11px;height:11px;background:var(--amber);border-radius:2px;transform:rotate(45deg);flex:none}
+  p{font-size:12px;line-height:1.45}
+  .q{background:var(--fill);border-left:4px solid var(--amber);border-radius:5px;padding:7px 11px;margin-top:6px;
+    font-family:var(--serif);font-style:italic;font-weight:700;color:var(--amber2);font-size:14px}
+  ul.reflex{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:1mm}
+  ul.reflex li{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.3}
+  .ck{width:17px;height:17px;border-radius:50%;background:var(--ok);color:#fff;font-size:11px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
+  table{width:100%;border-collapse:collapse;font-size:11px;margin-top:1mm}
+  td{padding:4px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.k{color:var(--ink);font-weight:600;width:44%}
+  td.v{color:var(--mut)}
+  td .norm{color:var(--amber2);font-weight:600}
+  .tip{font-size:11px;font-style:italic;color:var(--mut);margin-top:5px}
+  .steps{display:flex;gap:6px;margin-top:2mm}
+  .step{flex:1;background:var(--fill);border:1px solid var(--line);border-radius:6px;padding:6px 6px 7px;text-align:center}
+  .step .no{font-family:var(--serif);font-weight:700;color:var(--amber);font-size:17px;line-height:1}
+  .step .lb{font-size:9.5px;font-weight:700;color:var(--ink);margin-top:2px;line-height:1.15}
+  .step .ds{font-size:8px;color:var(--mut);margin-top:1px;line-height:1.15}
+  /* golden rule */
+  .rule{margin:0 12mm 5mm;background:var(--dark);color:#fff;border-radius:8px;padding:6mm 8mm;display:flex;align-items:center;gap:6mm}
+  .rule .badge{font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--gold);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap}
+  .rule .big{font-family:var(--serif);font-size:15px;line-height:1.3}
+  .rule .big b{color:var(--gold);font-size:22px}
+  /* footer */
+  .foot{background:var(--dark);color:#fff;padding:5mm 12mm;display:flex;justify-content:space-between;align-items:center}
+  .foot .tag{font-family:var(--serif);font-style:italic;font-weight:700;font-size:14px;color:#fff}
+  .foot .org{font-size:9.5px;color:#9c9488;text-align:right}
+  .foot .org b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <div>
+      <div class="logo"><span class="mark"></span><span class="word">Dhilmar</span></div>
+      <div class="eyebrow" style="margin-top:10px">AIDE-MÉMOIRE · SANTÉ-SÉCURITÉ</div>
+      <h1>Prévention des blessures aux mains</h1>
+    </div>
+    <div class="site">MINE<br><b>ÉLÉONORE</b></div>
+  </div>
+
+  <div class="strip">
+    <div class="s"><span class="n">70 %</span><span class="t">des blessures surviennent<br>sans aucun gant</span></div>
+    <div class="s"><span class="n">71 %</span><span class="t">sont évitables avec<br>le bon ÉPI</span></div>
+    <div class="s"><span class="n">15 %</span><span class="t">des lésions au Québec<br>touchent les mains</span></div>
+    <div class="s"><span class="n">27</span><span class="t">os par main —<br>aucune pièce de rechange</span></div>
+  </div>
+
+  <div class="body">
+    <div class="col">
+      <div class="sec">
+        <h2>La ligne de tir</h2>
+        <p>Toute zone où votre main peut être <b>happée, écrasée, coupée ou pincée</b> par une énergie — mécanique, hydraulique, électrique ou gravitaire. Avant chaque geste :</p>
+        <div class="q">« Si cette pièce bouge, où va ma main ? »</div>
+      </div>
+      <div class="sec">
+        <h2>Les bons réflexes</h2>
+        <ul class="reflex">
+          <li><span class="ck">✓</span><span>Gardez vos mains <b>hors de la ligne de tir</b>.</span></li>
+          <li><span class="ck">✓</span><span><b>Cadenassez</b> et déchargez l'énergie avant d'intervenir.</span></li>
+          <li><span class="ck">✓</span><span>Poussoirs, crochets, outils — <b>jamais les doigts</b>.</span></li>
+          <li><span class="ck">✓</span><span>Inspectez vos gants; changez-les dès qu'ils sont usés.</span></li>
+          <li><span class="ck">✓</span><span><b>Jamais</b> retirer un gant près d'une pièce en rotation.</span></li>
+          <li><span class="ck">✓</span><span>Signalez et neutralisez les points de pincement.</span></li>
+        </ul>
+      </div>
+      <div class="sec">
+        <h2>Les causes fréquentes</h2>
+        <p>Points de pincement &middot; pièces en rotation &middot; outils &amp; lames &middot; manutention &amp; arêtes vives &middot; énergie non cadenassée &middot; vibrations &middot; gant inadéquat.</p>
+      </div>
+    </div>
+
+    <div class="col r">
+      <div class="sec">
+        <h2>Le bon gant</h2>
+        <table>
+          <tr><td class="k">Coupure, arêtes vives</td><td class="v">anti-coupure <span class="norm">EN 388 C–F</span></td></tr>
+          <tr><td class="k">Abrasion, travaux lourds</td><td class="v">cuir / renforcé <span class="norm">EN 388</span></td></tr>
+          <tr><td class="k">Huiles, chimiques</td><td class="v">nitrile étanche <span class="norm">EN 374</span></td></tr>
+          <tr><td class="k">Outils vibrants</td><td class="v">anti-vibration <span class="norm">EN ISO 10819</span></td></tr>
+          <tr><td class="k">Froid, hiver</td><td class="v">isolé / doublé <span class="norm">EN 511</span></td></tr>
+          <tr><td class="k">Travaux électriques</td><td class="v">diélectrique <span class="norm">EN 60903</span></td></tr>
+        </table>
+        <p class="tip">Le bon gant = le <b>risque</b> + la <b>tâche</b>. Un gant anti-coupure ne protège pas d'une pièce en rotation.</p>
+      </div>
+      <div class="sec">
+        <h2>En cas de blessure</h2>
+        <div class="steps">
+          <div class="step"><div class="no">1</div><div class="lb">Arrêter</div><div class="ds">sécuriser la zone</div></div>
+          <div class="step"><div class="no">2</div><div class="lb">Soigner</div><div class="ds">secouriste / infirmerie</div></div>
+          <div class="step"><div class="no">3</div><div class="lb">Signaler</div><div class="ds">au superviseur</div></div>
+          <div class="step"><div class="no">4</div><div class="lb">Déclarer</div><div class="ds">même une égratignure</div></div>
+        </div>
+      </div>
+      <div class="sec">
+        <h2>L'enjeu des vibrations</h2>
+        <p><b>63 %</b> d'engourdissements chez les travailleurs exposés aux outils vibrants (foreuse, marteau). Portez un gant <b>anti-vibration</b> et alternez les tâches.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="rule">
+    <div class="badge">RÈGLE D'OR</div>
+    <div class="big">Si vous ne voyez pas vos mains en sécurité, <b>ARRÊTEZ.</b><br>Aucune tâche n'est urgente au point de risquer une main.</div>
+  </div>
+
+  <div class="foot">
+    <div class="tag">« Chez Dhilmar, on rentre à la maison avec toutes nos mains. »</div>
+    <div class="org">Dhilmar — <b>Mine Éléonore</b><br>Santé-Sécurité</div>
+  </div>
+</div>
+</body>
+</html>
