@@ -1,4 +1,35 @@
 <div id="app">
+  <!-- ÉCRAN D'OUVERTURE -->
+  <div class="login" id="loginScreen">
+    <button class="theme-btn login-theme" id="themeBtnLogin" type="button" aria-label="Changer le thème">
+      <span class="theme-ico" aria-hidden="true">◐</span><span class="theme-lbl">Thème</span>
+    </button>
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="login-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="42" height="42"><path d="M16 3l11 5v7c0 7-4.7 11.3-11 14-6.3-2.7-11-7-11-14V8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div>
+          <h1 class="login-name">Console SST minière</h1>
+          <p class="login-tag">Planification du quart · Cartes de travail AMQ · Conformité CNESST</p>
+        </div>
+      </div>
+      <div class="login-fields">
+        <label class="field"><span>Site minier</span><select id="loginSite"><option>Mine fictive — secteur souterrain</option></select></label>
+        <div class="login-row">
+          <label class="field"><span>Quart</span><select id="loginShift"><option>Jour · 06:00–18:00</option><option>Nuit · 18:00–06:00</option></select></label>
+          <label class="field"><span>Superviseur</span><input id="loginUser" type="text" value="S. Paquin"></label>
+        </div>
+      </div>
+      <button class="btn btn-print login-go" id="loginGo" type="button">Ouvrir la console →</button>
+      <div class="login-foot">
+        <span class="chip chip-demo">prototype</span>
+        <span class="login-note">Données fictives — maquette de démonstration</span>
+      </div>
+    </div>
+    <div class="login-hz" aria-hidden="true"></div>
+  </div>
+
   <header class="appbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">
@@ -564,6 +595,29 @@
   .mx-alarm{margin-top:14px;display:flex;gap:11px;align-items:flex-start;background:var(--crit-bg);border:1px solid var(--crit-line);border-radius:var(--radius-s);padding:12px 14px;font-size:12.5px;line-height:1.5}
   .mx-alarm b{color:var(--crit)}
 
+  /* Écran d'ouverture (login) */
+  .login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;
+    background:radial-gradient(1100px 560px at 50% -12%, var(--accent-soft), transparent 62%), var(--bg)}
+  .login.hide{opacity:0;visibility:hidden;transition:opacity .5s ease, visibility 0s .5s}
+  .login-theme{position:absolute;top:18px;right:18px;margin:0;z-index:3}
+  .login-card{position:relative;z-index:2;width:min(450px,100%);background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:30px 30px 22px;animation:cardIn .5s cubic-bezier(.2,.7,.3,1)}
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .login-brand{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+  .login-mark{color:var(--accent);display:flex;flex:0 0 auto}
+  .login-name{font-size:22px;letter-spacing:-.02em}
+  .login-tag{margin:4px 0 0;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .login-fields{display:flex;flex-direction:column;gap:13px;margin-bottom:20px}
+  .login-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .login-go{width:100%;justify-content:center;font-size:14px;padding:12px}
+  .login-foot{display:flex;align-items:center;gap:10px;margin-top:15px;justify-content:center}
+  .login-note{font-size:11px;color:var(--faint)}
+  .login-hz{position:absolute;left:0;right:0;bottom:0;height:8px;z-index:1;opacity:.9;background:repeating-linear-gradient(45deg,var(--hz-a) 0 16px,var(--hz-b) 16px 32px)}
+  @media (max-width:420px){ .login-row{grid-template-columns:1fr} }
+
+  /* Transition douce entre les vues */
+  @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .view-anim{animation:viewIn .28s ease}
+
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -927,6 +981,9 @@
     $("#view-ref").hidden=(which!=="ref");
     if(which==="dash") renderDash();
     if(which==="matrix") renderMatrix();
+    var vmap={dash:"view-dash",plan:"view-plan",carte:"view-carte",matrix:"view-matrix",ref:"view-ref"};
+    var vel=document.getElementById(vmap[which]);
+    if(vel){ vel.classList.remove("view-anim"); void vel.offsetWidth; vel.classList.add("view-anim"); }
   }
   Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(tab){
     tab.addEventListener("click",function(){ showView(tab.getAttribute("data-tab")); });
@@ -1125,13 +1182,20 @@
     toast("⏱️","Temps envoyé à la paie : "+h+" h · "+$("#actcode").value);
   });
 
-  // Theme toggle
-  $("#themeBtn").addEventListener("click",function(){
+  // Theme toggle (partagé par l'écran d'ouverture et l'appli)
+  function toggleTheme(){
     var root=document.documentElement;
     var cur=root.getAttribute("data-theme");
     if(!cur){ var dark=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches; cur=dark?"dark":"light"; }
     root.setAttribute("data-theme", cur==="dark"?"light":"dark");
-  });
+  }
+  $("#themeBtn").addEventListener("click",toggleTheme);
+  var themeBtnLogin=$("#themeBtnLogin"); if(themeBtnLogin) themeBtnLogin.addEventListener("click",toggleTheme);
+
+  // Écran d'ouverture → entrée dans la console
+  function enterConsole(){ var l=$("#loginScreen"); if(!l)return; l.classList.add("hide"); setTimeout(function(){ l.style.display="none"; },520); }
+  var loginGo=$("#loginGo"); if(loginGo) loginGo.addEventListener("click",enterConsole);
+  var loginScreen=$("#loginScreen"); if(loginScreen) loginScreen.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); enterConsole(); } });
 
   // Selectors
   $("#taskSel").addEventListener("change",function(e){state.task=e.target.value;state.resolved={};state.docs=[];state.signed={w:false,s:false};state.authorized=false;render();});
