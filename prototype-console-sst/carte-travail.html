@@ -111,6 +111,7 @@
           <div><dt>Date</dt><dd id="mDate">31 juill. 2026</dd></div>
           <div><dt>Quart</dt><dd>Jour · <span class="mono">06:00–18:00</span></dd></div>
           <div><dt>Superviseur</dt><dd>S. Paquin</dd></div>
+          <div><dt>Poste</dt><dd id="mPoste">—</dd></div>
           <div><dt>Secteur</dt><dd class="mono" id="mSector">4-B</dd></div>
         </dl>
       </div>
@@ -640,6 +641,10 @@
   .lieu-b{min-width:0}
   .lieu-lieu{font-size:13px;font-weight:700}
   .lieu-tache{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .lieu-sit{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .lieu-sit b{color:var(--text);font-weight:700}
+  .ld-v.cond{color:var(--warn);font-weight:700}
+  .lieu+.lieu{border-top:1px solid var(--border)}
   .lieu-detail{display:flex;gap:10px;align-items:baseline;padding-top:8px;padding-bottom:8px;border-top:1px solid var(--border);flex-wrap:wrap}
   .ld-k{flex:0 0 130px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700}
   .ld-v{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:12.5px;color:var(--muted)}
@@ -700,7 +705,8 @@
     "M-1298":{name:"Steeve Côté", role:"Boutefeu / dynamiteur", form:["BOUTEFEU","CONTROLE_TERRAIN","CADENASSAGE","ESPACES_CLOS"], proc:["PR-SAU-09","PR-CT-02"]},
     "M-1377":{name:"Karine Lavoie", role:"Mécanicienne d'entretien", form:["CADENASSAGE","HAUTEUR","ESPACES_CLOS"], proc:["PR-EC-07"]},
     "M-1405":{name:"Patrick Roy", role:"Opérateur camion / scoop", form:["CAMION","CHARGEUSE","CADENASSAGE"], proc:["PR-CA-02"]},
-    "M-1421":{name:"Mélanie Gauthier", role:"Chef d'équipe (superviseure)", form:["CONTROLE_TERRAIN","CADENASSAGE","PREMIERS_SOINS","ESPACES_CLOS"], proc:["PR-CT-02","PR-EC-07"]}
+    "M-1421":{name:"Mélanie Gauthier", role:"Chef d'équipe (superviseure)", form:["CONTROLE_TERRAIN","CADENASSAGE","PREMIERS_SOINS","ESPACES_CLOS"], proc:["PR-CT-02","PR-EC-07"]},
+    "M-1466":{name:"Sylvie Gauthier", role:"Boutefeu — chargement explosif", form:["BOUTEFEU","CONTROLE_TERRAIN","CADENASSAGE","ESPACES_CLOS"], proc:["PR-SAU-09","PR-CT-02"]}
   };
   // Certifications par compétence détenue : st = valid | exp (expire bientôt) | review (à réviser). Cohérent avec WORKERS.form.
   var CERT={
@@ -713,7 +719,8 @@
     "M-1298":{ BOUTEFEU:{st:"valid",d:"06-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"02-2027"}, CADENASSAGE:{st:"valid",d:"01-2027"}, ESPACES_CLOS:{st:"review",d:"03-2026"} },
     "M-1377":{ CADENASSAGE:{st:"valid",d:"12-2026"}, HAUTEUR:{st:"valid",d:"08-2027"}, ESPACES_CLOS:{st:"valid",d:"04-2027"} },
     "M-1405":{ CAMION:{st:"valid",d:"03-2027"}, CHARGEUSE:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"09-2026"} },
-    "M-1421":{ CONTROLE_TERRAIN:{st:"valid",d:"05-2027"}, CADENASSAGE:{st:"valid",d:"02-2027"}, PREMIERS_SOINS:{st:"valid",d:"11-2026"}, ESPACES_CLOS:{st:"valid",d:"06-2027"} }
+    "M-1421":{ CONTROLE_TERRAIN:{st:"valid",d:"05-2027"}, CADENASSAGE:{st:"valid",d:"02-2027"}, PREMIERS_SOINS:{st:"valid",d:"11-2026"}, ESPACES_CLOS:{st:"valid",d:"06-2027"} },
+    "M-1466":{ BOUTEFEU:{st:"valid",d:"04-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"10-2026"}, ESPACES_CLOS:{st:"valid",d:"03-2027"} }
   };
   var PROC={
     "PR-CAD-03":"Cadenassage de convoyeur",
@@ -742,6 +749,7 @@
     "FO-701":{label:"Foreuse de production Sandvik DL #FO-701", maint:null},
     "FO-702":{label:"Foreuse de production Simba #FO-702", maint:null},
     "CE-901":{label:"Chargeuse d'explosifs (émulsion) #CE-901", maint:null},
+    "EMU-002":{label:"Unité d'émulsion #EMU-002", maint:null},
     "CV-2":{label:"Convoyeur CV-2", maint:null},
     "DG-05":{label:"Détecteur 4 gaz #DG-05", maint:null}
   };
@@ -775,9 +783,11 @@
     "T-TR-830":{label:"Transport de minerai — rampe 830", short:"Transport de minerai", dept:"Production", chantier:"Rampe 830", sector:"830", worker:"M-1330",
       form:["CAMION"], proc:[{id:"PR-CA-02", equip:"Camion Toro TH #CA-501"}], plans:[{id:"PL-830-CIRC", label:"Plan de circulation rampe 830"}], equip:["CA-501"],
       materiel:"Aucun", terrain:"Rampe en pente — croisements fréquents"},
-    "T-SAU-6B":{label:"Chargement d'explosifs — chantier 6-B", short:"Chargement / sautage", dept:"Sautage", chantier:"Chantier 6-B", sector:"6-B", worker:"M-1298",
-      form:["BOUTEFEU","CONTROLE_TERRAIN"], proc:[{id:"PR-SAU-09", equip:"Unité d'émulsion #CE-901"}], plans:[{id:"PL-6B-SAUT", label:"Plan de sautage 6-B"}], equip:["CE-901"],
-      materiel:"Émulsion + détonateurs (selon plan)", terrain:"Front prêt — secteur à évacuer avant le tir"},
+    "T-SAU-6B":{label:"Chargement explosif", short:"Chargement explosif", dept:"Sautage", chantier:"036 GRO 05", sector:"6-B", worker:"M-1466",
+      form:["BOUTEFEU","CONTROLE_TERRAIN"], proc:[{id:"PR-SAU-09", equip:"Unité d'émulsion #EMU-002"}], plans:[{id:"PL-6B-SAUT", label:"Plan de sautage — secteur GRO/PSO"}], equip:["EMU-002"],
+      materiel:"Émulsion + détonateurs (selon plan)", terrain:"Front prêt — secteur à évacuer avant le tir",
+      stationnement:"Niveau 41", conditionSpeciale:"Rampe fermée de 11 h 30 à 12 h 30", epiExtra:["Harnais et longe"],
+      lieux:[{n:"#T1", lieu:"036 GRO 05", tache:"Chargement explosif", situation:"Prêt pour le chargement"},{n:"#T2", lieu:"051 PSO 114", tache:"Chargement explosif", situation:"Soutirage début de quart, devrait être prêt"}]},
     "T-CAD-2A":{label:"Cadenassage convoyeur — niveau 2-A", short:"Cadenassage convoyeur", dept:"Entretien", chantier:"Niveau 2-A", sector:"2-A", worker:"M-1377",
       form:["CADENASSAGE"], proc:[{id:"PR-CAD-03", equip:"Convoyeur CV-2"}],
       plans:[{id:"SC-2A-CV", label:"Schéma d'isolement CV-2"}], equip:["CV-2"],
@@ -878,7 +888,7 @@
   ];
 
   var $=function(s,r){return (r||document).querySelector(s);};
-  var state={task:"T-FOR-1420", worker:"M-1042", resolved:{}, docs:[], signed:{w:false,s:false}, att:{}, fin:{}, authorized:false, blocked:true, startTs:Date.now()};
+  var state={task:"T-SAU-6B", worker:"M-1466", resolved:{}, docs:[], signed:{w:false,s:false}, att:{}, fin:{}, authorized:false, blocked:true, startTs:Date.now()};
 
   function opt(sel,val,label,cur){var o=document.createElement("option");o.value=val;o.textContent=label;if(val===cur)o.selected=true;sel.appendChild(o);return o;}
   function initSelects(){
@@ -944,6 +954,7 @@
   function render(){
     var t=TASKS[state.task], w=WORKERS[state.worker];
     $("#mSector").textContent=t.sector;
+    var _pe=$("#mPoste"); if(_pe) _pe.textContent=w.role||"—";
     // FSCT — début de quart
     renderLieux(); renderVehicule(); renderPermis(); renderEpi();
 
@@ -1049,19 +1060,24 @@
   function permisRequis(t){
     var ec=t.form.indexOf("ESPACES_CLOS")>=0;
     var cad=t.form.indexOf("CADENASSAGE")>=0 || t.proc.some(function(p){return p.id.indexOf("CAD")>=0||p.id.indexOf("FOR")>=0;});
-    var sau=t.form.indexOf("BOUTEFEU")>=0;
-    return [{k:"Travail à chaud",on:false},{k:"Espace clos",on:ec},{k:"Cadenassage (LOTO)",on:cad},{k:"Travailleur seul",on:false},{k:"Sautage / explosifs",on:sau}];
+    return [{k:"Travail à chaud",on:false},{k:"Espace clos",on:ec},{k:"Cadenassage (LOTO)",on:cad},{k:"Creusage / proximité ligne électrique",on:false},{k:"Travailleur seul",on:false}];
   }
   function renderLieux(){
     var t=TASKS[state.task], w=WORKERS[state.worker], el=$("#lieuxBlock");
     var formTags=t.form.map(function(f){var ok=w.form.indexOf(f)>=0;return "<span class='tag "+(ok?"ok":"miss")+"'>"+(ok?"✓":"✕")+" "+FMT[f]+"</span>";}).join("");
     var procTags=t.proc.length?t.proc.map(function(p){return "<span class='tag mono'>"+p.id+"</span>";}).join(""):"<span class='tag'>—</span>";
+    var lieux=t.lieux||[{n:"#T1", lieu:t.chantier+" ("+t.sector+")", tache:t.label, situation:t.terrain}];
+    var lieuxHtml=lieux.map(function(L){
+      return "<div class='lieu'><span class='lieu-n'>"+L.n+"</span><div class='lieu-b'><div class='lieu-lieu'>"+L.lieu+"</div><div class='lieu-tache'>"+L.tache+"</div>"+(L.situation?"<div class='lieu-sit'><b>Situation :</b> "+L.situation+"</div>":"")+"</div></div>";
+    }).join("");
+    var nextN=lieux.length+1;
+    var emptyHtml=nextN<=5?"<div class='lieu-empty'>#T"+nextN+"–#T5 — aucun autre lieu assigné ce quart</div>":"";
+    var condHtml=t.conditionSpeciale?"<div class='lieu-detail'><span class='ld-k'>Conditions spéciales</span><span class='ld-v cond'>⚠ "+t.conditionSpeciale+"</span></div>":"";
     el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Lieux de travail &amp; tâches</span></div>"
-      +"<div class='lieu'><span class='lieu-n'>#T1</span><div class='lieu-b'><div class='lieu-lieu'>"+t.chantier+" <span class='mono'>("+t.sector+")</span></div><div class='lieu-tache'>"+t.label+"</div></div></div>"
+      +lieuxHtml
       +"<div class='lieu-detail'><span class='ld-k'>Formations requises</span><span class='ld-v'>"+formTags+"</span></div>"
       +"<div class='lieu-detail'><span class='ld-k'>Procédures</span><span class='ld-v'>"+procTags+"</span></div>"
-      +"<div class='lieu-detail'><span class='ld-k'>Situation actuelle</span><span class='ld-v'>"+(t.terrain||"—")+"</span></div>"
-      +"<div class='lieu-empty'>#T2–#T5 — aucun autre lieu assigné ce quart</div>";
+      +condHtml+emptyHtml;
   }
   function renderVehicule(){
     var t=TASKS[state.task], el=$("#vehiculeBlock");
@@ -1071,7 +1087,7 @@
       else if(m.state==="bris"){st="⛔ Bris : "+m.desc;cls="bris";}
       else if(m.state==="encours"){st="🔧 En maintenance";cls="bris";}
       else {st="🔧 Maintenance planifiée";cls="warn";}
-      return "<tr><td class='mono'>"+eq.label+"</td><td class='veh-"+cls+"'>"+st+"</td><td>Portail niv. "+(t.chantier.replace(/\D/g,'')||"—")+"</td></tr>";
+      return "<tr><td class='mono'>"+eq.label+"</td><td class='veh-"+cls+"'>"+st+"</td><td>"+(t.stationnement||("Portail niv. "+(t.chantier.replace(/\D/g,'')||"—")))+"</td></tr>";
     }).join("");
     el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Véhicule / équipement</span></div>"
       +"<div class='veh-wrap'><table class='veh-tbl'><thead><tr><th>Véhicule</th><th>État / condition</th><th>Stationnement</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
@@ -1089,6 +1105,7 @@
     if(t.form.indexOf("ESPACES_CLOS")>=0) epi.push("Détecteur 4 gaz","Harnais + treuil");
     if(t.form.indexOf("BOULONNAGE")>=0) epi.push("Gants anti-résine");
     if(t.form.indexOf("BOUTEFEU")>=0) epi.push("Trousse de sautage");
+    if(t.epiExtra) t.epiExtra.forEach(function(x){ if(epi.indexOf(x)<0) epi.push(x); });
     var chips=epi.map(function(x){return "<span class='epi'>"+x+"</span>";}).join("");
     var mat=(t.materiel&&t.materiel!=="Aucun")?"<div class='epi-mat'><b>Matériel spécifique :</b> "+t.materiel+"</div>":"";
     el.innerHTML="<div class='fsct-h fsct-h-red'><span class='fsct-tag'>EPI, matériel et outils requis</span></div><div class='epi-row'>"+chips+"</div>"+mat;
