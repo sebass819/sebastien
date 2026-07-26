@@ -15,11 +15,13 @@ Le plan d'affaires complet, prêt à présenter à des associés, un prêteur ou
 - **`src/`** — sources de génération : `build_plan.js` (docx-js) et `plan.html` (version HTML pour le rendu PDF).
 
 ### `prototype-console-sst/`
-- **`carte-travail.html`** — prototype cliquable **« Console SST minière »** (page autonome, à ouvrir dans un navigateur). Comprend :
+- **`carte-travail.html`** — prototype cliquable **« Console SST minière »** (page autonome, à ouvrir dans un navigateur). Cinq écrans reliés :
+  - **Tableau de bord** — vue d'ouverture : indicateurs du quart (tâches prêtes/bloquées, points bloquants, formations à échéance, équipements à surveiller), liste « à traiter en priorité » et état du parc d'équipement.
   - **Planification du quart** — tableau des tâches par département avec cellules intelligentes (état prêt/bloqué, place de travail + lien plan, état d'équipement avec décompte de maintenance, formations du travailleur).
   - **Carte de travail intelligente** — alignée sur la carte de travail de l'AMQ (FSCT) : analyse de risques (étapes → risques → mesures de contrôle), formule de supervision, signatures.
-  - **Alertes** — formation manquante, procédure à relire, co-activité/SIMOPS avec priorité, maintenance d'équipement.
+  - **Matrice de formation** — grille travailleurs × compétences codée par couleur (valide / expire / à réviser / manquante), avec alarme automatique d'assignation.
   - **Référentiel** — RSSM + procédures internes (maquette).
+  - **Alertes transversales** — formation manquante, procédure à relire, co-activité/SIMOPS avec priorité, maintenance d'équipement.
   - Version en ligne (Artifact) : https://claude.ai/code/artifact/853dd199-c1f9-4284-ba58-3074b0ca128d
 
 ---

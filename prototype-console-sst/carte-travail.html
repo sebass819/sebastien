@@ -5,14 +5,16 @@
         <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 3l11 5v7c0 7-4.7 11.3-11 14-6.3-2.7-11-7-11-14V8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
       <div class="brand-txt">
-        <strong>Permis de tâche</strong>
-        <span>Console SST minière</span>
+        <strong>Console SST minière</strong>
+        <span>Planification · Cartes · Conformité</span>
       </div>
       <span class="chip chip-demo">prototype</span>
     </div>
     <nav class="tabs" role="tablist" aria-label="Sections">
-      <button class="tab is-active" role="tab" aria-selected="true" data-tab="plan">Planification</button>
+      <button class="tab is-active" role="tab" aria-selected="true" data-tab="dash">Tableau de bord</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="plan">Planification</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="carte">Carte de travail</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="matrix">Matrice de formation</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="ref">Référentiel</button>
     </nav>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Changer le thème">
@@ -21,7 +23,35 @@
   </header>
   <div class="hazard" aria-hidden="true"></div>
 
-  <section class="board" id="view-plan">
+  <!-- TABLEAU DE BORD -->
+  <section class="dash" id="view-dash">
+    <div class="hero">
+      <div>
+        <div class="hero-eyebrow">Console SST minière</div>
+        <h2 class="hero-title">La planification du quart et la carte de travail de l'AMQ — numérisées, avec alarmes automatiques.</h2>
+        <div class="hero-sub">Formation, équipement, co-activité, maintenance : chaque risque est vérifié avant que le travailleur descende.</div>
+        <div class="demo-note">⚠ Démonstration — données fictives</div>
+      </div>
+      <div class="hero-meta">
+        <div class="hm-quart">Quart de jour</div>
+        <div>31 juill. 2026 · <span class="mono">06:00–18:00</span></div>
+        <div class="mono hm-site">Mine fictive — souterrain</div>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-h"><h3>À traiter en priorité</h3><span class="hint">avant l'autorisation du quart</span></div>
+        <ul class="prio-list" id="prioList"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3>État du parc d'équipement</h3></div>
+        <ul class="fleet" id="fleetList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="board" id="view-plan" hidden>
     <div class="board-head">
       <div>
         <div class="eyebrow">Planification du quart</div>
@@ -110,6 +140,23 @@
     </aside>
   </main>
 
+  <!-- MATRICE DE FORMATION -->
+  <section class="matrix-view" id="view-matrix" hidden>
+    <div class="mx-head">
+      <h2>Matrice de formation</h2>
+      <p class="mx-sub">Compétences des travailleurs × exigences des tâches du quart. L'assignation se bloque automatiquement si une compétence est manquante, expirée ou à réviser.</p>
+    </div>
+    <div class="mx-legend">
+      <span><i class="mx-key valid"></i> Valide</span>
+      <span><i class="mx-key exp"></i> Expire bientôt</span>
+      <span><i class="mx-key review"></i> À réviser</span>
+      <span><i class="mx-key miss"></i> Manquante (tâche assignée)</span>
+      <span><i class="mx-key none"></i> Non certifié</span>
+    </div>
+    <div class="matrix-wrap"><table class="matrix" id="matrixTbl"></table></div>
+    <div class="mx-alarm" id="mxAlarm"></div>
+  </section>
+
   <!-- REFERENTIEL -->
   <section class="ref" id="view-ref" hidden>
     <div class="ref-head">
@@ -186,6 +233,7 @@
   }
 
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html,body{background:var(--bg)}
   #app{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
   .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
@@ -201,8 +249,9 @@
   .brand-txt span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
   .chip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:100px}
   .chip-demo{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
-  .tabs{display:flex;gap:4px;margin-left:8px}
-  .tab{appearance:none;border:none;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:8px;cursor:pointer}
+  .tabs{display:flex;gap:4px;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{appearance:none;border:none;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:8px;cursor:pointer;flex:0 0 auto;white-space:nowrap}
   .tab:hover{background:var(--surface-2);color:var(--text)}
   .tab.is-active{background:var(--accent-soft);color:var(--accent)}
   .theme-btn{margin-left:auto;display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer}
@@ -443,6 +492,78 @@
   .backlink:hover{border-color:var(--accent)}
   @media (max-width:900px){ .plan-layout{grid-template-columns:1fr} .preview{position:static} }
 
+  /* Tableau de bord */
+  .dash{max-width:1180px;margin:0 auto;padding:20px}
+  .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+  .hero-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800}
+  .hero-title{font-size:21px;letter-spacing:-.02em;margin:4px 0 5px;max-width:34ch}
+  .hero-sub{font-size:12.5px;color:var(--muted);max-width:60ch}
+  .hero-meta{text-align:right;font-size:12px;color:var(--muted);line-height:1.5}
+  .hero-meta .hm-quart{font-weight:800;color:var(--text);font-size:13px}
+  .hero-meta .hm-site{font-size:11px;color:var(--faint)}
+  .demo-note{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:100px;padding:3px 10px;margin-top:10px}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+  .kpi{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px 13px 18px;box-shadow:var(--shadow);cursor:pointer;text-align:left;font-family:inherit;display:block}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .kpi.k-crit::before{background:var(--crit)} .kpi.k-warn::before{background:var(--warn)} .kpi.k-ok::before{background:var(--ok)}
+  .kpi:hover{border-color:var(--accent)}
+  .kpi-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700}
+  .kpi-v{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.02em;margin:6px 0 3px;line-height:1;color:var(--text)}
+  .kpi.k-crit .kpi-v{color:var(--crit)} .kpi.k-warn .kpi-v{color:var(--warn)} .kpi.k-ok .kpi-v{color:var(--ok)}
+  .kpi-sub{font-size:11.5px;color:var(--muted)}
+  .kpi-sub b.crit{color:var(--crit)} .kpi-sub b.ok{color:var(--ok)} .kpi-sub b.warn{color:var(--warn)}
+
+  .dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .panel-h{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--border)}
+  .panel-h h3{font-size:13.5px;letter-spacing:-.01em}
+  .panel-h .hint{font-size:11px;color:var(--faint);margin-left:auto}
+  .prio-list{list-style:none;margin:0;padding:8px}
+  .prio{display:flex;gap:11px;align-items:center;padding:10px 11px;border-radius:var(--radius-s);cursor:pointer;border:1px solid transparent;width:100%;text-align:left;background:none;font-family:inherit}
+  .prio:hover{background:var(--surface-2);border-color:var(--border)}
+  .prio:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .prio+.prio{margin-top:2px}
+  .prio-ico{flex:0 0 28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:14px}
+  .prio.p-crit .prio-ico{background:var(--crit-bg);color:var(--crit)}
+  .prio.p-conflict .prio-ico{background:var(--conflict-bg);color:var(--conflict)}
+  .prio.p-warn .prio-ico{background:var(--warn-bg);color:var(--warn)}
+  .prio-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .prio-t{font-size:12.5px;font-weight:700}
+  .prio-d{font-size:12px;color:var(--muted);margin-top:1px}
+  .prio-go{font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .fleet{list-style:none;margin:0;padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+  .fleet li{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px}
+  .fleet .fl-name{font-family:var(--mono);font-size:11.5px;font-weight:600}
+  @media (max-width:900px){ .kpis{grid-template-columns:1fr 1fr} .dash-grid{grid-template-columns:1fr} }
+
+  /* Matrice de formation */
+  .matrix-view{max-width:1100px;margin:0 auto;padding:22px 20px}
+  .mx-head h2{font-size:20px;letter-spacing:-.02em}
+  .mx-sub{margin:4px 0 0;font-size:13px;color:var(--muted);max-width:70ch}
+  .mx-legend{display:flex;gap:15px;flex-wrap:wrap;margin:13px 0 14px;font-size:11.5px;color:var(--muted)}
+  .mx-legend span{display:inline-flex;align-items:center;gap:6px}
+  .mx-key{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .mx-key.valid{background:var(--ok)} .mx-key.exp{background:var(--warn)} .mx-key.review{background:var(--conflict)} .mx-key.miss{background:var(--crit)} .mx-key.none{background:var(--border-2)}
+  .matrix-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  .matrix{border-collapse:collapse;width:100%;min-width:740px;font-size:12px}
+  .matrix th,.matrix td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:center}
+  .matrix thead th{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);font-weight:700;background:var(--surface-2);vertical-align:bottom}
+  .matrix th.mx-worker,.matrix td.mx-worker{text-align:left;position:sticky;left:0;background:var(--surface)}
+  .matrix thead th.mx-worker{background:var(--surface-2)}
+  .matrix tr:last-child td{border-bottom:none}
+  .mx-wname{font-weight:700;font-size:12.5px}
+  .mx-wid{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+  .mx-c{display:inline-flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:700;padding:4px 8px;border-radius:7px;min-width:62px}
+  .mx-c small{font-family:var(--mono);font-size:9.5px;font-weight:600;opacity:.85}
+  .mx-c.valid{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .mx-c.exp{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+  .mx-c.review{background:var(--conflict-bg);color:var(--conflict);border:1px solid var(--conflict-line)}
+  .mx-c.miss{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .mx-c.none{color:var(--faint)}
+  .mx-alarm{margin-top:14px;display:flex;gap:11px;align-items:flex-start;background:var(--crit-bg);border:1px solid var(--crit-line);border-radius:var(--radius-s);padding:12px 14px;font-size:12.5px;line-height:1.5}
+  .mx-alarm b{color:var(--crit)}
+
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -450,16 +571,23 @@
 (function(){
   "use strict";
   var FMT={ CADENASSAGE:"Cadenassage (LOTO)", ESPACES_CLOS:"Travail en espace clos", FOREUSE:"Conduite de foreuse", CHARGEUSE:"Conduite chargeuse-navette", HAUTEUR:"Travail en hauteur", PREMIERS_SOINS:"Premiers soins", CONTROLE_TERRAIN:"Contrôle de terrain" };
+  var FMT_SHORT={ CADENASSAGE:"Cadenassage", ESPACES_CLOS:"Espace clos", FOREUSE:"Foreuse", CHARGEUSE:"Chargeuse-nav.", HAUTEUR:"Hauteur", PREMIERS_SOINS:"Premiers soins", CONTROLE_TERRAIN:"Contrôle terrain" };
   var WORKERS={
     "M-1187":{name:"Marc Gagné", form:["CADENASSAGE","HAUTEUR","CHARGEUSE"], proc:["PR-CAD-03"]},
     "M-1042":{name:"Jean Tremblay", form:["CADENASSAGE","ESPACES_CLOS","FOREUSE","CHARGEUSE"], proc:["PR-CAD-03","PR-FOR-11","PR-EC-07"], rev:["PR-CAD-03"]},
     "M-1203":{name:"Sophie Roy", form:["ESPACES_CLOS","PREMIERS_SOINS"], proc:["PR-EC-07"]}
   };
+  // Certifications par compétence détenue : st = valid | exp (expire bientôt) | review (à réviser). Cohérent avec WORKERS.form.
+  var CERT={
+    "M-1187":{ CADENASSAGE:{st:"valid",d:"03-2027"}, HAUTEUR:{st:"exp",d:"08-2026"}, CHARGEUSE:{st:"valid",d:"01-2027"} },
+    "M-1042":{ CADENASSAGE:{st:"review",d:"02-2026"}, ESPACES_CLOS:{st:"valid",d:"05-2027"}, FOREUSE:{st:"valid",d:"11-2026"}, CHARGEUSE:{st:"valid",d:"02-2027"} },
+    "M-1203":{ ESPACES_CLOS:{st:"valid",d:"04-2027"}, PREMIERS_SOINS:{st:"exp",d:"08-2026"} }
+  };
   var PROC={ "PR-CAD-03":"Cadenassage de convoyeur", "PR-FOR-11":"Cadenassage et opération de foreuse", "PR-EC-07":"Entrée en espace clos" };
   var EQUIP={
     "F-07":{label:"Foreuse Sandvik DD421 #F-07", maint:{state:"planifiee", inMs:(2*24+14)*3600e3}},
     "CN-12":{label:"Chargeuse-navette #CN-12", maint:{state:"encours"}},
-    "JP-02":{label:"Jeep #JP-02", maint:{state:"bris", desc:"Fuite hydraulique — hors service"}},
+    "JP-02":{label:"Jeep #JP-02", maint:{state:"bris", desc:"Fuite hydraulique"}},
     "SC-04":{label:"Scoop R1700 #SC-04", maint:null},
     "CV-2":{label:"Convoyeur CV-2", maint:null},
     "DET-4G":{label:"Détecteur 4 gaz #DG-05", maint:null}
@@ -792,9 +920,13 @@
   // Tabs
   function showView(which){
     Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(t){var on=t.getAttribute("data-tab")===which;t.classList.toggle("is-active",on);t.setAttribute("aria-selected",on?"true":"false");});
+    $("#view-dash").hidden=(which!=="dash");
     $("#view-plan").hidden=(which!=="plan");
     $("#view-carte").hidden=(which!=="carte");
+    $("#view-matrix").hidden=(which!=="matrix");
     $("#view-ref").hidden=(which!=="ref");
+    if(which==="dash") renderDash();
+    if(which==="matrix") renderMatrix();
   }
   Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(tab){
     tab.addEventListener("click",function(){ showView(tab.getAttribute("data-tab")); });
@@ -903,6 +1035,89 @@
     render(); showView("carte"); window.scrollTo(0,0);
   }
 
+  // Points bloquants d'une tâche (indépendant de la session carte) — partagé par le tableau de bord
+  function taskBlockers(id){
+    var t=TASKS[id], w=WORKERS[t.worker], out=[];
+    t.form.forEach(function(f){ if(w.form.indexOf(f)<0) out.push({sev:"crit", ico:"🎓", txt:w.name+" n'a pas la formation « "+FMT[f]+" »."}); });
+    t.equip.forEach(function(e){ var m=EQUIP[e]&&EQUIP[e].maint; if(!m)return;
+      if(m.state==="bris") out.push({sev:"crit", ico:"⛔", txt:EQUIP[e].label+" — hors service : "+m.desc+"."});
+      else if(m.state==="encours") out.push({sev:"crit", ico:"🔧", txt:EQUIP[e].label+" — en maintenance, indisponible."});
+    });
+    t.proc.forEach(function(p){ if(w.proc.indexOf(p.id)<0) out.push({sev:"warn", ico:"📋", txt:"Procédure "+p.id+" à lire avant d'utiliser "+p.equip+"."}); });
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co; if(co) out.push({sev:"conflict", ico:"⚠️", txt:"Co-activité secteur "+t.sector+" — "+co.dept+" (« "+co.task+" »)."});
+    return out;
+  }
+
+  // Tableau de bord
+  function renderDash(){
+    var ids=Object.keys(TASKS), pret=0, bloque=0;
+    ids.forEach(function(id){ if(boardStatus(TASKS[id])==="pret")pret++; else bloque++; });
+    var crit=[], others=[];
+    ids.forEach(function(id){ taskBlockers(id).forEach(function(b){ b.task=id; (b.sev==="crit"?crit:others).push(b); }); });
+    var expCount=0, revCount=0;
+    Object.keys(CERT).forEach(function(m){ Object.keys(CERT[m]).forEach(function(c){ var s=CERT[m][c].st; if(s==="exp")expCount++; else if(s==="review")revCount++; }); });
+    var bris=0, enc=0, plan=0;
+    Object.keys(EQUIP).forEach(function(e){ var m=EQUIP[e].maint; if(!m)return; if(m.state==="bris")bris++; else if(m.state==="encours")enc++; else plan++; });
+
+    var kpis=[
+      {cls:"", k:"Tâches du quart", v:ids.length, sub:"<b class='ok'>"+pret+" prêtes</b> · <b class='crit'>"+bloque+" bloquées</b>", go:"plan"},
+      {cls:"k-crit", k:"Points bloquants", v:crit.length, sub:"formation &amp; équipement — avant descente", go:"plan"},
+      {cls:"k-warn", k:"Formations à échéance", v:(expCount+revCount), sub:"<b class='warn'>"+expCount+" à renouveler</b> · "+revCount+" à réviser", go:"matrix"},
+      {cls:"k-warn", k:"Équipements à surveiller", v:(bris+enc+plan), sub:bris+" bris · "+enc+" en maint. · "+plan+" planifié", go:"plan"}
+    ];
+    $("#kpis").innerHTML=kpis.map(function(x){
+      return "<button class='kpi "+x.cls+"' data-go='"+x.go+"' type='button'><div class='kpi-k'>"+x.k+"</div><div class='kpi-v'>"+x.v+"</div><div class='kpi-sub'>"+x.sub+"</div></button>";
+    }).join("");
+    Array.prototype.forEach.call($("#kpis").querySelectorAll("[data-go]"),function(b){ b.addEventListener("click",function(){ showView(b.getAttribute("data-go")); window.scrollTo(0,0); }); });
+
+    var items=crit.concat(others), pl=$("#prioList");
+    if(!items.length){ pl.innerHTML="<li class='prio'><div class='prio-ico' style='background:var(--ok-bg);color:var(--ok)'>✓</div><div class='prio-body'><div class='prio-t'>Aucun point bloquant</div><div class='prio-d'>Toutes les tâches du quart sont prêtes à autoriser.</div></div></li>"; }
+    else {
+      pl.innerHTML=items.map(function(b){
+        var pc=b.sev==="crit"?"p-crit":b.sev==="conflict"?"p-conflict":"p-warn", t=TASKS[b.task];
+        return "<button class='prio "+pc+"' data-open='"+b.task+"' type='button'><span class='prio-ico'>"+b.ico+"</span><span class='prio-body'><span class='prio-t'>"+t.short+" · <span class='mono'>"+t.chantier+"</span></span><span class='prio-d'>"+b.txt+"</span></span><span class='prio-go'>Ouvrir la carte →</span></button>";
+      }).join("");
+      Array.prototype.forEach.call(pl.querySelectorAll("[data-open]"),function(li){ li.addEventListener("click",function(){ openCarte(li.getAttribute("data-open")); }); });
+    }
+
+    $("#fleetList").innerHTML=Object.keys(EQUIP).map(function(e){
+      var eq=EQUIP[e], m=eq.maint, s;
+      if(!m) s="<span class='eq-ok'>OK — disponible</span>";
+      else if(m.state==="bris") s="<span class='eq-bris'>⛔ Bris : "+m.desc+"</span>";
+      else if(m.state==="encours") s="<span class='eq-bris'>🔧 En maintenance — indisponible</span>";
+      else s="<span class='eq-maint'>🔧 Arrêt planifié dans <span class='countdown' data-in='"+m.inMs+"'>—</span></span>";
+      return "<li><span class='fl-name'>"+eq.label+"</span>"+s+"</li>";
+    }).join("");
+    startCountdowns();
+  }
+
+  // Matrice de formation
+  function renderMatrix(){
+    var comps=Object.keys(FMT), reqBy={};
+    Object.keys(TASKS).forEach(function(id){ var t=TASKS[id]; reqBy[t.worker]=reqBy[t.worker]||{}; t.form.forEach(function(f){ reqBy[t.worker][f]=true; }); });
+    var head="<thead><tr><th class='mx-worker'>Travailleur</th>"+comps.map(function(c){return "<th>"+FMT_SHORT[c]+"</th>";}).join("")+"</tr></thead>";
+    var alarms=[];
+    var body=Object.keys(WORKERS).map(function(m){
+      var w=WORKERS[m], cert=CERT[m]||{}, req=reqBy[m]||{};
+      var cells=comps.map(function(c){
+        var has=w.form.indexOf(c)>=0, st, lab, date="";
+        if(!has && req[c]){ st="miss"; lab="✕ Manquante"; alarms.push(w.name+" — "+FMT[c]); }
+        else if(!has){ st="none"; lab="—"; }
+        else { var ce=cert[c]||{st:"valid",d:""}; date=ce.d||"";
+          if(ce.st==="review"){ st="review"; lab="↻ À réviser"; }
+          else if(ce.st==="exp"){ st="exp"; lab="⌛ Expire"; }
+          else { st="valid"; lab="✓ Valide"; }
+        }
+        return "<td><span class='mx-c "+st+"'>"+lab+(date?"<small>"+date+"</small>":"")+"</span></td>";
+      }).join("");
+      return "<tr><td class='mx-worker'><div class='mx-wname'>"+w.name+"</div><div class='mx-wid'>"+m+"</div></td>"+cells+"</tr>";
+    }).join("");
+    $("#matrixTbl").innerHTML=head+"<tbody>"+body+"</tbody>";
+    var mxa=$("#mxAlarm");
+    if(alarms.length){ mxa.style.display=""; mxa.innerHTML="<span>⛔</span><div><b>Alarme d'assignation :</b> "+alarms.length+" compétence(s) manquante(s) pour des tâches déjà planifiées — "+alarms.join(" · ")+". La carte de travail correspondante reste <b>bloquée</b> tant que la formation n'est pas complétée.</div>"; }
+    else { mxa.style.display="none"; }
+  }
+
   // Time -> payroll
   $("#payBtn").addEventListener("click",function(){
     var h=$("#hours").value;
@@ -923,6 +1138,6 @@
   $("#workerSel").addEventListener("change",function(e){state.worker=e.target.value;state.resolved={};state.signed={w:false,s:false};state.authorized=false;render();});
 
   $("#backBtn").addEventListener("click",function(){ showView("plan"); renderBoard(); window.scrollTo(0,0); });
-  initSelects(); renderRef(); renderDepts(); renderBoard(); render(); showView("plan");
+  initSelects(); renderRef(); renderDepts(); renderBoard(); render(); showView("dash");
 })();
 </script>
