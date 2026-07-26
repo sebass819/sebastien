@@ -103,7 +103,8 @@
       <button class="backlink" id="backBtn" type="button">← Planification</button>
       <div class="card-head">
         <div>
-          <div class="eyebrow">Carte de travail</div>
+          <div class="eyebrow">Carte de travail · FSCT</div>
+          <div class="fsct-band">Accueil — début de quart</div>
           <div class="cardno" id="cardNo">CT-2026-0731-014</div>
         </div>
         <dl class="meta">
@@ -120,14 +121,19 @@
           <select id="taskSel"></select>
         </label>
         <label class="field">
-          <span>Travailleur assigné</span>
+          <span>Nom du travailleur</span>
           <select id="workerSel"></select>
         </label>
       </div>
 
-      <div class="task-detail" id="taskDetail"></div>
+      <div class="block fsct-block" id="lieuxBlock"></div>
+      <div class="block fsct-block" id="vehiculeBlock"></div>
+      <div class="block fsct-block" id="permisBlock"></div>
+      <div class="block fsct-block" id="epiBlock"></div>
 
       <div class="block" id="analyseBlock"></div>
+
+      <div class="block fsct-block" id="attestBlock"></div>
 
       <div class="block time-block">
         <div class="block-head"><h3>Temps &amp; travail effectué</h3><span class="hint">→ transmis à la paie</span></div>
@@ -146,6 +152,8 @@
         <div class="block-head"><h3>Documents joints à la carte</h3><span class="count" id="docCount">0</span></div>
         <ul class="docs" id="docsList"><li class="docs-empty">Aucun document joint. Les procédures et plans requis s'ajoutent ici.</li></ul>
       </div>
+
+      <div class="block fsct-block" id="finBlock"></div>
 
       <div class="block" id="supBlock"></div>
     </section>
@@ -618,6 +626,62 @@
   @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .view-anim{animation:viewIn .28s ease}
 
+  /* FSCT — carte de travail */
+  .fsct-band{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--on-accent);background:var(--accent);border-radius:5px;padding:2px 9px;margin:3px 0 4px}
+  .fsct-block{padding:0;overflow:hidden}
+  .fsct-h{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--accent);color:var(--on-accent)}
+  .fsct-h-red{background:var(--crit)}
+  .fsct-tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .fsct-hint{font-size:10.5px;font-weight:600;opacity:.9;margin-left:auto;text-transform:none;letter-spacing:0}
+  .fsct-block .lieu,.fsct-block .lieu-detail,.fsct-block .lieu-empty,.fsct-block .veh-wrap,.fsct-block .permis-row,.fsct-block .epi-row,.fsct-block .epi-mat,.fsct-block .att,.fsct-block .fin-field{padding-left:14px;padding-right:14px}
+
+  .lieu{display:flex;gap:11px;align-items:flex-start;padding-top:11px;padding-bottom:9px}
+  .lieu-n{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);border:1px solid var(--border-2);border-radius:6px;padding:3px 8px}
+  .lieu-b{min-width:0}
+  .lieu-lieu{font-size:13px;font-weight:700}
+  .lieu-tache{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .lieu-detail{display:flex;gap:10px;align-items:baseline;padding-top:8px;padding-bottom:8px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .ld-k{flex:0 0 130px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700}
+  .ld-v{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:12.5px;color:var(--muted)}
+  .lieu-empty{font-size:11px;color:var(--faint);font-style:italic;padding-top:8px;padding-bottom:11px;border-top:1px solid var(--border)}
+
+  .veh-wrap{overflow-x:auto;padding-top:10px;padding-bottom:12px}
+  .veh-tbl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+  .veh-tbl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700;padding:6px 9px;border-bottom:1px solid var(--border)}
+  .veh-tbl td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+  .veh-tbl tr:last-child td{border-bottom:none}
+  .veh-ok{color:var(--ok);font-weight:700} .veh-bris{color:var(--crit);font-weight:700} .veh-warn{color:var(--warn);font-weight:700}
+
+  .permis-row,.epi-row{display:flex;flex-wrap:wrap;gap:7px;padding-top:11px;padding-bottom:12px}
+  .permis{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px;border:1px solid var(--border-2);color:var(--faint);background:var(--surface-2)}
+  .permis.on{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
+  .epi{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:6px;border:1px solid var(--border-2);background:var(--surface-2);color:var(--text)}
+  .epi-mat{font-size:12px;color:var(--muted);padding-bottom:12px}
+  .epi-mat b{color:var(--text)}
+
+  .att{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-top:9px;padding-bottom:9px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .fsct-block .att:first-of-type{border-top:none}
+  .att-q{font-size:12.5px;flex:1;min-width:60%}
+  .att-q b{font-weight:800}
+  .att-a{flex:0 0 auto}
+  .att-auto{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:7px;white-space:nowrap}
+  .att-auto.yes{color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line)}
+  .att-auto.no{color:var(--crit);background:var(--crit-bg);border:1px solid var(--crit-line)}
+  .yn{display:flex;gap:6px;flex:0 0 auto}
+  .yn-b{appearance:none;border:1px solid var(--border-2);background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit}
+  .yn-b.yn-oui.on{background:var(--ok);border-color:var(--ok);color:#fff}
+  .yn-b.yn-non.on{background:var(--crit);border-color:var(--crit);color:#fff}
+
+  .carre-rouge{border:2px solid var(--crit);border-radius:var(--radius-s);margin:12px 14px;overflow:hidden}
+  .cr-title{background:var(--crit);color:#fff;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:6px 12px}
+  .carre-rouge .att{padding-left:12px;padding-right:12px}
+  .carre-rouge .att.cr:first-of-type{border-top:none}
+  .fin-field{display:flex;flex-direction:column;gap:5px;padding-top:10px;padding-bottom:2px}
+  .fin-field:last-child{padding-bottom:12px}
+  .fin-field > span{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  .fin-field textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border-2);border-radius:var(--radius-s);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical}
+  .fin-esc{font-size:12px;font-weight:700;color:var(--crit);background:var(--crit-bg);border:1px solid var(--crit-line);border-radius:7px;padding:8px 11px;margin:0 12px 10px}
+
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -814,7 +878,7 @@
   ];
 
   var $=function(s,r){return (r||document).querySelector(s);};
-  var state={task:"T-FOR-1420", worker:"M-1042", resolved:{}, docs:[], signed:{w:false,s:false}, authorized:false, blocked:true, startTs:Date.now()};
+  var state={task:"T-FOR-1420", worker:"M-1042", resolved:{}, docs:[], signed:{w:false,s:false}, att:{}, fin:{}, authorized:false, blocked:true, startTs:Date.now()};
 
   function opt(sel,val,label,cur){var o=document.createElement("option");o.value=val;o.textContent=label;if(val===cur)o.selected=true;sel.appendChild(o);return o;}
   function initSelects(){
@@ -880,18 +944,8 @@
   function render(){
     var t=TASKS[state.task], w=WORKERS[state.worker];
     $("#mSector").textContent=t.sector;
-    // task detail
-    var td=$("#taskDetail"), rows="";
-    var formTags=t.form.map(function(f){var ok=w.form.indexOf(f)>=0;return "<span class='tag "+(ok?"ok":"miss")+"'>"+(ok?"✓":"✕")+" "+FMT[f]+"</span>";}).join("");
-    var equipTags=t.equip.map(function(e){return "<span class='tag mono'>"+EQUIP[e].label+"</span>";}).join("");
-    var procTags=t.proc.length?t.proc.map(function(p){return "<span class='tag mono'>"+p.id+"</span>";}).join(""):"<span class='tag'>—</span>";
-    rows+="<div class='td-row'><div class='td-k'>Secteur</div><div class='td-v'><span class='tag mono'>"+t.sector+"</span></div></div>";
-    rows+="<div class='td-row'><div class='td-k'>Formations req.</div><div class='td-v'>"+(formTags||"<span class='tag'>—</span>")+"</div></div>";
-    rows+="<div class='td-row'><div class='td-k'>Procédures</div><div class='td-v'>"+procTags+"</div></div>";
-    rows+="<div class='td-row'><div class='td-k'>Équipement</div><div class='td-v'>"+(equipTags||"<span class='tag'>—</span>")+"</div></div>";
-    rows+="<div class='td-row'><div class='td-k'>Matériel requis</div><div class='td-v'><span class='tag'>"+(t.materiel||"—")+"</span></div></div>";
-    rows+="<div class='td-row'><div class='td-k'>Conditions terrain</div><div class='td-v'><span class='tag'>"+(t.terrain||"—")+"</span></div></div>";
-    td.innerHTML=rows;
+    // FSCT — début de quart
+    renderLieux(); renderVehicule(); renderPermis(); renderEpi();
 
     var alerts=computeAlerts();
     // status
@@ -930,6 +984,8 @@
       btn.addEventListener("click",function(){onAlertAction(btn.getAttribute("data-act"),alerts);});
     });
     renderAnalyse();
+    renderAttestation();
+    renderFin();
     renderSupervision();
     renderDocs();
     startCountdowns();
@@ -987,6 +1043,104 @@
     });
     var ab=el.querySelector("#authBtn");
     if(ab) ab.addEventListener("click",function(){ state.authorized=true; toast("✅","Carte de travail autorisée."); render(); });
+  }
+
+  // ---- FSCT — début / fin de quart ----
+  function permisRequis(t){
+    var ec=t.form.indexOf("ESPACES_CLOS")>=0;
+    var cad=t.form.indexOf("CADENASSAGE")>=0 || t.proc.some(function(p){return p.id.indexOf("CAD")>=0||p.id.indexOf("FOR")>=0;});
+    var sau=t.form.indexOf("BOUTEFEU")>=0;
+    return [{k:"Travail à chaud",on:false},{k:"Espace clos",on:ec},{k:"Cadenassage (LOTO)",on:cad},{k:"Travailleur seul",on:false},{k:"Sautage / explosifs",on:sau}];
+  }
+  function renderLieux(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], el=$("#lieuxBlock");
+    var formTags=t.form.map(function(f){var ok=w.form.indexOf(f)>=0;return "<span class='tag "+(ok?"ok":"miss")+"'>"+(ok?"✓":"✕")+" "+FMT[f]+"</span>";}).join("");
+    var procTags=t.proc.length?t.proc.map(function(p){return "<span class='tag mono'>"+p.id+"</span>";}).join(""):"<span class='tag'>—</span>";
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Lieux de travail &amp; tâches</span></div>"
+      +"<div class='lieu'><span class='lieu-n'>#T1</span><div class='lieu-b'><div class='lieu-lieu'>"+t.chantier+" <span class='mono'>("+t.sector+")</span></div><div class='lieu-tache'>"+t.label+"</div></div></div>"
+      +"<div class='lieu-detail'><span class='ld-k'>Formations requises</span><span class='ld-v'>"+formTags+"</span></div>"
+      +"<div class='lieu-detail'><span class='ld-k'>Procédures</span><span class='ld-v'>"+procTags+"</span></div>"
+      +"<div class='lieu-detail'><span class='ld-k'>Situation actuelle</span><span class='ld-v'>"+(t.terrain||"—")+"</span></div>"
+      +"<div class='lieu-empty'>#T2–#T5 — aucun autre lieu assigné ce quart</div>";
+  }
+  function renderVehicule(){
+    var t=TASKS[state.task], el=$("#vehiculeBlock");
+    var rows=t.equip.map(function(e){
+      var eq=EQUIP[e], m=eq.maint, st, cls;
+      if(!m){st="Bon état — vérifié";cls="ok";}
+      else if(m.state==="bris"){st="⛔ Bris : "+m.desc;cls="bris";}
+      else if(m.state==="encours"){st="🔧 En maintenance";cls="bris";}
+      else {st="🔧 Maintenance planifiée";cls="warn";}
+      return "<tr><td class='mono'>"+eq.label+"</td><td class='veh-"+cls+"'>"+st+"</td><td>Portail niv. "+(t.chantier.replace(/\D/g,'')||"—")+"</td></tr>";
+    }).join("");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Véhicule / équipement</span></div>"
+      +"<div class='veh-wrap'><table class='veh-tbl'><thead><tr><th>Véhicule</th><th>État / condition</th><th>Stationnement</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+  }
+  function renderPermis(){
+    var t=TASKS[state.task], el=$("#permisBlock");
+    var chips=permisRequis(t).map(function(p){return "<span class='permis "+(p.on?"on":"")+"'>"+(p.on?"✓":"○")+" "+p.k+"</span>";}).join("");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Permis particuliers requis</span><span class='fsct-hint'>cochés automatiquement selon la tâche</span></div><div class='permis-row'>"+chips+"</div>";
+  }
+  function renderEpi(){
+    var t=TASKS[state.task], el=$("#epiBlock");
+    var epi=["Casque + lampe de mine","Bottes de sécurité","Lunettes de sécurité","Dossard réfléchissant"];
+    if(t.form.indexOf("FOREUSE")>=0||t.form.indexOf("JUMBO")>=0||t.form.indexOf("BOULONNAGE")>=0) epi.push("Protection auditive");
+    if(t.form.indexOf("FOREUSE")>=0||t.form.indexOf("JUMBO")>=0) epi.push("Masque P100 (silice)");
+    if(t.form.indexOf("ESPACES_CLOS")>=0) epi.push("Détecteur 4 gaz","Harnais + treuil");
+    if(t.form.indexOf("BOULONNAGE")>=0) epi.push("Gants anti-résine");
+    if(t.form.indexOf("BOUTEFEU")>=0) epi.push("Trousse de sautage");
+    var chips=epi.map(function(x){return "<span class='epi'>"+x+"</span>";}).join("");
+    var mat=(t.materiel&&t.materiel!=="Aucun")?"<div class='epi-mat'><b>Matériel spécifique :</b> "+t.materiel+"</div>":"";
+    el.innerHTML="<div class='fsct-h fsct-h-red'><span class='fsct-tag'>EPI, matériel et outils requis</span></div><div class='epi-row'>"+chips+"</div>"+mat;
+  }
+  function getYN(p){var a=p.split("."); return (state[a[0]]&&state[a[0]][a[1]])||null;}
+  function setYN(p,v){var a=p.split("."); state[a[0]]=state[a[0]]||{}; state[a[0]][a[1]]=v;}
+  function ynGroup(p){
+    var v=getYN(p);
+    return "<div class='yn'><button type='button' class='yn-b yn-oui"+(v==="oui"?" on":"")+"' data-yn='"+p+"' data-v='oui'>OUI</button>"
+      +"<button type='button' class='yn-b yn-non"+(v==="non"?" on":"")+"' data-yn='"+p+"' data-v='non'>NON</button></div>";
+  }
+  function wireYN(scope){
+    Array.prototype.forEach.call(scope.querySelectorAll("[data-yn]"),function(b){
+      b.addEventListener("click",function(){
+        var p=b.getAttribute("data-yn"), v=b.getAttribute("data-v");
+        var nv=getYN(p)===v?null:v; setYN(p,nv);
+        Array.prototype.forEach.call(b.parentNode.querySelectorAll("[data-yn]"),function(bb){bb.classList.toggle("on", bb.getAttribute("data-v")===nv);});
+        updateFinEsc();
+      });
+    });
+  }
+  function updateFinEsc(){
+    var el=$("#finBlock"); if(!el)return; var box=el.querySelector(".cr-escwrap"); if(!box)return;
+    var html="";
+    if(state.fin.event==="oui"||state.fin.gaz==="oui") html+="<div class='fin-esc'>⚠ Événement déclaré — un rapport de fin de quart sera généré et transmis (CNESST au besoin).</div>";
+    if(state.fin.cadenas==="non") html+="<div class='fin-esc'>⚠ Cadenas personnel non retiré — vérification requise avant de quitter.</div>";
+    box.innerHTML=html;
+  }
+  function renderAttestation(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], el=$("#attestBlock");
+    var miss=t.form.some(function(f){return w.form.indexOf(f)<0;});
+    var comp=miss?"<span class='att-auto no'>✕ NON — bloqué par le système</span>":"<span class='att-auto yes'>✓ OUI — validé automatiquement</span>";
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Attestation — début de quart</span></div>"
+      +"<div class='att'><div class='att-q'>J'ai un bon état d'esprit — en forme et disposé à travailler.</div>"+ynGroup("att.esprit")+"</div>"
+      +"<div class='att'><div class='att-q'>J'ai les <b>compétences et la formation</b> pour exécuter ces tâches.</div><div class='att-a'>"+comp+"</div></div>"
+      +"<div class='att'><div class='att-q'>J'ai bien compris les directives et les consignes.</div>"+ynGroup("att.directives")+"</div>";
+    wireYN(el);
+  }
+  function renderFin(){
+    var el=$("#finBlock");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Fin de quart</span></div>"
+      +"<div class='att'><div class='att-q'><b>Exécution superviseur —</b> le travail est-il conforme aux décisions?</div>"+ynGroup("fin.conforme")+"</div>"
+      +"<label class='fin-field'><span>Action positive à souligner</span><input type='text' placeholder='Ex. purge exemplaire au front'></label>"
+      +"<label class='fin-field'><span>Matériel requis pour le prochain quart</span><input type='text' placeholder='Ex. boulons 2,4 m — 1 palette'></label>"
+      +"<div class='carre-rouge'><div class='cr-title'>■ Carré rouge — déclaration de fin de quart</div>"
+      +"<div class='att cr'><div class='att-q'>Victime ou témoin d'un événement (accident / incident / passé-proche)?</div>"+ynGroup("fin.event")+"</div>"
+      +"<div class='att cr'><div class='att-q'>Alarme sur mon détecteur de gaz aujourd'hui?</div>"+ynGroup("fin.gaz")+"</div>"
+      +"<div class='att cr'><div class='att-q'>J'ai retiré mon cadenas personnel avant de quitter?</div>"+ynGroup("fin.cadenas")+"</div>"
+      +"<div class='att cr'><div class='att-q'>J'ai un développement à déclarer?</div>"+ynGroup("fin.dev")+"</div>"
+      +"<div class='cr-escwrap'></div></div>"
+      +"<label class='fin-field'><span>Commentaires du travailleur (santé-sécurité)</span><textarea rows='2' placeholder='Observations, préoccupations…'></textarea></label>";
+    wireYN(el); updateFinEsc();
   }
 
   function onAlertAction(id,alerts){
@@ -1157,7 +1311,7 @@
     var ob=el.querySelector("#pvOpen"); if(ob) ob.addEventListener("click",function(){openCarte(id);});
   }
   function openCarte(id){
-    state.task=id; state.worker=TASKS[id].worker; state.resolved={}; state.docs=[]; state.signed={w:false,s:false}; state.authorized=false;
+    state.task=id; state.worker=TASKS[id].worker; state.resolved={}; state.docs=[]; state.signed={w:false,s:false}; state.att={}; state.fin={}; state.authorized=false;
     var ts=$("#taskSel"); if(ts) ts.value=id; var ws=$("#workerSel"); if(ws) ws.value=state.worker;
     render(); showView("carte"); window.scrollTo(0,0);
   }
@@ -1268,8 +1422,8 @@
   var loginScreen=$("#loginScreen"); if(loginScreen) loginScreen.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); enterConsole(); } });
 
   // Selectors
-  $("#taskSel").addEventListener("change",function(e){state.task=e.target.value;state.resolved={};state.docs=[];state.signed={w:false,s:false};state.authorized=false;render();});
-  $("#workerSel").addEventListener("change",function(e){state.worker=e.target.value;state.resolved={};state.signed={w:false,s:false};state.authorized=false;render();});
+  $("#taskSel").addEventListener("change",function(e){state.task=e.target.value;state.resolved={};state.docs=[];state.signed={w:false,s:false};state.att={};state.fin={};state.authorized=false;render();});
+  $("#workerSel").addEventListener("change",function(e){state.worker=e.target.value;state.resolved={};state.signed={w:false,s:false};state.att={};state.fin={};state.authorized=false;render();});
 
   $("#backBtn").addEventListener("click",function(){ showView("plan"); renderBoard(); window.scrollTo(0,0); });
   initSelects(); renderRef(); renderDepts(); renderBoard(); render(); showView("dash");
