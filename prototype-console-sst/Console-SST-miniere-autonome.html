@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Console SST minière — prototype</title>
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0;background:#EEF2F5}</style>
+</head>
+<body>
+<div id="app">
+  <!-- ÉCRAN D'OUVERTURE -->
+  <div class="login" id="loginScreen">
+    <button class="theme-btn login-theme" id="themeBtnLogin" type="button" aria-label="Changer le thème">
+      <span class="theme-ico" aria-hidden="true">◐</span><span class="theme-lbl">Thème</span>
+    </button>
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="login-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="42" height="42"><path d="M16 3l11 5v7c0 7-4.7 11.3-11 14-6.3-2.7-11-7-11-14V8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div>
+          <h1 class="login-name">Console SST minière</h1>
+          <p class="login-tag">Planification du quart · Cartes de travail AMQ · Conformité CNESST</p>
+        </div>
+      </div>
+      <div class="login-fields">
+        <label class="field"><span>Site minier</span><select id="loginSite"><option>Mine fictive — secteur souterrain</option></select></label>
+        <div class="login-row">
+          <label class="field"><span>Quart</span><select id="loginShift"><option>Jour · 06:00–18:00</option><option>Nuit · 18:00–06:00</option></select></label>
+          <label class="field"><span>Superviseur</span><input id="loginUser" type="text" value="S. Paquin"></label>
+        </div>
+      </div>
+      <button class="btn btn-print login-go" id="loginGo" type="button">Ouvrir la console →</button>
+      <div class="login-foot">
+        <span class="chip chip-demo">prototype</span>
+        <span class="login-note">Données fictives — maquette de démonstration</span>
+      </div>
+    </div>
+    <div class="login-hz" aria-hidden="true"></div>
+  </div>
+
+  <header class="appbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 3l11 5v7c0 7-4.7 11.3-11 14-6.3-2.7-11-7-11-14V8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="brand-txt">
+        <strong>Console SST minière</strong>
+        <span>Planification · Cartes · Conformité</span>
+      </div>
+      <span class="chip chip-demo">prototype</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab is-active" role="tab" aria-selected="true" data-tab="dash">Tableau de bord</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="plan">Planification</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="carte">Carte de travail</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="matrix">Matrice de formation</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="ref">Référentiel</button>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Changer le thème">
+      <span class="theme-ico" aria-hidden="true">◐</span><span class="theme-lbl">Thème</span>
+    </button>
+  </header>
+  <div class="hazard" aria-hidden="true"></div>
+
+  <!-- TABLEAU DE BORD -->
+  <section class="dash" id="view-dash">
+    <div class="hero">
+      <div>
+        <div class="hero-eyebrow">Console SST minière</div>
+        <h2 class="hero-title">La planification du quart et la carte de travail de l'AMQ — numérisées, avec alarmes automatiques.</h2>
+        <div class="hero-sub">Formation, équipement, co-activité, maintenance : chaque risque est vérifié avant que le travailleur descende.</div>
+        <div class="demo-note">⚠ Démonstration — données fictives</div>
+      </div>
+      <div class="hero-meta">
+        <div class="hm-quart">Quart de jour</div>
+        <div>31 juill. 2026 · <span class="mono">06:00–18:00</span></div>
+        <div class="mono hm-site">Mine fictive — souterrain</div>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-h"><h3>À traiter en priorité</h3><span class="hint">avant l'autorisation du quart</span></div>
+        <ul class="prio-list" id="prioList"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3>État du parc d'équipement</h3></div>
+        <ul class="fleet" id="fleetList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="board" id="view-plan" hidden>
+    <div class="board-head">
+      <div>
+        <div class="eyebrow">Planification du quart</div>
+        <h2 class="board-title">Répartition — 31 juill. 2026 · Quart de jour</h2>
+      </div>
+      <div class="board-hint">Sélectionne une tâche pour l'aperçu · « Remplir la carte » pour l'ouvrir.</div>
+    </div>
+    <div class="depts" id="deptTabs" role="tablist" aria-label="Départements"></div>
+    <div class="plan-layout">
+      <div class="board-wrap"><table class="board-tbl" id="boardTbl"></table></div>
+      <aside class="preview" id="previewPane" aria-label="Aperçu de la carte de travail"></aside>
+    </div>
+  </section>
+
+  <main class="console" id="view-carte" hidden>
+    <!-- LEFT: the card -->
+    <section class="col-card" aria-label="Carte de travail">
+      <button class="backlink" id="backBtn" type="button">← Planification</button>
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Carte de travail · FSCT</div>
+          <div class="fsct-band">Accueil — début de quart</div>
+          <div class="cardno" id="cardNo">CT-2026-0731-014</div>
+        </div>
+        <dl class="meta">
+          <div><dt>Date</dt><dd id="mDate">31 juill. 2026</dd></div>
+          <div><dt>Quart</dt><dd>Jour · <span class="mono">06:00–18:00</span></dd></div>
+          <div><dt>Superviseur</dt><dd>S. Paquin</dd></div>
+          <div><dt>Poste</dt><dd id="mPoste">—</dd></div>
+          <div><dt>Secteur</dt><dd class="mono" id="mSector">4-B</dd></div>
+        </dl>
+      </div>
+
+      <div class="pickers">
+        <label class="field">
+          <span>Tâche</span>
+          <select id="taskSel"></select>
+        </label>
+        <label class="field">
+          <span>Nom du travailleur</span>
+          <select id="workerSel"></select>
+        </label>
+      </div>
+
+      <div class="block fsct-block" id="lieuxBlock"></div>
+      <div class="block fsct-block" id="vehiculeBlock"></div>
+      <div class="block fsct-block" id="permisBlock"></div>
+      <div class="block fsct-block" id="epiBlock"></div>
+
+      <div class="block" id="analyseBlock"></div>
+
+      <div class="block fsct-block" id="attestBlock"></div>
+
+      <div class="block time-block">
+        <div class="block-head"><h3>Temps &amp; travail effectué</h3><span class="hint">→ transmis à la paie</span></div>
+        <div class="time-grid">
+          <label class="field small"><span>Heures</span><input id="hours" class="mono" type="text" inputmode="decimal" value="8.0"></label>
+          <label class="field small"><span>Code d'activité</span><input id="actcode" class="mono" type="text" value="OP-FORAGE"></label>
+          <label class="field grow"><span>Travail effectué</span><input id="workdone" type="text" value="Forage production — 14 trous, niveau 210"></label>
+        </div>
+        <div class="time-actions">
+          <button class="btn btn-ghost" id="payBtn" type="button">Envoyer à la paie</button>
+          <span class="pay-state" id="payState" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="block docs-block">
+        <div class="block-head"><h3>Documents joints à la carte</h3><span class="count" id="docCount">0</span></div>
+        <ul class="docs" id="docsList"><li class="docs-empty">Aucun document joint. Les procédures et plans requis s'ajoutent ici.</li></ul>
+      </div>
+
+      <div class="block fsct-block" id="finBlock"></div>
+
+      <div class="block" id="supBlock"></div>
+    </section>
+
+    <!-- RIGHT: status + alerts -->
+    <aside class="col-rail" aria-label="État et alertes">
+      <div class="status" id="statusBanner" aria-live="polite">
+        <div class="status-hazard" aria-hidden="true"></div>
+        <div class="status-body">
+          <span class="status-ico" id="statusIco">⛔</span>
+          <div>
+            <div class="status-title" id="statusTitle">Autorisation bloquée</div>
+            <div class="status-sub" id="statusSub">3 point(s) à régler avant de descendre</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alerts-head">
+        <h2>Vérifications</h2>
+        <span class="legend"><i class="dot crit"></i>bloquant <i class="dot warn"></i>à régler <i class="dot info"></i>info</span>
+      </div>
+      <ul class="alerts" id="alertsList"></ul>
+    </aside>
+  </main>
+
+  <!-- MATRICE DE FORMATION -->
+  <section class="matrix-view" id="view-matrix" hidden>
+    <div class="mx-head">
+      <h2>Matrice de formation</h2>
+      <p class="mx-sub">Compétences des travailleurs × exigences des tâches du quart. L'assignation se bloque automatiquement si une compétence est manquante, expirée ou à réviser.</p>
+    </div>
+    <div class="mx-legend">
+      <span><i class="mx-key valid"></i> Valide</span>
+      <span><i class="mx-key exp"></i> Expire bientôt</span>
+      <span><i class="mx-key review"></i> À réviser</span>
+      <span><i class="mx-key miss"></i> Manquante (tâche assignée)</span>
+      <span><i class="mx-key none"></i> Non certifié</span>
+    </div>
+    <div class="matrix-wrap"><table class="matrix" id="matrixTbl"></table></div>
+    <div class="mx-alarm" id="mxAlarm"></div>
+  </section>
+
+  <!-- REFERENTIEL -->
+  <section class="ref" id="view-ref" hidden>
+    <div class="ref-head">
+      <div>
+        <h2>Référentiel</h2>
+        <p class="ref-sub">Règlement sur la SST dans les mines (RSSM) + procédures internes — toujours à jour.</p>
+      </div>
+      <input id="refSearch" class="ref-search" type="search" placeholder="Rechercher un article ou une procédure…" aria-label="Rechercher">
+    </div>
+    <div class="ref-cols">
+      <div><h3 class="ref-cat">Réglementation minière (RSSM)</h3><ul class="ref-list" id="refReg"></ul></div>
+      <div><h3 class="ref-cat">Procédures internes</h3><ul class="ref-list" id="refProc"></ul></div>
+    </div>
+  </section>
+
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+</div>
+
+<style>
+  :root{
+    --bg:#EEF2F5; --surface:#FFFFFF; --surface-2:#F5F8FA; --surface-3:#EDF1F5;
+    --border:#D6DFE7; --border-2:#C4D0DA;
+    --text:#152029; --muted:#5B6975; --faint:#8494A0;
+    --accent:#0E7490; --accent-2:#0B5E74; --on-accent:#FFFFFF; --accent-soft:#DFF1F5;
+    --crit:#C93944; --crit-bg:#FBEAEC; --crit-line:#E4A9AE;
+    --warn:#9A6A12; --warn-bg:#F8F0DA; --warn-line:#E0C489;
+    --info:#2160D8; --info-bg:#E6EDFC; --info-line:#AFC4F1;
+    --conflict:#7C4DD6; --conflict-bg:#F0EAFB; --conflict-line:#CDB9F0;
+    --ok:#188A5F; --ok-bg:#E1F4EC; --ok-line:#A6DCC5;
+    --hz-a:#F2B01E; --hz-b:#1c1c1c;
+    --shadow:0 1px 2px rgba(20,35,50,.06),0 8px 24px rgba(20,35,50,.06);
+    --radius:12px; --radius-s:9px;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  :root{ --faint:#8494A0; }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0C1219; --surface:#131C25; --surface-2:#1A2530; --surface-3:#213040;
+      --border:#293745; --border-2:#35485A;
+      --text:#E7EEF4; --muted:#93A2AF; --faint:#6C7E8C;
+      --accent:#25A9C4; --accent-2:#3ABAD2; --on-accent:#042028; --accent-soft:#0F2E37;
+      --crit:#F0616B; --crit-bg:#2A171A; --crit-line:#5B2A2F;
+      --warn:#E4AC53; --warn-bg:#2A2314; --warn-line:#584A28;
+      --info:#7AA6FF; --info-bg:#161F38; --info-line:#2C3D63;
+      --conflict:#B79BFA; --conflict-bg:#1E1934; --conflict-line:#3A2E5C;
+      --ok:#48C48D; --ok-bg:#0F2A20; --ok-line:#24503C;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1219; --surface:#131C25; --surface-2:#1A2530; --surface-3:#213040;
+    --border:#293745; --border-2:#35485A;
+    --text:#E7EEF4; --muted:#93A2AF; --faint:#6C7E8C;
+    --accent:#25A9C4; --accent-2:#3ABAD2; --on-accent:#042028; --accent-soft:#0F2E37;
+    --crit:#F0616B; --crit-bg:#2A171A; --crit-line:#5B2A2F;
+    --warn:#E4AC53; --warn-bg:#2A2314; --warn-line:#584A28;
+    --info:#7AA6FF; --info-bg:#161F38; --info-line:#2C3D63;
+    --conflict:#B79BFA; --conflict-bg:#1E1934; --conflict-line:#3A2E5C;
+    --ok:#48C48D; --ok-bg:#0F2A20; --ok-line:#24503C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#EEF2F5; --surface:#FFFFFF; --surface-2:#F5F8FA; --surface-3:#EDF1F5;
+    --border:#D6DFE7; --border-2:#C4D0DA;
+    --text:#152029; --muted:#5B6975; --faint:#8494A0;
+    --accent:#0E7490; --accent-2:#0B5E74; --on-accent:#FFFFFF; --accent-soft:#DFF1F5;
+    --crit:#C93944; --crit-bg:#FBEAEC; --crit-line:#E4A9AE;
+    --warn:#9A6A12; --warn-bg:#F8F0DA; --warn-line:#E0C489;
+    --info:#2160D8; --info-bg:#E6EDFC; --info-line:#AFC4F1;
+    --conflict:#7C4DD6; --conflict-bg:#F0EAFB; --conflict-line:#CDB9F0;
+    --ok:#188A5F; --ok-bg:#E1F4EC; --ok-line:#A6DCC5;
+    --shadow:0 1px 2px rgba(20,35,50,.06),0 8px 24px rgba(20,35,50,.06);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{background:var(--bg)}
+  #app{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
+  button{font-family:inherit}
+
+  /* App bar */
+  .appbar{display:flex;align-items:center;gap:18px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand-mark{color:var(--accent);display:flex}
+  .brand-txt{display:flex;flex-direction:column;line-height:1.15}
+  .brand-txt strong{font-size:15px;letter-spacing:-.01em}
+  .brand-txt span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .chip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:100px}
+  .chip-demo{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
+  .tabs{display:flex;gap:4px;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{appearance:none;border:none;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:8px;cursor:pointer;flex:0 0 auto;white-space:nowrap}
+  .tab:hover{background:var(--surface-2);color:var(--text)}
+  .tab.is-active{background:var(--accent-soft);color:var(--accent)}
+  .theme-btn{margin-left:auto;display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer}
+  .theme-btn:hover{color:var(--text);border-color:var(--border-2)}
+  .theme-ico{font-size:14px}
+  .hazard{height:6px;background:repeating-linear-gradient(45deg,var(--hz-a) 0 13px,var(--hz-b) 13px 26px);opacity:.9}
+
+  /* Console layout */
+  .console{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;max-width:1180px;margin:0 auto;padding:20px}
+  .col-card,.col-rail{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+  .card-head{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:700}
+  .cardno{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:2px;letter-spacing:-.02em}
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;margin:0}
+  .meta div{display:flex;flex-direction:column}
+  .meta dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
+  .meta dd{margin:0;font-size:13.5px;font-weight:600}
+
+  .pickers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field>span{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  select,input{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border-2);border-radius:var(--radius-s);padding:10px 11px;font-size:14px;font-family:inherit}
+  select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 18px,calc(100% - 12px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
+  input:focus,select:focus,.tab:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .task-detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .td-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border)}
+  .td-row:first-child{border-top:none;padding-top:2px}
+  .td-k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;flex:0 0 116px;padding-top:3px}
+  .td-v{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border-2)}
+  .tag.mono{font-family:var(--mono);font-weight:600}
+  .tag.ok{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+  .tag.miss{background:var(--crit-bg);border-color:var(--crit-line);color:var(--crit)}
+
+  .block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .block-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .block-head h3{font-size:13.5px;letter-spacing:-.01em}
+  .block-head .hint{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .count{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:1px 9px}
+  .time-grid{display:grid;grid-template-columns:90px 140px 1fr;gap:10px}
+  .field.small,.field.grow{gap:5px}
+  .time-actions{display:flex;align-items:center;gap:12px;margin-top:11px}
+  .pay-state{font-size:12.5px;color:var(--ok);font-weight:600}
+
+  .btn{appearance:none;border:1px solid transparent;border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .btn-ghost{background:var(--surface-2);border-color:var(--border-2);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-sm{padding:6px 10px;font-size:12px}
+  .btn-print{background:var(--accent);color:var(--on-accent)}
+  .btn-print:hover{background:var(--accent-2)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+
+  .docs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .docs-empty{font-size:12.5px;color:var(--faint);font-style:italic}
+  .doc{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px}
+  .doc .di{color:var(--accent)}
+  .doc .dn{font-family:var(--mono);font-weight:600}
+  .doc .dl{color:var(--muted)}
+  .doc .dstamp{margin-left:auto;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+  /* Status banner */
+  .status{border-radius:var(--radius);overflow:hidden;border:1px solid var(--crit-line);background:var(--crit-bg);box-shadow:var(--shadow)}
+  .status.ready{border-color:var(--ok-line);background:var(--ok-bg)}
+  .status-hazard{height:6px;background:repeating-linear-gradient(45deg,var(--hz-a) 0 13px,var(--hz-b) 13px 26px)}
+  .status.ready .status-hazard{background:var(--ok)}
+  .status-body{display:flex;align-items:center;gap:14px;padding:15px 17px}
+  .status-ico{font-size:26px;line-height:1}
+  .status-title{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--crit)}
+  .status.ready .status-title{color:var(--ok)}
+  .status-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+
+  .alerts-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:2px}
+  .alerts-head h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .legend{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--faint)}
+  .legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+  .dot.crit{background:var(--crit)} .dot.warn{background:var(--warn)} .dot.info{background:var(--info)}
+
+  .alerts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .alert{position:relative;display:flex;gap:12px;padding:13px 14px 13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-s);box-shadow:var(--shadow)}
+  .alert::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--radius-s) 0 0 var(--radius-s)}
+  .alert.crit::before{background:var(--crit)} .alert.warn::before{background:var(--warn)}
+  .alert.info::before{background:var(--info)} .alert.conflict::before{background:var(--conflict)}
+  .alert.maint::before{background:var(--warn)} .alert.ok::before{background:var(--ok)}
+  .alert.resolved{opacity:.62}
+  .a-ico{flex:0 0 30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:15px}
+  .alert.crit .a-ico{background:var(--crit-bg);color:var(--crit)}
+  .alert.warn .a-ico,.alert.maint .a-ico{background:var(--warn-bg);color:var(--warn)}
+  .alert.info .a-ico{background:var(--info-bg);color:var(--info)}
+  .alert.conflict .a-ico{background:var(--conflict-bg);color:var(--conflict)}
+  .alert.ok .a-ico{background:var(--ok-bg);color:var(--ok)}
+  .a-body{flex:1;min-width:0}
+  .a-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .a-title{font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+  .a-badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:100px}
+  .alert.crit .a-badge{background:var(--crit-bg);color:var(--crit)}
+  .alert.warn .a-badge,.alert.maint .a-badge{background:var(--warn-bg);color:var(--warn)}
+  .alert.info .a-badge{background:var(--info-bg);color:var(--info)}
+  .alert.conflict .a-badge{background:var(--conflict-bg);color:var(--conflict)}
+  .alert.ok .a-badge{background:var(--ok-bg);color:var(--ok)}
+  .a-detail{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .a-detail .mono{color:var(--text)}
+  .a-actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .a-resolved-lbl{font-size:11.5px;color:var(--ok);font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .countdown{font-family:var(--mono);font-weight:700;color:var(--warn);font-size:12.5px}
+
+  /* Referentiel */
+  .ref{max-width:1000px;margin:0 auto;padding:22px 20px}
+  .ref-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .ref-head h2{font-size:20px;letter-spacing:-.02em}
+  .ref-sub{margin:4px 0 0;font-size:13px;color:var(--muted)}
+  .ref-search{max-width:340px}
+  .ref-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .ref-cat{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:9px}
+  .ref-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .ref-item{display:flex;gap:11px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-s);align-items:baseline}
+  .ref-id{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);flex:0 0 auto}
+  .ref-t{font-size:13px}
+  .ref-item.hidden{display:none}
+
+  /* Toasts */
+  .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;gap:9px;z-index:60;width:min(420px,92vw)}
+  .toast{display:flex;align-items:center;gap:10px;background:var(--text);color:var(--bg);padding:11px 15px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.28);animation:tin .25s ease}
+  .toast .ti{color:var(--hz-a)}
+  @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (max-width:860px){
+    .console{grid-template-columns:1fr}
+    .col-rail{order:-1}
+    .meta{grid-template-columns:1fr 1fr}
+    .tabs .tab{padding:8px 10px}
+    .brand-txt span{display:none}
+  }
+  @media (max-width:520px){
+    .pickers,.time-grid{grid-template-columns:1fr}
+    .ref-cols{grid-template-columns:1fr}
+    .theme-lbl{display:none}
+  }
+  /* Analyse de risques (carte AMQ) */
+  .amq-head{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap}
+  .amq-head h3{font-size:13.5px;letter-spacing:-.01em}
+  .amq-badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);background:var(--accent-soft);border:1px solid var(--border-2);padding:2px 7px;border-radius:100px}
+  .amq-head .hint{font-size:11px;color:var(--faint);margin-left:auto}
+  .steps{display:flex;flex-direction:column;gap:11px}
+  .step{border:1px solid var(--border);border-radius:var(--radius-s);overflow:hidden}
+  .step-h{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+  .step-n{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surface-3);border-radius:6px;padding:1px 7px;white-space:nowrap}
+  .step-t{font-size:12.5px;font-weight:700}
+  .risk{display:grid;grid-template-columns:92px 1fr;gap:11px;padding:9px 11px;border-top:1px solid var(--border)}
+  .risk:first-of-type{border-top:none}
+  .risk-lvl{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+  .lvl-chip{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:6px;white-space:nowrap}
+  .lvl-score{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .lvl-low{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .lvl-med{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+  .lvl-high{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .lvl-crit{background:var(--crit);color:#fff;border:1px solid var(--crit)}
+  .risk-txt{min-width:0}
+  .risk-haz{font-size:12.5px;font-weight:600}
+  .risk-ctl{font-size:12px;color:var(--muted);margin-top:2px}
+  .risk-ctl b{color:var(--text);font-weight:700}
+
+  /* Formule de supervision */
+  .sup-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .sup-head h3{font-size:13.5px}
+  .sup-audit{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:2px 9px}
+  .sup-obs{font-size:12.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:11px}
+  .signs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .sign{border:1px dashed var(--border-2);border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+  .sign-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
+  .sign-name{font-size:13px;font-weight:600}
+  .sign.signed{border-style:solid;border-color:var(--ok-line);background:var(--ok-bg)}
+  .sign-done{font-size:12px;color:var(--ok);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .sign-done .mono{color:var(--ok)}
+  .authorize{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .btn-authorize{background:var(--ok);color:#fff;border-color:var(--ok);font-size:13.5px;padding:10px 16px}
+  .btn-authorize:hover:not(:disabled){filter:brightness(1.06)}
+  .auth-note{font-size:12px;color:var(--muted)}
+  .auth-done{font-size:13px;color:var(--ok);font-weight:700}
+
+  /* Planification (accueil) */
+  .board{max-width:1240px;margin:0 auto;padding:18px 20px}
+  .board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .board-title{font-size:18px;letter-spacing:-.01em;margin-top:2px}
+  .board-hint{font-size:12px;color:var(--muted)}
+  .depts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  .dept{appearance:none;border:1px solid var(--border-2);background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:100px;cursor:pointer;font-family:inherit}
+  .dept:hover{color:var(--text);border-color:var(--accent)}
+  .dept.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .dept .dept-n{font-family:var(--mono);opacity:.7;margin-left:5px}
+  .plan-layout{display:grid;grid-template-columns:1.55fr .95fr;gap:16px;align-items:start}
+  .board-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  .board-tbl{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+  .board-tbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+  .board-tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  .board-tbl tr:last-child td{border-bottom:none}
+  .b-row{cursor:pointer}
+  .b-row:hover td{background:var(--surface-2)}
+  .b-row.sel td{background:var(--accent-soft)}
+  .b-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .b-task{font-weight:700}
+  .b-task .b-dept{display:block;font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .st-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:100px;white-space:nowrap}
+  .st-pret{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .st-bloque{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .pl-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+  .pl-name{font-weight:600}
+  .plan-link{appearance:none;border:1px solid var(--border-2);background:var(--surface-2);color:var(--accent);font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;text-align:left}
+  .plan-link:hover{border-color:var(--accent)}
+  .eq-cell{display:flex;flex-direction:column;gap:3px}
+  .eq-name{font-size:11.5px}
+  .eq-ok{font-size:11px;font-weight:700;color:var(--ok)}
+  .eq-maint{font-size:11px;font-weight:700;color:var(--warn)}
+  .eq-bris{font-size:11px;font-weight:700;color:var(--crit)}
+  .wk-cell{display:flex;flex-direction:column;gap:5px}
+  .wk-name{font-weight:600}
+  .wk-id{font-size:11px;color:var(--muted);font-weight:600}
+  .wk-forms{display:flex;flex-wrap:wrap;gap:4px}
+  .mini-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border-2);color:var(--muted)}
+  .mini-tag.miss{background:var(--crit-bg);border-color:var(--crit-line);color:var(--crit)}
+  .rev-flag{font-size:10.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:5px;padding:2px 6px;align-self:flex-start}
+  .co-flag{font-size:10.5px;font-weight:700;color:var(--conflict);background:var(--conflict-bg);border:1px solid var(--conflict-line);border-radius:5px;padding:2px 6px;align-self:flex-start}
+
+  /* Aperçu de la carte (preview) */
+  .preview{position:sticky;top:78px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);padding:15px 16px}
+  .pv-eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:700}
+  .pv-title{font-size:16px;letter-spacing:-.01em;margin:2px 0 4px}
+  .pv-sub{font-size:12px;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .pv-row{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .pv-k{flex:0 0 90px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700;padding-top:2px}
+  .pv-v{flex:1;font-size:12.5px;min-width:0}
+  .pv-forms{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .pv-co{background:var(--conflict-bg);border:1px solid var(--conflict-line);border-radius:8px;padding:9px 11px;margin-top:11px;font-size:12px;line-height:1.5}
+  .pv-co b{color:var(--conflict)}
+  .pv-open{margin-top:13px;width:100%;justify-content:center}
+  .backlink{align-self:flex-start;appearance:none;background:var(--surface-2);border:1px solid var(--border-2);color:var(--accent);font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .backlink:hover{border-color:var(--accent)}
+  @media (max-width:900px){ .plan-layout{grid-template-columns:1fr} .preview{position:static} }
+
+  /* Tableau de bord */
+  .dash{max-width:1180px;margin:0 auto;padding:20px}
+  .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+  .hero-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:800}
+  .hero-title{font-size:21px;letter-spacing:-.02em;margin:4px 0 5px;max-width:34ch}
+  .hero-sub{font-size:12.5px;color:var(--muted);max-width:60ch}
+  .hero-meta{text-align:right;font-size:12px;color:var(--muted);line-height:1.5}
+  .hero-meta .hm-quart{font-weight:800;color:var(--text);font-size:13px}
+  .hero-meta .hm-site{font-size:11px;color:var(--faint)}
+  .demo-note{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:100px;padding:3px 10px;margin-top:10px}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+  .kpi{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px 13px 18px;box-shadow:var(--shadow);cursor:pointer;text-align:left;font-family:inherit;display:block}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .kpi.k-crit::before{background:var(--crit)} .kpi.k-warn::before{background:var(--warn)} .kpi.k-ok::before{background:var(--ok)}
+  .kpi:hover{border-color:var(--accent)}
+  .kpi-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700}
+  .kpi-v{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.02em;margin:6px 0 3px;line-height:1;color:var(--text)}
+  .kpi.k-crit .kpi-v{color:var(--crit)} .kpi.k-warn .kpi-v{color:var(--warn)} .kpi.k-ok .kpi-v{color:var(--ok)}
+  .kpi-sub{font-size:11.5px;color:var(--muted)}
+  .kpi-sub b.crit{color:var(--crit)} .kpi-sub b.ok{color:var(--ok)} .kpi-sub b.warn{color:var(--warn)}
+
+  .dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .panel-h{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--border)}
+  .panel-h h3{font-size:13.5px;letter-spacing:-.01em}
+  .panel-h .hint{font-size:11px;color:var(--faint);margin-left:auto}
+  .prio-list{list-style:none;margin:0;padding:8px}
+  .prio{display:flex;gap:11px;align-items:center;padding:10px 11px;border-radius:var(--radius-s);cursor:pointer;border:1px solid transparent;width:100%;text-align:left;background:none;font-family:inherit}
+  .prio:hover{background:var(--surface-2);border-color:var(--border)}
+  .prio:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .prio+.prio{margin-top:2px}
+  .prio-ico{flex:0 0 28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:14px}
+  .prio.p-crit .prio-ico{background:var(--crit-bg);color:var(--crit)}
+  .prio.p-conflict .prio-ico{background:var(--conflict-bg);color:var(--conflict)}
+  .prio.p-warn .prio-ico{background:var(--warn-bg);color:var(--warn)}
+  .prio-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .prio-t{font-size:12.5px;font-weight:700}
+  .prio-d{font-size:12px;color:var(--muted);margin-top:1px}
+  .prio-go{font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap}
+  .fleet{list-style:none;margin:0;padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+  .fleet li{display:flex;flex-direction:column;gap:3px;padding:9px 11px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px}
+  .fleet .fl-name{font-family:var(--mono);font-size:11.5px;font-weight:600}
+  @media (max-width:900px){ .kpis{grid-template-columns:1fr 1fr} .dash-grid{grid-template-columns:1fr} }
+
+  /* Matrice de formation */
+  .matrix-view{max-width:1100px;margin:0 auto;padding:22px 20px}
+  .mx-head h2{font-size:20px;letter-spacing:-.02em}
+  .mx-sub{margin:4px 0 0;font-size:13px;color:var(--muted);max-width:70ch}
+  .mx-legend{display:flex;gap:15px;flex-wrap:wrap;margin:13px 0 14px;font-size:11.5px;color:var(--muted)}
+  .mx-legend span{display:inline-flex;align-items:center;gap:6px}
+  .mx-key{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .mx-key.valid{background:var(--ok)} .mx-key.exp{background:var(--warn)} .mx-key.review{background:var(--conflict)} .mx-key.miss{background:var(--crit)} .mx-key.none{background:var(--border-2)}
+  .matrix-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  .matrix{border-collapse:collapse;width:100%;min-width:740px;font-size:12px}
+  .matrix th,.matrix td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:center}
+  .matrix thead th{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);font-weight:700;background:var(--surface-2);vertical-align:bottom}
+  .matrix th.mx-worker,.matrix td.mx-worker{text-align:left;position:sticky;left:0;background:var(--surface)}
+  .matrix thead th.mx-worker{background:var(--surface-2)}
+  .matrix tr:last-child td{border-bottom:none}
+  .mx-wname{font-weight:700;font-size:12.5px}
+  .mx-wid{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+  .mx-c{display:inline-flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:700;padding:4px 8px;border-radius:7px;min-width:62px}
+  .mx-c small{font-family:var(--mono);font-size:9.5px;font-weight:600;opacity:.85}
+  .mx-c.valid{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .mx-c.exp{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+  .mx-c.review{background:var(--conflict-bg);color:var(--conflict);border:1px solid var(--conflict-line)}
+  .mx-c.miss{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .mx-c.none{color:var(--faint)}
+  .mx-alarm{margin-top:14px;display:flex;gap:11px;align-items:flex-start;background:var(--crit-bg);border:1px solid var(--crit-line);border-radius:var(--radius-s);padding:12px 14px;font-size:12.5px;line-height:1.5}
+  .mx-alarm b{color:var(--crit)}
+
+  /* Écran d'ouverture (login) */
+  .login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;
+    background:radial-gradient(1100px 560px at 50% -12%, var(--accent-soft), transparent 62%), var(--bg)}
+  .login.hide{opacity:0;visibility:hidden;transition:opacity .5s ease, visibility 0s .5s}
+  .login-theme{position:absolute;top:18px;right:18px;margin:0;z-index:3}
+  .login-card{position:relative;z-index:2;width:min(450px,100%);background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:30px 30px 22px;animation:cardIn .5s cubic-bezier(.2,.7,.3,1)}
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .login-brand{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+  .login-mark{color:var(--accent);display:flex;flex:0 0 auto}
+  .login-name{font-size:22px;letter-spacing:-.02em}
+  .login-tag{margin:4px 0 0;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .login-fields{display:flex;flex-direction:column;gap:13px;margin-bottom:20px}
+  .login-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .login-go{width:100%;justify-content:center;font-size:14px;padding:12px}
+  .login-foot{display:flex;align-items:center;gap:10px;margin-top:15px;justify-content:center}
+  .login-note{font-size:11px;color:var(--faint)}
+  .login-hz{position:absolute;left:0;right:0;bottom:0;height:8px;z-index:1;opacity:.9;background:repeating-linear-gradient(45deg,var(--hz-a) 0 16px,var(--hz-b) 16px 32px)}
+  @media (max-width:420px){ .login-row{grid-template-columns:1fr} }
+
+  /* Transition douce entre les vues */
+  @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .view-anim{animation:viewIn .28s ease}
+
+  /* FSCT — carte de travail */
+  .fsct-band{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--on-accent);background:var(--accent);border-radius:5px;padding:2px 9px;margin:3px 0 4px}
+  .fsct-block{padding:0;overflow:hidden}
+  .fsct-h{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--accent);color:var(--on-accent)}
+  .fsct-h-red{background:var(--crit)}
+  .fsct-tag{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .fsct-hint{font-size:10.5px;font-weight:600;opacity:.9;margin-left:auto;text-transform:none;letter-spacing:0}
+  .fsct-block .lieu,.fsct-block .lieu-detail,.fsct-block .lieu-empty,.fsct-block .veh-wrap,.fsct-block .permis-row,.fsct-block .epi-row,.fsct-block .epi-mat,.fsct-block .att,.fsct-block .fin-field{padding-left:14px;padding-right:14px}
+
+  .lieu{display:flex;gap:11px;align-items:flex-start;padding-top:11px;padding-bottom:9px}
+  .lieu-n{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:800;color:var(--accent);background:var(--accent-soft);border:1px solid var(--border-2);border-radius:6px;padding:3px 8px}
+  .lieu-b{min-width:0}
+  .lieu-lieu{font-size:13px;font-weight:700}
+  .lieu-tache{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .lieu-sit{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .lieu-sit b{color:var(--text);font-weight:700}
+  .ld-v.cond{color:var(--warn);font-weight:700}
+  .lieu+.lieu{border-top:1px solid var(--border)}
+  .lieu-detail{display:flex;gap:10px;align-items:baseline;padding-top:8px;padding-bottom:8px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .ld-k{flex:0 0 130px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700}
+  .ld-v{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:12.5px;color:var(--muted)}
+  .lieu-empty{font-size:11px;color:var(--faint);font-style:italic;padding-top:8px;padding-bottom:11px;border-top:1px solid var(--border)}
+
+  .veh-wrap{overflow-x:auto;padding-top:10px;padding-bottom:12px}
+  .veh-tbl{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+  .veh-tbl th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700;padding:6px 9px;border-bottom:1px solid var(--border)}
+  .veh-tbl td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+  .veh-tbl tr:last-child td{border-bottom:none}
+  .veh-ok{color:var(--ok);font-weight:700} .veh-bris{color:var(--crit);font-weight:700} .veh-warn{color:var(--warn);font-weight:700}
+
+  .permis-row,.epi-row{display:flex;flex-wrap:wrap;gap:7px;padding-top:11px;padding-bottom:12px}
+  .permis{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px;border:1px solid var(--border-2);color:var(--faint);background:var(--surface-2)}
+  .permis.on{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
+  .epi{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:6px;border:1px solid var(--border-2);background:var(--surface-2);color:var(--text)}
+  .epi-mat{font-size:12px;color:var(--muted);padding-bottom:12px}
+  .epi-mat b{color:var(--text)}
+
+  .att{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-top:9px;padding-bottom:9px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .fsct-block .att:first-of-type{border-top:none}
+  .att-q{font-size:12.5px;flex:1;min-width:60%}
+  .att-q b{font-weight:800}
+  .att-a{flex:0 0 auto}
+  .att-auto{font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:7px;white-space:nowrap}
+  .att-auto.yes{color:var(--ok);background:var(--ok-bg);border:1px solid var(--ok-line)}
+  .att-auto.no{color:var(--crit);background:var(--crit-bg);border:1px solid var(--crit-line)}
+  .yn{display:flex;gap:6px;flex:0 0 auto}
+  .yn-b{appearance:none;border:1px solid var(--border-2);background:var(--surface-2);color:var(--muted);font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit}
+  .yn-b.yn-oui.on{background:var(--ok);border-color:var(--ok);color:#fff}
+  .yn-b.yn-non.on{background:var(--crit);border-color:var(--crit);color:#fff}
+
+  .carre-rouge{border:2px solid var(--crit);border-radius:var(--radius-s);margin:12px 14px;overflow:hidden}
+  .cr-title{background:var(--crit);color:#fff;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:6px 12px}
+  .carre-rouge .att{padding-left:12px;padding-right:12px}
+  .carre-rouge .att.cr:first-of-type{border-top:none}
+  .fin-field{display:flex;flex-direction:column;gap:5px;padding-top:10px;padding-bottom:2px}
+  .fin-field:last-child{padding-bottom:12px}
+  .fin-field > span{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  .fin-field textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border-2);border-radius:var(--radius-s);padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical}
+  .fin-esc{font-size:12px;font-weight:700;color:var(--crit);background:var(--crit-bg);border:1px solid var(--crit-line);border-radius:7px;padding:8px 11px;margin:0 12px 10px}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<script>
+(function(){
+  "use strict";
+  var FMT={ CADENASSAGE:"Cadenassage (LOTO)", CONTROLE_TERRAIN:"Contrôle de terrain", ESPACES_CLOS:"Travail en espace clos", HAUTEUR:"Travail en hauteur", PREMIERS_SOINS:"Premiers soins", JUMBO:"Conduite de jumbo (dév.)", BOULONNAGE:"Boulonnage (Boltec)", CHARGEUSE:"Chargeuse-navette (scoop)", FOREUSE:"Foreuse de production", CAMION:"Conduite de camion", BOUTEFEU:"Sautage / boutefeu" };
+  var FMT_SHORT={ CADENASSAGE:"Cadenassage", CONTROLE_TERRAIN:"Contrôle terrain", ESPACES_CLOS:"Espace clos", HAUTEUR:"Hauteur", PREMIERS_SOINS:"Premiers soins", JUMBO:"Jumbo", BOULONNAGE:"Boulonnage", CHARGEUSE:"Scoop", FOREUSE:"Foreuse prod.", CAMION:"Camion", BOUTEFEU:"Boutefeu" };
+  var WORKERS={
+    "M-1042":{name:"Jean Tremblay", role:"Foreur de production", form:["FOREUSE","CONTROLE_TERRAIN","CADENASSAGE","CHARGEUSE"], proc:["PR-FOR-11","PR-CT-02"]},
+    "M-1187":{name:"Marc Gagné", role:"Opérateur jumbo / scoop", form:["JUMBO","CHARGEUSE","CADENASSAGE","HAUTEUR","CONTROLE_TERRAIN"], proc:["PR-JU-04","PR-CAD-03","PR-CT-02"]},
+    "M-1203":{name:"Sophie Roy", role:"Service & secourisme minier", form:["ESPACES_CLOS","PREMIERS_SOINS","CADENASSAGE"], proc:["PR-EC-07"]},
+    "M-1256":{name:"Éric Bouchard", role:"Boulonneur (Boltec)", form:["BOULONNAGE","CONTROLE_TERRAIN","CADENASSAGE","HAUTEUR"], proc:["PR-BO-06","PR-CT-02"], rev:["PR-BO-06"]},
+    "M-1301":{name:"Nadia Fortin", role:"Foreuse jumbo (dév.)", form:["JUMBO","CONTROLE_TERRAIN","CADENASSAGE"], proc:["PR-JU-04","PR-CT-02"]},
+    "M-1330":{name:"Luc Bergeron", role:"Opérateur camion / scoop", form:["CAMION","CHARGEUSE","CADENASSAGE"], proc:["PR-CA-02"]},
+    "M-1298":{name:"Steeve Côté", role:"Boutefeu / dynamiteur", form:["BOUTEFEU","CONTROLE_TERRAIN","CADENASSAGE","ESPACES_CLOS"], proc:["PR-SAU-09","PR-CT-02"]},
+    "M-1377":{name:"Karine Lavoie", role:"Mécanicienne d'entretien", form:["CADENASSAGE","HAUTEUR","ESPACES_CLOS"], proc:["PR-EC-07"]},
+    "M-1405":{name:"Patrick Roy", role:"Opérateur camion / scoop", form:["CAMION","CHARGEUSE","CADENASSAGE"], proc:["PR-CA-02"]},
+    "M-1421":{name:"Mélanie Gauthier", role:"Chef d'équipe (superviseure)", form:["CONTROLE_TERRAIN","CADENASSAGE","PREMIERS_SOINS","ESPACES_CLOS"], proc:["PR-CT-02","PR-EC-07"]},
+    "M-1466":{name:"Sylvie Gauthier", role:"Boutefeu — chargement explosif", form:["BOUTEFEU","CONTROLE_TERRAIN","CADENASSAGE","ESPACES_CLOS"], proc:["PR-SAU-09","PR-CT-02"]}
+  };
+  // Certifications par compétence détenue : st = valid | exp (expire bientôt) | review (à réviser). Cohérent avec WORKERS.form.
+  var CERT={
+    "M-1042":{ FOREUSE:{st:"valid",d:"11-2026"}, CONTROLE_TERRAIN:{st:"valid",d:"03-2027"}, CADENASSAGE:{st:"review",d:"02-2026"}, CHARGEUSE:{st:"valid",d:"02-2027"} },
+    "M-1187":{ JUMBO:{st:"valid",d:"09-2026"}, CHARGEUSE:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"03-2027"}, HAUTEUR:{st:"exp",d:"08-2026"}, CONTROLE_TERRAIN:{st:"valid",d:"06-2027"} },
+    "M-1203":{ ESPACES_CLOS:{st:"valid",d:"04-2027"}, PREMIERS_SOINS:{st:"exp",d:"08-2026"}, CADENASSAGE:{st:"valid",d:"12-2026"} },
+    "M-1256":{ BOULONNAGE:{st:"valid",d:"05-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"10-2026"}, HAUTEUR:{st:"valid",d:"07-2027"} },
+    "M-1301":{ JUMBO:{st:"valid",d:"04-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"03-2027"}, CADENASSAGE:{st:"valid",d:"11-2026"} },
+    "M-1330":{ CAMION:{st:"valid",d:"02-2027"}, CHARGEUSE:{st:"exp",d:"09-2026"}, CADENASSAGE:{st:"valid",d:"05-2027"} },
+    "M-1298":{ BOUTEFEU:{st:"valid",d:"06-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"02-2027"}, CADENASSAGE:{st:"valid",d:"01-2027"}, ESPACES_CLOS:{st:"review",d:"03-2026"} },
+    "M-1377":{ CADENASSAGE:{st:"valid",d:"12-2026"}, HAUTEUR:{st:"valid",d:"08-2027"}, ESPACES_CLOS:{st:"valid",d:"04-2027"} },
+    "M-1405":{ CAMION:{st:"valid",d:"03-2027"}, CHARGEUSE:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"09-2026"} },
+    "M-1421":{ CONTROLE_TERRAIN:{st:"valid",d:"05-2027"}, CADENASSAGE:{st:"valid",d:"02-2027"}, PREMIERS_SOINS:{st:"valid",d:"11-2026"}, ESPACES_CLOS:{st:"valid",d:"06-2027"} },
+    "M-1466":{ BOUTEFEU:{st:"valid",d:"04-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"10-2026"}, ESPACES_CLOS:{st:"valid",d:"03-2027"} }
+  };
+  var PROC={
+    "PR-CAD-03":"Cadenassage de convoyeur",
+    "PR-FOR-11":"Cadenassage et opération de foreuse de production",
+    "PR-EC-07":"Entrée en espace clos",
+    "PR-JU-04":"Opération de jumbo de développement",
+    "PR-BO-06":"Boulonnage mécanisé (Boltec)",
+    "PR-CA-02":"Conduite de camion — rampes et circulation",
+    "PR-SAU-09":"Chargement d'explosifs et sautage souterrain",
+    "PR-CT-02":"Purge et écaillage — contrôle de terrain"
+  };
+  // Flotte : JU=jumbo · BO=boulonneuse (Boltec) · CN=chargeuse-navette (scoop) · CA=camion · JP=jeep · FO=foreuse de production · CE=chargeuse d'explosifs
+  var EQUIP={
+    "JU-201":{label:"Jumbo Epiroc Boomer #JU-201", maint:null},
+    "JU-202":{label:"Jumbo Epiroc Boomer #JU-202", maint:{state:"planifiee", inMs:(1*24+8)*3600e3}},
+    "JU-203":{label:"Jumbo Sandvik DD421 #JU-203", maint:{state:"bris", desc:"Bras de forage — vérin défectueux"}},
+    "BO-301":{label:"Boulonneuse Boltec #BO-301", maint:null},
+    "BO-302":{label:"Boulonneuse Boltec #BO-302", maint:{state:"planifiee", inMs:(2*24+6)*3600e3}},
+    "CN-401":{label:"Chargeuse-navette Scooptram #CN-401", maint:null},
+    "CN-402":{label:"Chargeuse-navette Scooptram #CN-402", maint:{state:"encours"}},
+    "CN-403":{label:"Chargeuse-navette Scooptram #CN-403", maint:null},
+    "CA-501":{label:"Camion Toro TH #CA-501", maint:null},
+    "CA-502":{label:"Camion Toro TH #CA-502", maint:{state:"planifiee", inMs:(4*24+3)*3600e3}},
+    "JP-01":{label:"Jeep de service #JP-01", maint:null},
+    "JP-02":{label:"Jeep de service #JP-02", maint:{state:"bris", desc:"Fuite hydraulique"}},
+    "FO-701":{label:"Foreuse de production Sandvik DL #FO-701", maint:null},
+    "FO-702":{label:"Foreuse de production Simba #FO-702", maint:null},
+    "CE-901":{label:"Chargeuse d'explosifs (émulsion) #CE-901", maint:null},
+    "EMU-002":{label:"Unité d'émulsion #EMU-002", maint:null},
+    "CV-2":{label:"Convoyeur CV-2", maint:null},
+    "DG-05":{label:"Détecteur 4 gaz #DG-05", maint:null}
+  };
+  var SECTORS={
+    "1250":{co:null},
+    "170-22":{co:null},
+    "4-D":{co:null},
+    "1420":{co:{dept:"Électrique", task:"Tirage de câble", win:"06:00–14:00", prio:"Travaux électriques (cadenassage) prioritaires — forage en attente de libération du secteur."}},
+    "830":{co:null},
+    "6-B":{co:null},
+    "2-A":{co:null},
+    "5-C":{co:{dept:"Ventilation", task:"Réfection de gaine d'aérage", win:"07:00–19:00", prio:"Ventilation prioritaire avant l'entrée en espace clos."}}
+  };
+  var TASKS={
+    "T-DEV-1250":{label:"Développement — avancement (niveau 1250)", short:"Dév. — avancement", dept:"Développement", chantier:"Niveau 1250", sector:"1250", worker:"M-1301",
+      form:["JUMBO","CONTROLE_TERRAIN"], proc:[{id:"PR-JU-04", equip:"Jumbo Epiroc Boomer"}], plans:[{id:"PL-1250-DEV", label:"Plan de développement 1250"}], equip:["JU-201"],
+      materiel:"Aucun", terrain:"Niveau humide — bonne aération"},
+    "T-DEV-170":{label:"Développement — avancement (170-22)", short:"Dév. — avancement", dept:"Développement", chantier:"Chantier 170-22", sector:"170-22", worker:"M-1187",
+      form:["JUMBO","CONTROLE_TERRAIN"], proc:[{id:"PR-JU-04", equip:"Jumbo Sandvik DD421"}], plans:[{id:"PL-170-DEV", label:"Plan de développement 170-22"}], equip:["JU-203"],
+      materiel:"Aucun", terrain:"Galerie étroite — signalisation requise"},
+    "T-BO-1250":{label:"Boulonnage du toit — galerie 1250", short:"Boulonnage du toit", dept:"Boulonnage", chantier:"Galerie 1250-N", sector:"1250", worker:"M-1256",
+      form:["BOULONNAGE","CONTROLE_TERRAIN"], proc:[{id:"PR-BO-06", equip:"Boulonneuse Boltec #BO-301"}], plans:[{id:"PL-1250-BOUL", label:"Plan de boulonnage 1250"}], equip:["BO-301"],
+      materiel:"Boulons + résine", terrain:"Toit écaillé — purge complétée"},
+    "T-BO-4D":{label:"Boulonnage du toit — chantier 4-D", short:"Boulonnage du toit", dept:"Boulonnage", chantier:"Chantier 4-D", sector:"4-D", worker:"M-1405",
+      form:["BOULONNAGE","CONTROLE_TERRAIN"], proc:[{id:"PR-BO-06", equip:"Boulonneuse Boltec #BO-302"}], plans:[{id:"PL-4D-BOUL", label:"Plan de boulonnage 4-D"}], equip:["BO-302"],
+      materiel:"Boulons + résine", terrain:"Terrain fracturé — vigilance accrue"},
+    "T-FOR-1420":{label:"Forage production — chantier 1420", short:"Forage production", dept:"Forage", chantier:"Chantier 1420", sector:"1420", worker:"M-1042",
+      form:["FOREUSE","CONTROLE_TERRAIN"], proc:[{id:"PR-FOR-11", equip:"Foreuse Sandvik DL #FO-701"}],
+      plans:[{id:"PL-1420-MIN", label:"Plan de minage 1420"},{id:"DV-1420-BOUL", label:"Devis de boulonnage 1420"}], equip:["FO-701"],
+      materiel:"Aucun", terrain:"Venue d'eau au front 1420"},
+    "T-TR-830":{label:"Transport de minerai — rampe 830", short:"Transport de minerai", dept:"Production", chantier:"Rampe 830", sector:"830", worker:"M-1330",
+      form:["CAMION"], proc:[{id:"PR-CA-02", equip:"Camion Toro TH #CA-501"}], plans:[{id:"PL-830-CIRC", label:"Plan de circulation rampe 830"}], equip:["CA-501"],
+      materiel:"Aucun", terrain:"Rampe en pente — croisements fréquents"},
+    "T-SAU-6B":{label:"Chargement explosif", short:"Chargement explosif", dept:"Sautage", chantier:"036 GRO 05", sector:"6-B", worker:"M-1466",
+      form:["BOUTEFEU","CONTROLE_TERRAIN"], proc:[{id:"PR-SAU-09", equip:"Unité d'émulsion #EMU-002"}], plans:[{id:"PL-6B-SAUT", label:"Plan de sautage — secteur GRO/PSO"}], equip:["EMU-002"],
+      materiel:"Émulsion + détonateurs (selon plan)", terrain:"Front prêt — secteur à évacuer avant le tir",
+      stationnement:"Niveau 41", conditionSpeciale:"Rampe fermée de 11 h 30 à 12 h 30", epiExtra:["Harnais et longe"],
+      lieux:[{n:"#T1", lieu:"036 GRO 05", tache:"Chargement explosif", situation:"Prêt pour le chargement"},{n:"#T2", lieu:"051 PSO 114", tache:"Chargement explosif", situation:"Soutirage début de quart, devrait être prêt"}]},
+    "T-CAD-2A":{label:"Cadenassage convoyeur — niveau 2-A", short:"Cadenassage convoyeur", dept:"Entretien", chantier:"Niveau 2-A", sector:"2-A", worker:"M-1377",
+      form:["CADENASSAGE"], proc:[{id:"PR-CAD-03", equip:"Convoyeur CV-2"}],
+      plans:[{id:"SC-2A-CV", label:"Schéma d'isolement CV-2"}], equip:["CV-2"],
+      materiel:"Cadenas + moraillon", terrain:"—"},
+    "T-EC-5C":{label:"Inspection espace clos — réservoir R-12 (5-C)", short:"Inspection espace clos", dept:"Services", chantier:"Niveau 5-C", sector:"5-C", worker:"M-1203",
+      form:["ESPACES_CLOS"], proc:[{id:"PR-EC-07", equip:"Détecteur 4 gaz #DG-05"}],
+      plans:[{id:"FT-R12", label:"Fiche technique réservoir R-12"}], equip:["DG-05"],
+      materiel:"Détecteur 4 gaz, trépied, harnais", terrain:"Espace clos — accès restreint"}
+  };
+  var STEPS={
+    "T-DEV-1250":[
+      {t:"Purge et écaillage du front", r:[
+        {h:"Chute de blocs (contrôle de terrain)", c:"Purge mécanisée; ne pas s'engager sous du terrain non purgé", s:5, p:2}]},
+      {t:"Positionnement et forage au jumbo", r:[
+        {h:"Happement / pièces en mouvement", c:"Gardes en place; zone d'exclusion autour du bras", s:4, p:2},
+        {h:"Poussière de silice / bruit", c:"Arrosage; cabine pressurisée; protection auditive", s:3, p:3}]}
+    ],
+    "T-DEV-170":[
+      {t:"Inspection avant quart du jumbo", r:[
+        {h:"Équipement défectueux (bris signalé)", c:"Ne pas utiliser un équipement hors service; remplir le rapport de bris", s:5, p:3}]},
+      {t:"Accès et contrôle de terrain", r:[
+        {h:"Chute de pierres en galerie étroite", c:"Purge; signalisation; vitesse réduite", s:4, p:2}]}
+    ],
+    "T-BO-1250":[
+      {t:"Contrôle de terrain préalable", r:[
+        {h:"Effondrement / plaques instables", c:"Purge complète; séquence de boulonnage du bon vers le mauvais terrain", s:5, p:2}]},
+      {t:"Installation des boulons (Boltec)", r:[
+        {h:"Happement par la tête de forage", c:"Gardes; zone d'exclusion; télécommande", s:4, p:2},
+        {h:"Éclaboussures de résine", c:"Lunettes; gants; manutention selon SIMDUT", s:2, p:3}]}
+    ],
+    "T-BO-4D":[
+      {t:"Contrôle de terrain préalable", r:[
+        {h:"Terrain fracturé — chute de blocs", c:"Purge; ne pas s'engager sous terrain non soutenu", s:5, p:3}]},
+      {t:"Installation des boulons (Boltec)", r:[
+        {h:"Happement / pièces en mouvement", c:"Gardes; zone d'exclusion; opérateur qualifié", s:4, p:2}]}
+    ],
+    "T-FOR-1420":[
+      {t:"Accès et inspection du secteur", r:[
+        {h:"Mauvais contrôle de terrain", c:"Purge et écaillage; vérifier le boulonnage", s:4, p:2},
+        {h:"Poussière de silice cristalline", c:"Ventilation; masque P100; arrosage", s:3, p:3}]},
+      {t:"Cadenassage et mise en service de la foreuse", r:[
+        {h:"Énergie résiduelle / démarrage intempestif", c:"Cadenassage (LOTO) selon PR-FOR-11; essai « point zéro »", s:5, p:2}]},
+      {t:"Forage des trous longs", r:[
+        {h:"Happement par la tige rotative", c:"Gardes en place; zone dégagée", s:4, p:2},
+        {h:"Bruit &gt; 90 dBA", c:"Double protection auditive", s:2, p:4}]}
+    ],
+    "T-TR-830":[
+      {t:"Inspection avant quart du camion", r:[
+        {h:"Défaillance des freins ou de la direction", c:"Ronde de sécurité; carte d'inspection", s:5, p:2}]},
+      {t:"Circulation en rampe", r:[
+        {h:"Collision / perte de contrôle en pente", c:"Vitesse contrôlée; frein moteur; règles de priorité; radio", s:5, p:2}]},
+      {t:"Déchargement au point de transfert", r:[
+        {h:"Renversement / recul dangereux", c:"Butée de recul; klaxon; signaleur au besoin", s:4, p:2}]}
+    ],
+    "T-SAU-6B":[
+      {t:"Sécurisation et gardiennage du secteur", r:[
+        {h:"Présence de personnel dans la zone de tir", c:"Gardiennage; barrières; décompte du personnel; signaux", s:5, p:2}]},
+      {t:"Chargement des trous (émulsion)", r:[
+        {h:"Amorçage prématuré / manipulation d'explosifs", c:"Procédure de sautage; boutefeu certifié; aucune source d'inflammation", s:5, p:2}]},
+      {t:"Raccordement et tir", r:[
+        {h:"Ratés / gaz post-sautage", c:"Séquence de tir; délai de rentrée; ventilation; contrôle des gaz", s:5, p:2}]}
+    ],
+    "T-CAD-2A":[
+      {t:"Identification des sources d'énergie", r:[
+        {h:"Source d'énergie non identifiée", c:"Fiche de cadenassage CV-2; schéma d'isolement", s:5, p:2}]},
+      {t:"Isolement et cadenassage", r:[
+        {h:"Démarrage intempestif du convoyeur", c:"Cadenas personnel; essai de démarrage (test zéro)", s:5, p:2}]},
+      {t:"Vérification d'absence d'énergie", r:[
+        {h:"Énergie résiduelle (tension de la bande)", c:"Bloquer et caler; libérer la tension", s:4, p:2}]}
+    ],
+    "T-EC-5C":[
+      {t:"Test d'atmosphère avant entrée", r:[
+        {h:"Atmosphère déficiente en O₂ ou gaz toxiques", c:"Détecteur 4 gaz étalonné; test en continu", s:5, p:3}]},
+      {t:"Surveillant et ventilation", r:[
+        {h:"Absence de surveillant / de plan de sauvetage", c:"Surveillant dédié; plan de sauvetage; harnais", s:5, p:1}]},
+      {t:"Entrée et inspection", r:[
+        {h:"Chute / engloutissement", c:"Harnais + treuil; communication continue", s:4, p:2}]}
+    ]
+  };
+  var REF_REG=[
+    ["RSSM 8.1","Programme de prévention et méthodes de travail sécuritaires"],
+    ["RSSM 25","Cadenassage et contrôle des énergies dangereuses"],
+    ["RSSM 40","Aérage et qualité de l'air en milieu souterrain"],
+    ["RSSM 51","Contrôle de terrain et soutènement"],
+    ["RSSM 130","Travail en espace clos — surveillance et sauvetage"],
+    ["RSSM 213","Équipement mobile — circulation et signalisation"],
+    ["RSSM 260","Explosifs — transport, chargement et sautage"]
+  ];
+  var REF_PROC=[
+    ["PR-CAD-03","Cadenassage de convoyeur"],
+    ["PR-FOR-11","Cadenassage et opération de foreuse"],
+    ["PR-EC-07","Entrée et travail en espace clos"],
+    ["PR-JU-04","Opération de jumbo de développement"],
+    ["PR-BO-06","Boulonnage mécanisé (Boltec)"],
+    ["PR-CA-02","Conduite de camion — rampes et circulation"],
+    ["PR-SAU-09","Chargement d'explosifs et sautage souterrain"],
+    ["PR-CT-02","Purge et écaillage — contrôle de terrain"]
+  ];
+
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var state={task:"T-SAU-6B", worker:"M-1466", resolved:{}, docs:[], signed:{w:false,s:false}, att:{}, fin:{}, authorized:false, blocked:true, startTs:Date.now()};
+
+  function opt(sel,val,label,cur){var o=document.createElement("option");o.value=val;o.textContent=label;if(val===cur)o.selected=true;sel.appendChild(o);return o;}
+  function initSelects(){
+    var t=$("#taskSel"); for(var k in TASKS)opt(t,k,TASKS[k].label,state.task);
+    var w=$("#workerSel"); for(var m in WORKERS)opt(w,m,WORKERS[m].name+" · "+m,state.worker);
+  }
+
+  function computeAlerts(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], a=[];
+    // missing training (hard block, not resolvable now)
+    t.form.forEach(function(f){
+      if(w.form.indexOf(f)<0){
+        a.push({id:"form:"+f, sev:"crit", ico:"🎓", badge:"Bloquant", title:"Formation manquante",
+          detail:w.name+" n'a pas la formation <b>"+FMT[f]+"</b> requise pour cette tâche.",
+          act:{label:"Planifier la formation", kind:"schedule"}, block:true, resolvable:false});
+      }
+    });
+    // equipment maintenance
+    t.equip.forEach(function(e){
+      var eq=EQUIP[e], m=eq&&eq.maint; if(!m)return;
+      if(m.state==="bris"){
+        a.push({id:"equip:"+e, sev:"crit", ico:"⛔", badge:"Bris", title:"Équipement brisé",
+          detail:"<span class='mono'>"+eq.label+"</span> est <b>hors service</b> : "+m.desc+".",
+          act:{label:"Signaler / remplacer", kind:"info"}, block:true, resolvable:false});
+      } else if(m.state==="encours"){
+        a.push({id:"equip:"+e, sev:"crit", ico:"🔧", badge:"Indisponible", title:"Équipement en maintenance",
+          detail:"<span class='mono'>"+eq.label+"</span> est <b>en maintenance</b> — indisponible pour le quart.",
+          act:{label:"Voir le calendrier", kind:"info"}, block:true, resolvable:false});
+      } else {
+        a.push({id:"equip:"+e, sev:"maint", ico:"🔧", badge:"Maintenance", title:"Maintenance planifiée",
+          detail:"<span class='mono'>"+eq.label+"</span> — arrêt planifié dans <span class='countdown' data-in='"+m.inMs+"'>—</span>.",
+          block:false, resolvable:false});
+      }
+    });
+    // procedures to read before equipment
+    t.proc.forEach(function(p){
+      if(w.proc.indexOf(p.id)<0){
+        a.push({id:"proc:"+p.id, sev:"warn", ico:"📋", badge:"À régler", title:"Procédure à lire",
+          detail:"Procédure <span class='mono'>"+p.id+"</span> — "+PROC[p.id]+", à lire et signer <b>avant d'utiliser "+p.equip+"</b>.",
+          act:{label:"Imprimer et joindre", kind:"printProc", doc:{n:p.id, l:PROC[p.id]}}, block:true, resolvable:true});
+      }
+    });
+    // co-activity
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    if(co){
+      a.push({id:"co:"+t.sector, sev:"conflict", ico:"⚠️", badge:"À régler", title:"Conflit de co-activité",
+        detail:"Le département <b>"+co.dept+"</b> effectue « "+co.task+" » dans le secteur <span class='mono'>"+t.sector+"</span> ("+co.win+").<br><b>Priorité :</b> "+(co.prio||"à coordonner entre superviseurs")+"",
+        act:{label:"Coordonner et acquitter", kind:"ack"}, block:true, resolvable:true});
+    }
+    // plans & devis (info, attach)
+    t.plans.forEach(function(pl){
+      a.push({id:"plan:"+pl.id, sev:"info", ico:"📐", badge:"Document", title:"Plan / devis lié à la tâche",
+        detail:"<span class='mono'>"+pl.id+"</span> — "+pl.label+".",
+        act:{label:"Imprimer et joindre", kind:"printPlan", doc:{n:pl.id, l:pl.label}}, block:false, resolvable:true});
+    });
+    return a;
+  }
+
+  function unresolvedBlockers(alerts){
+    return alerts.filter(function(a){return a.block && !state.resolved[a.id];});
+  }
+
+  function render(){
+    var t=TASKS[state.task], w=WORKERS[state.worker];
+    $("#mSector").textContent=t.sector;
+    var _pe=$("#mPoste"); if(_pe) _pe.textContent=w.role||"—";
+    // FSCT — début de quart
+    renderLieux(); renderVehicule(); renderPermis(); renderEpi();
+
+    var alerts=computeAlerts();
+    // status
+    var blockers=unresolvedBlockers(alerts);
+    state.blocked=blockers.length>0;
+    var sb=$("#statusBanner");
+    if(blockers.length===0){
+      sb.className="status ready";
+      $("#statusIco").textContent="✅";
+      $("#statusTitle").textContent="Prêt à autoriser";
+      $("#statusSub").textContent="Toutes les vérifications sont satisfaites pour "+w.name+".";
+    } else {
+      sb.className="status";
+      $("#statusIco").textContent="⛔";
+      $("#statusTitle").textContent="Autorisation bloquée";
+      $("#statusSub").textContent=blockers.length+" point(s) à régler avant de descendre.";
+    }
+    // alerts list
+    var ul=$("#alertsList"); ul.innerHTML="";
+    if(alerts.length===0){ul.innerHTML="<li class='alert ok'><div class='a-ico'>✓</div><div class='a-body'><div class='a-title'>Aucune anomalie</div></div></li>";}
+    alerts.forEach(function(a){
+      var li=document.createElement("li");
+      var resolved=state.resolved[a.id];
+      li.className="alert "+a.sev+(resolved?" resolved":"");
+      var actHtml="";
+      if(resolved){ actHtml="<span class='a-resolved-lbl'>✓ "+(a.sev==="conflict"?"Coordonné":a.sev==="info"?"Joint":"Réglé")+"</span>"; }
+      else if(a.act){
+        var cls=(a.act.kind==="printProc"||a.act.kind==="printPlan")?"btn-print":"btn-ghost";
+        actHtml="<button class='btn btn-sm "+cls+"' data-act='"+a.id+"'>"+a.act.label+"</button>";
+      }
+      li.innerHTML="<div class='a-ico'>"+a.ico+"</div><div class='a-body'><div class='a-top'><span class='a-title'>"+a.title+"</span><span class='a-badge'>"+a.badge+"</span></div><div class='a-detail'>"+a.detail+"</div><div class='a-actions'>"+actHtml+"</div></div>";
+      ul.appendChild(li);
+    });
+    // wire actions
+    Array.prototype.forEach.call(ul.querySelectorAll("[data-act]"),function(btn){
+      btn.addEventListener("click",function(){onAlertAction(btn.getAttribute("data-act"),alerts);});
+    });
+    renderAnalyse();
+    renderAttestation();
+    renderFin();
+    renderSupervision();
+    renderDocs();
+    startCountdowns();
+  }
+
+  function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  function riskLevel(s,p){
+    var sc=s*p, cls, lab;
+    if(sc<=4){cls="lvl-low";lab="Faible";}
+    else if(sc<=9){cls="lvl-med";lab="Modéré";}
+    else if(sc<=14){cls="lvl-high";lab="Élevé";}
+    else {cls="lvl-crit";lab="Critique";}
+    return {cls:cls, lab:lab, sc:sc};
+  }
+  function renderAnalyse(){
+    var steps=STEPS[state.task]||[], el=$("#analyseBlock");
+    var html="<div class='amq-head'><h3>Analyse de risques</h3><span class='amq-badge'>Carte AMQ</span><span class='hint'>tâche → étapes → risques → mesures</span></div><div class='steps'>";
+    steps.forEach(function(st,i){
+      html+="<div class='step'><div class='step-h'><span class='step-n'>Étape "+(i+1)+"</span><span class='step-t'>"+st.t+"</span></div>";
+      st.r.forEach(function(rk){
+        var lv=riskLevel(rk.s,rk.p);
+        html+="<div class='risk'><div class='risk-lvl'><span class='lvl-chip "+lv.cls+"'>"+lv.lab+"</span><span class='lvl-score'>G"+rk.s+"×P"+rk.p+"="+lv.sc+"</span></div>"
+          +"<div class='risk-txt'><div class='risk-haz'>"+rk.h+"</div><div class='risk-ctl'><b>Mesure :</b> "+rk.c+"</div></div></div>";
+      });
+      html+="</div>";
+    });
+    html+="</div>";
+    el.innerHTML=html;
+  }
+  function renderSupervision(){
+    var w=WORKERS[state.worker], el=$("#supBlock");
+    var sw=state.signed.w, ss=state.signed.s;
+    function signBox(kind,role,name,done){
+      if(done) return "<div class='sign signed'><span class='sign-k'>"+role+"</span><span class='sign-name'>"+name+"</span><span class='sign-done'>✓ Signé <span class='mono'>"+done+"</span></span></div>";
+      return "<div class='sign'><span class='sign-k'>"+role+"</span><span class='sign-name'>"+name+"</span><button class='btn btn-sm btn-ghost' data-sign='"+kind+"' type='button'>Signer</button></div>";
+    }
+    var canAuth = !state.blocked && sw && ss && !state.authorized;
+    var authHtml;
+    if(state.authorized){ authHtml="<span class='auth-done'>✅ Carte autorisée — bon quart de travail.</span>"; }
+    else {
+      var note = state.blocked ? "Régler les points bloquants avant d'autoriser." : (!(sw&&ss) ? "Signatures requises pour autoriser." : "Prêt à autoriser.");
+      authHtml="<button class='btn btn-authorize' id='authBtn' type='button'"+(canAuth?"":" disabled")+">Autoriser la carte de travail</button><span class='auth-note'>"+note+"</span>";
+    }
+    el.innerHTML="<div class='sup-head'><h3>Formule de supervision</h3><span class='sup-audit'>Audits FSCT : 1 / 2</span></div>"
+      +"<div class='sup-obs'>Carte revue avec le travailleur avant le quart. Observation ciblée : contrôle de terrain et cadenassage.</div>"
+      +"<div class='signs'>"+signBox("w","Travailleur",w.name,sw?state.signed.wt:null)+signBox("s","Superviseur","S. Paquin",ss?state.signed.st:null)+"</div>"
+      +"<div class='authorize'>"+authHtml+"</div>";
+    Array.prototype.forEach.call(el.querySelectorAll("[data-sign]"),function(b){
+      b.addEventListener("click",function(){
+        var k=b.getAttribute("data-sign"), hh=nowHM();
+        if(k==="w"){state.signed.w=true;state.signed.wt=hh;} else {state.signed.s=true;state.signed.st=hh;}
+        toast("✍️","Signature enregistrée.");
+        render();
+      });
+    });
+    var ab=el.querySelector("#authBtn");
+    if(ab) ab.addEventListener("click",function(){ state.authorized=true; toast("✅","Carte de travail autorisée."); render(); });
+  }
+
+  // ---- FSCT — début / fin de quart ----
+  function permisRequis(t){
+    var ec=t.form.indexOf("ESPACES_CLOS")>=0;
+    var cad=t.form.indexOf("CADENASSAGE")>=0 || t.proc.some(function(p){return p.id.indexOf("CAD")>=0||p.id.indexOf("FOR")>=0;});
+    return [{k:"Travail à chaud",on:false},{k:"Espace clos",on:ec},{k:"Cadenassage (LOTO)",on:cad},{k:"Creusage / proximité ligne électrique",on:false},{k:"Travailleur seul",on:false}];
+  }
+  function renderLieux(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], el=$("#lieuxBlock");
+    var formTags=t.form.map(function(f){var ok=w.form.indexOf(f)>=0;return "<span class='tag "+(ok?"ok":"miss")+"'>"+(ok?"✓":"✕")+" "+FMT[f]+"</span>";}).join("");
+    var procTags=t.proc.length?t.proc.map(function(p){return "<span class='tag mono'>"+p.id+"</span>";}).join(""):"<span class='tag'>—</span>";
+    var lieux=t.lieux||[{n:"#T1", lieu:t.chantier+" ("+t.sector+")", tache:t.label, situation:t.terrain}];
+    var lieuxHtml=lieux.map(function(L){
+      return "<div class='lieu'><span class='lieu-n'>"+L.n+"</span><div class='lieu-b'><div class='lieu-lieu'>"+L.lieu+"</div><div class='lieu-tache'>"+L.tache+"</div>"+(L.situation?"<div class='lieu-sit'><b>Situation :</b> "+L.situation+"</div>":"")+"</div></div>";
+    }).join("");
+    var nextN=lieux.length+1;
+    var emptyHtml=nextN<=5?"<div class='lieu-empty'>#T"+nextN+"–#T5 — aucun autre lieu assigné ce quart</div>":"";
+    var condHtml=t.conditionSpeciale?"<div class='lieu-detail'><span class='ld-k'>Conditions spéciales</span><span class='ld-v cond'>⚠ "+t.conditionSpeciale+"</span></div>":"";
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Lieux de travail &amp; tâches</span></div>"
+      +lieuxHtml
+      +"<div class='lieu-detail'><span class='ld-k'>Formations requises</span><span class='ld-v'>"+formTags+"</span></div>"
+      +"<div class='lieu-detail'><span class='ld-k'>Procédures</span><span class='ld-v'>"+procTags+"</span></div>"
+      +condHtml+emptyHtml;
+  }
+  function renderVehicule(){
+    var t=TASKS[state.task], el=$("#vehiculeBlock");
+    var rows=t.equip.map(function(e){
+      var eq=EQUIP[e], m=eq.maint, st, cls;
+      if(!m){st="Bon état — vérifié";cls="ok";}
+      else if(m.state==="bris"){st="⛔ Bris : "+m.desc;cls="bris";}
+      else if(m.state==="encours"){st="🔧 En maintenance";cls="bris";}
+      else {st="🔧 Maintenance planifiée";cls="warn";}
+      return "<tr><td class='mono'>"+eq.label+"</td><td class='veh-"+cls+"'>"+st+"</td><td>"+(t.stationnement||("Portail niv. "+(t.chantier.replace(/\D/g,'')||"—")))+"</td></tr>";
+    }).join("");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Véhicule / équipement</span></div>"
+      +"<div class='veh-wrap'><table class='veh-tbl'><thead><tr><th>Véhicule</th><th>État / condition</th><th>Stationnement</th></tr></thead><tbody>"+rows+"</tbody></table></div>";
+  }
+  function renderPermis(){
+    var t=TASKS[state.task], el=$("#permisBlock");
+    var chips=permisRequis(t).map(function(p){return "<span class='permis "+(p.on?"on":"")+"'>"+(p.on?"✓":"○")+" "+p.k+"</span>";}).join("");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Permis particuliers requis</span><span class='fsct-hint'>cochés automatiquement selon la tâche</span></div><div class='permis-row'>"+chips+"</div>";
+  }
+  function renderEpi(){
+    var t=TASKS[state.task], el=$("#epiBlock");
+    var epi=["Casque + lampe de mine","Bottes de sécurité","Lunettes de sécurité","Dossard réfléchissant"];
+    if(t.form.indexOf("FOREUSE")>=0||t.form.indexOf("JUMBO")>=0||t.form.indexOf("BOULONNAGE")>=0) epi.push("Protection auditive");
+    if(t.form.indexOf("FOREUSE")>=0||t.form.indexOf("JUMBO")>=0) epi.push("Masque P100 (silice)");
+    if(t.form.indexOf("ESPACES_CLOS")>=0) epi.push("Détecteur 4 gaz","Harnais + treuil");
+    if(t.form.indexOf("BOULONNAGE")>=0) epi.push("Gants anti-résine");
+    if(t.form.indexOf("BOUTEFEU")>=0) epi.push("Trousse de sautage");
+    if(t.epiExtra) t.epiExtra.forEach(function(x){ if(epi.indexOf(x)<0) epi.push(x); });
+    var chips=epi.map(function(x){return "<span class='epi'>"+x+"</span>";}).join("");
+    var mat=(t.materiel&&t.materiel!=="Aucun")?"<div class='epi-mat'><b>Matériel spécifique :</b> "+t.materiel+"</div>":"";
+    el.innerHTML="<div class='fsct-h fsct-h-red'><span class='fsct-tag'>EPI, matériel et outils requis</span></div><div class='epi-row'>"+chips+"</div>"+mat;
+  }
+  function getYN(p){var a=p.split("."); return (state[a[0]]&&state[a[0]][a[1]])||null;}
+  function setYN(p,v){var a=p.split("."); state[a[0]]=state[a[0]]||{}; state[a[0]][a[1]]=v;}
+  function ynGroup(p){
+    var v=getYN(p);
+    return "<div class='yn'><button type='button' class='yn-b yn-oui"+(v==="oui"?" on":"")+"' data-yn='"+p+"' data-v='oui'>OUI</button>"
+      +"<button type='button' class='yn-b yn-non"+(v==="non"?" on":"")+"' data-yn='"+p+"' data-v='non'>NON</button></div>";
+  }
+  function wireYN(scope){
+    Array.prototype.forEach.call(scope.querySelectorAll("[data-yn]"),function(b){
+      b.addEventListener("click",function(){
+        var p=b.getAttribute("data-yn"), v=b.getAttribute("data-v");
+        var nv=getYN(p)===v?null:v; setYN(p,nv);
+        Array.prototype.forEach.call(b.parentNode.querySelectorAll("[data-yn]"),function(bb){bb.classList.toggle("on", bb.getAttribute("data-v")===nv);});
+        updateFinEsc();
+      });
+    });
+  }
+  function updateFinEsc(){
+    var el=$("#finBlock"); if(!el)return; var box=el.querySelector(".cr-escwrap"); if(!box)return;
+    var html="";
+    if(state.fin.event==="oui"||state.fin.gaz==="oui") html+="<div class='fin-esc'>⚠ Événement déclaré — un rapport de fin de quart sera généré et transmis (CNESST au besoin).</div>";
+    if(state.fin.cadenas==="non") html+="<div class='fin-esc'>⚠ Cadenas personnel non retiré — vérification requise avant de quitter.</div>";
+    box.innerHTML=html;
+  }
+  function renderAttestation(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], el=$("#attestBlock");
+    var miss=t.form.some(function(f){return w.form.indexOf(f)<0;});
+    var comp=miss?"<span class='att-auto no'>✕ NON — bloqué par le système</span>":"<span class='att-auto yes'>✓ OUI — validé automatiquement</span>";
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Attestation — début de quart</span></div>"
+      +"<div class='att'><div class='att-q'>J'ai un bon état d'esprit — en forme et disposé à travailler.</div>"+ynGroup("att.esprit")+"</div>"
+      +"<div class='att'><div class='att-q'>J'ai les <b>compétences et la formation</b> pour exécuter ces tâches.</div><div class='att-a'>"+comp+"</div></div>"
+      +"<div class='att'><div class='att-q'>J'ai bien compris les directives et les consignes.</div>"+ynGroup("att.directives")+"</div>";
+    wireYN(el);
+  }
+  function renderFin(){
+    var el=$("#finBlock");
+    el.innerHTML="<div class='fsct-h'><span class='fsct-tag'>Fin de quart</span></div>"
+      +"<div class='att'><div class='att-q'><b>Exécution superviseur —</b> le travail est-il conforme aux décisions?</div>"+ynGroup("fin.conforme")+"</div>"
+      +"<label class='fin-field'><span>Action positive à souligner</span><input type='text' placeholder='Ex. purge exemplaire au front'></label>"
+      +"<label class='fin-field'><span>Matériel requis pour le prochain quart</span><input type='text' placeholder='Ex. boulons 2,4 m — 1 palette'></label>"
+      +"<div class='carre-rouge'><div class='cr-title'>■ Carré rouge — déclaration de fin de quart</div>"
+      +"<div class='att cr'><div class='att-q'>Victime ou témoin d'un événement (accident / incident / passé-proche)?</div>"+ynGroup("fin.event")+"</div>"
+      +"<div class='att cr'><div class='att-q'>Alarme sur mon détecteur de gaz aujourd'hui?</div>"+ynGroup("fin.gaz")+"</div>"
+      +"<div class='att cr'><div class='att-q'>J'ai retiré mon cadenas personnel avant de quitter?</div>"+ynGroup("fin.cadenas")+"</div>"
+      +"<div class='att cr'><div class='att-q'>J'ai un développement à déclarer?</div>"+ynGroup("fin.dev")+"</div>"
+      +"<div class='cr-escwrap'></div></div>"
+      +"<label class='fin-field'><span>Commentaires du travailleur (santé-sécurité)</span><textarea rows='2' placeholder='Observations, préoccupations…'></textarea></label>";
+    wireYN(el); updateFinEsc();
+  }
+
+  function onAlertAction(id,alerts){
+    var a=alerts.filter(function(x){return x.id===id;})[0]; if(!a)return;
+    var k=a.act.kind;
+    if(k==="schedule"){ toast("📅","Demande de formation créée pour "+WORKERS[state.worker].name+"."); return; }
+    if(k==="info"){ toast("🔧","Calendrier de maintenance ouvert."); return; }
+    if(k==="ack"){ state.resolved[id]=true; toast("🤝","Co-activité coordonnée et acquittée."); render(); return; }
+    if(k==="printProc"||k==="printPlan"){
+      addDoc(a.act.doc.n, a.act.doc.l, k==="printProc"?"Procédure":"Plan/Devis");
+      state.resolved[id]=true;
+      toast("🖨️","Document généré et joint : "+a.act.doc.n);
+      render(); return;
+    }
+  }
+
+  function addDoc(n,l,kind){
+    if(state.docs.some(function(d){return d.n===n;}))return;
+    var d=new Date(); var hh=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+    state.docs.push({n:n,l:l,kind:kind,t:hh});
+  }
+  function renderDocs(){
+    var ul=$("#docsList"); $("#docCount").textContent=state.docs.length;
+    if(state.docs.length===0){ul.innerHTML="<li class='docs-empty'>Aucun document joint. Les procédures et plans requis s'ajoutent ici.</li>";return;}
+    ul.innerHTML=state.docs.map(function(d){
+      return "<li class='doc'><span class='di'>"+(d.kind==="Procédure"?"📋":"📐")+"</span><span class='dn'>"+d.n+"</span><span class='dl'>"+d.l+"</span><span class='dstamp'>imprimé "+d.t+"</span></li>";
+    }).join("");
+  }
+
+  var cdTimer=null;
+  function startCountdowns(){
+    if(cdTimer){clearInterval(cdTimer);cdTimer=null;}
+    var els=document.querySelectorAll(".countdown"); if(!els.length)return;
+    function tick(){
+      Array.prototype.forEach.call(els,function(el){
+        var target=state.startTs+parseInt(el.getAttribute("data-in"),10);
+        var ms=target-Date.now(); if(ms<0)ms=0;
+        var d=Math.floor(ms/86400e3), h=Math.floor(ms%86400e3/3600e3), m=Math.floor(ms%3600e3/60e3), s=Math.floor(ms%60e3/1e3);
+        el.textContent=d+" j "+("0"+h).slice(-2)+" h "+("0"+m).slice(-2)+" m "+("0"+s).slice(-2)+" s";
+      });
+    }
+    tick(); cdTimer=setInterval(tick,1000);
+  }
+
+  var toastN=0;
+  function toast(ico,msg){
+    var wrap=$("#toasts"); var el=document.createElement("div"); el.className="toast";
+    el.innerHTML="<span class='ti'>"+ico+"</span><span>"+msg+"</span>"; wrap.appendChild(el);
+    var mine=++toastN;
+    setTimeout(function(){ el.style.transition="opacity .3s,transform .3s"; el.style.opacity="0"; el.style.transform="translateY(6px)"; setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},320); },2600);
+  }
+
+  // Tabs
+  function showView(which){
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(t){var on=t.getAttribute("data-tab")===which;t.classList.toggle("is-active",on);t.setAttribute("aria-selected",on?"true":"false");});
+    $("#view-dash").hidden=(which!=="dash");
+    $("#view-plan").hidden=(which!=="plan");
+    $("#view-carte").hidden=(which!=="carte");
+    $("#view-matrix").hidden=(which!=="matrix");
+    $("#view-ref").hidden=(which!=="ref");
+    if(which==="dash") renderDash();
+    if(which==="matrix") renderMatrix();
+    var vmap={dash:"view-dash",plan:"view-plan",carte:"view-carte",matrix:"view-matrix",ref:"view-ref"};
+    var vel=document.getElementById(vmap[which]);
+    if(vel){ vel.classList.remove("view-anim"); void vel.offsetWidth; vel.classList.add("view-anim"); }
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(tab){
+    tab.addEventListener("click",function(){ showView(tab.getAttribute("data-tab")); });
+  });
+
+  // Referentiel
+  function renderRef(){
+    $("#refReg").innerHTML=REF_REG.map(function(r){return "<li class='ref-item' data-txt='"+(r[0]+" "+r[1]).toLowerCase()+"'><span class='ref-id'>"+r[0]+"</span><span class='ref-t'>"+r[1]+"</span></li>";}).join("");
+    $("#refProc").innerHTML=REF_PROC.map(function(r){return "<li class='ref-item' data-txt='"+(r[0]+" "+r[1]).toLowerCase()+"'><span class='ref-id'>"+r[0]+"</span><span class='ref-t'>"+r[1]+"</span></li>";}).join("");
+  }
+  $("#refSearch").addEventListener("input",function(e){
+    var q=e.target.value.toLowerCase().trim();
+    Array.prototype.forEach.call(document.querySelectorAll(".ref-item"),function(it){
+      it.classList.toggle("hidden", q && it.getAttribute("data-txt").indexOf(q)<0);
+    });
+  });
+
+  // Planification : tableau + aperçu + départements
+  var boardState={dept:"Tous", sel:null};
+  function boardStatus(t){
+    var w=WORKERS[t.worker];
+    var missTrain=t.form.some(function(f){return w.form.indexOf(f)<0;});
+    var equipBad=t.equip.some(function(e){var m=EQUIP[e]&&EQUIP[e].maint; return m&&(m.state==="bris"||m.state==="encours");});
+    var procDue=t.proc.some(function(p){return w.proc.indexOf(p.id)<0;});
+    var co=!!(SECTORS[t.sector]&&SECTORS[t.sector].co);
+    return (missTrain||equipBad||procDue||co)?"bloque":"pret";
+  }
+  function equipCellHtml(t){
+    return t.equip.map(function(e){
+      var eq=EQUIP[e], m=eq.maint, s;
+      if(!m) s="<span class='eq-ok'>OK</span>";
+      else if(m.state==="bris") s="<span class='eq-bris'>⛔ Bris : "+m.desc+"</span>";
+      else if(m.state==="encours") s="<span class='eq-bris'>🔧 En maintenance — indisponible</span>";
+      else s="<span class='eq-maint'>🔧 Maintenance dans <span class='countdown' data-in='"+m.inMs+"'>—</span></span>";
+      return "<div class='eq-cell'><span class='eq-name mono'>"+eq.label+"</span>"+s+"</div>";
+    }).join("");
+  }
+  function workerCellHtml(t){
+    var w=WORKERS[t.worker];
+    var forms=w.form.map(function(f){return "<span class='mini-tag'>"+FMT[f]+"</span>";}).join("");
+    var miss=t.form.filter(function(f){return w.form.indexOf(f)<0;}).map(function(f){return "<span class='mini-tag miss'>✕ "+FMT[f]+"</span>";}).join("");
+    var revDue=t.proc.some(function(p){return w.proc.indexOf(p.id)<0 || (w.rev&&w.rev.indexOf(p.id)>=0);});
+    var flag=revDue?"<span class='rev-flag'>⚠ Révision de procédure due</span>":"";
+    return "<div class='wk-cell'><span class='wk-name'>"+w.name+" <span class='wk-id mono'>"+t.worker+"</span></span><div class='wk-forms'>"+forms+miss+"</div>"+flag+"</div>";
+  }
+  function placeCellHtml(t){
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    var coFlag=co?"<span class='co-flag'>⚠ Co-activité — "+co.dept+"</span>":"";
+    return "<div class='pl-cell'><span class='pl-name'>"+t.chantier+"</span>"+(t.plans.length?"<button class='plan-link' data-plan='"+t.id+"' type='button'>🖨 Imprimer le plan</button>":"")+coFlag+"</div>";
+  }
+  function renderDepts(){
+    var depts=["Tous"]; Object.keys(TASKS).forEach(function(id){var d=TASKS[id].dept; if(depts.indexOf(d)<0)depts.push(d);});
+    var el=$("#deptTabs");
+    el.innerHTML=depts.map(function(d){
+      var n=d==="Tous"?Object.keys(TASKS).length:Object.keys(TASKS).filter(function(id){return TASKS[id].dept===d;}).length;
+      return "<button class='dept"+(boardState.dept===d?" on":"")+"' data-dept='"+d+"' type='button'>"+d+"<span class='dept-n'>"+n+"</span></button>";
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll("[data-dept]"),function(b){
+      b.addEventListener("click",function(){ boardState.dept=b.getAttribute("data-dept"); renderDepts(); renderBoard(); });
+    });
+  }
+  function renderBoard(){
+    var ids=Object.keys(TASKS).filter(function(id){return boardState.dept==="Tous"||TASKS[id].dept===boardState.dept;});
+    if(ids.indexOf(boardState.sel)<0) boardState.sel=ids[0]||null;
+    var head="<thead><tr><th>État</th><th>Tâche</th><th>Place de travail</th><th>Équipement</th><th>Travailleur assigné</th></tr></thead>";
+    var body=ids.map(function(id){
+      var t=TASKS[id]; t.id=id; var st=boardStatus(t);
+      var chip=st==="pret"?"<span class='st-chip st-pret'>● Prêt</span>":"<span class='st-chip st-bloque'>● Bloqué</span>";
+      return "<tr class='b-row"+(id===boardState.sel?" sel":"")+"' data-open='"+id+"' tabindex='0' role='button' aria-label='Ouvrir "+t.short+"'>"
+        +"<td>"+chip+"</td><td class='b-task'>"+t.short+"<span class='b-dept'>"+t.dept+"</span></td>"
+        +"<td>"+placeCellHtml(t)+"</td><td>"+equipCellHtml(t)+"</td><td>"+workerCellHtml(t)+"</td></tr>";
+    }).join("");
+    $("#boardTbl").innerHTML=head+"<tbody>"+body+"</tbody>";
+    Array.prototype.forEach.call($("#boardTbl").querySelectorAll("[data-plan]"),function(b){
+      b.addEventListener("click",function(e){e.stopPropagation(); var t=TASKS[b.getAttribute("data-plan")]; toast("🖨️","Plan imprimé : "+t.plans[0].id+" — "+t.plans[0].label);});
+    });
+    Array.prototype.forEach.call($("#boardTbl").querySelectorAll("[data-open]"),function(r){
+      var id=r.getAttribute("data-open");
+      r.addEventListener("click",function(){ boardState.sel=id; renderBoard(); });
+      r.addEventListener("dblclick",function(){ openCarte(id); });
+      r.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();openCarte(id);} else if(e.key===" "){e.preventDefault();boardState.sel=id;renderBoard();} });
+    });
+    renderPreview(boardState.sel);
+    startCountdowns();
+  }
+  function renderPreview(id){
+    var el=$("#previewPane"); if(!id){el.innerHTML="";return;}
+    var t=TASKS[id]; t.id=id; var w=WORKERS[t.worker]; var st=boardStatus(t);
+    var chip=st==="pret"?"<span class='st-chip st-pret'>● Prêt</span>":"<span class='st-chip st-bloque'>● Bloqué</span>";
+    var forms=w.form.map(function(f){return "<span class='mini-tag'>"+FMT[f]+"</span>";}).join("");
+    var miss=t.form.filter(function(f){return w.form.indexOf(f)<0;}).map(function(f){return "<span class='mini-tag miss'>✕ "+FMT[f]+"</span>";}).join("");
+    var planLink=t.plans.length?"<button class='plan-link' data-ppplan='"+id+"' type='button'>🖨 Imprimer le plan — "+t.plans[0].label+"</button>":"—";
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    var coHtml=co?"<div class='pv-co'>⚠ <b>Co-activité</b> — secteur "+t.sector+" : "+co.dept+" (« "+co.task+" », "+co.win+").<br><b>Priorité :</b> "+co.prio+"</div>":"";
+    el.innerHTML="<div class='pv-eyebrow'>Aperçu — carte de travail</div><h3 class='pv-title'>"+t.short+"</h3><div class='pv-sub'>"+chip+"<span>"+t.chantier+"</span></div>"
+      +"<div class='pv-row'><div class='pv-k'>Travailleur</div><div class='pv-v'>"+w.name+" <span class='mono'>"+t.worker+"</span><div class='pv-forms'>"+forms+miss+"</div></div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Équipement</div><div class='pv-v'>"+equipCellHtml(t)+"</div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Lieu de travail</div><div class='pv-v'>"+t.chantier+"<div style='margin-top:6px'>"+planLink+"</div></div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Matériel</div><div class='pv-v'>"+t.materiel+"</div></div>"
+      +coHtml
+      +"<button class='btn btn-print pv-open' id='pvOpen' type='button'>Remplir / imprimer la carte →</button>";
+    var pl=el.querySelector("[data-ppplan]"); if(pl) pl.addEventListener("click",function(){toast("🖨️","Plan imprimé : "+t.plans[0].id+" — "+t.plans[0].label);});
+    var ob=el.querySelector("#pvOpen"); if(ob) ob.addEventListener("click",function(){openCarte(id);});
+  }
+  function openCarte(id){
+    state.task=id; state.worker=TASKS[id].worker; state.resolved={}; state.docs=[]; state.signed={w:false,s:false}; state.att={}; state.fin={}; state.authorized=false;
+    var ts=$("#taskSel"); if(ts) ts.value=id; var ws=$("#workerSel"); if(ws) ws.value=state.worker;
+    render(); showView("carte"); window.scrollTo(0,0);
+  }
+
+  // Points bloquants d'une tâche (indépendant de la session carte) — partagé par le tableau de bord
+  function taskBlockers(id){
+    var t=TASKS[id], w=WORKERS[t.worker], out=[];
+    t.form.forEach(function(f){ if(w.form.indexOf(f)<0) out.push({sev:"crit", ico:"🎓", txt:w.name+" n'a pas la formation « "+FMT[f]+" »."}); });
+    t.equip.forEach(function(e){ var m=EQUIP[e]&&EQUIP[e].maint; if(!m)return;
+      if(m.state==="bris") out.push({sev:"crit", ico:"⛔", txt:EQUIP[e].label+" — hors service : "+m.desc+"."});
+      else if(m.state==="encours") out.push({sev:"crit", ico:"🔧", txt:EQUIP[e].label+" — en maintenance, indisponible."});
+    });
+    t.proc.forEach(function(p){ if(w.proc.indexOf(p.id)<0) out.push({sev:"warn", ico:"📋", txt:"Procédure "+p.id+" à lire avant d'utiliser "+p.equip+"."}); });
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co; if(co) out.push({sev:"conflict", ico:"⚠️", txt:"Co-activité secteur "+t.sector+" — "+co.dept+" (« "+co.task+" »)."});
+    return out;
+  }
+
+  // Tableau de bord
+  function renderDash(){
+    var ids=Object.keys(TASKS), pret=0, bloque=0;
+    ids.forEach(function(id){ if(boardStatus(TASKS[id])==="pret")pret++; else bloque++; });
+    var crit=[], others=[];
+    ids.forEach(function(id){ taskBlockers(id).forEach(function(b){ b.task=id; (b.sev==="crit"?crit:others).push(b); }); });
+    var expCount=0, revCount=0;
+    Object.keys(CERT).forEach(function(m){ Object.keys(CERT[m]).forEach(function(c){ var s=CERT[m][c].st; if(s==="exp")expCount++; else if(s==="review")revCount++; }); });
+    var bris=0, enc=0, plan=0;
+    Object.keys(EQUIP).forEach(function(e){ var m=EQUIP[e].maint; if(!m)return; if(m.state==="bris")bris++; else if(m.state==="encours")enc++; else plan++; });
+
+    var kpis=[
+      {cls:"", k:"Tâches du quart", v:ids.length, sub:"<b class='ok'>"+pret+" prêtes</b> · <b class='crit'>"+bloque+" bloquées</b>", go:"plan"},
+      {cls:"k-crit", k:"Points bloquants", v:(crit.length+others.length), sub:"formation · équip. · co-activité · procédure", go:"plan"},
+      {cls:"k-warn", k:"Formations à échéance", v:(expCount+revCount), sub:"<b class='warn'>"+expCount+" à renouveler</b> · "+revCount+" à réviser", go:"matrix"},
+      {cls:"k-warn", k:"Équipements à surveiller", v:(bris+enc+plan), sub:bris+" bris · "+enc+" en maint. · "+plan+" planifié", go:"plan"}
+    ];
+    $("#kpis").innerHTML=kpis.map(function(x){
+      return "<button class='kpi "+x.cls+"' data-go='"+x.go+"' type='button'><div class='kpi-k'>"+x.k+"</div><div class='kpi-v'>"+x.v+"</div><div class='kpi-sub'>"+x.sub+"</div></button>";
+    }).join("");
+    Array.prototype.forEach.call($("#kpis").querySelectorAll("[data-go]"),function(b){ b.addEventListener("click",function(){ showView(b.getAttribute("data-go")); window.scrollTo(0,0); }); });
+
+    var items=crit.concat(others), pl=$("#prioList");
+    if(!items.length){ pl.innerHTML="<li class='prio'><div class='prio-ico' style='background:var(--ok-bg);color:var(--ok)'>✓</div><div class='prio-body'><div class='prio-t'>Aucun point bloquant</div><div class='prio-d'>Toutes les tâches du quart sont prêtes à autoriser.</div></div></li>"; }
+    else {
+      pl.innerHTML=items.map(function(b){
+        var pc=b.sev==="crit"?"p-crit":b.sev==="conflict"?"p-conflict":"p-warn", t=TASKS[b.task];
+        return "<button class='prio "+pc+"' data-open='"+b.task+"' type='button'><span class='prio-ico'>"+b.ico+"</span><span class='prio-body'><span class='prio-t'>"+t.short+" · <span class='mono'>"+t.chantier+"</span></span><span class='prio-d'>"+b.txt+"</span></span><span class='prio-go'>Ouvrir la carte →</span></button>";
+      }).join("");
+      Array.prototype.forEach.call(pl.querySelectorAll("[data-open]"),function(li){ li.addEventListener("click",function(){ openCarte(li.getAttribute("data-open")); }); });
+    }
+
+    $("#fleetList").innerHTML=Object.keys(EQUIP).map(function(e){
+      var eq=EQUIP[e], m=eq.maint, s;
+      if(!m) s="<span class='eq-ok'>OK — disponible</span>";
+      else if(m.state==="bris") s="<span class='eq-bris'>⛔ Bris : "+m.desc+"</span>";
+      else if(m.state==="encours") s="<span class='eq-bris'>🔧 En maintenance — indisponible</span>";
+      else s="<span class='eq-maint'>🔧 Arrêt planifié dans <span class='countdown' data-in='"+m.inMs+"'>—</span></span>";
+      return "<li><span class='fl-name'>"+eq.label+"</span>"+s+"</li>";
+    }).join("");
+    startCountdowns();
+  }
+
+  // Matrice de formation
+  function renderMatrix(){
+    var comps=Object.keys(FMT), reqBy={};
+    Object.keys(TASKS).forEach(function(id){ var t=TASKS[id]; reqBy[t.worker]=reqBy[t.worker]||{}; t.form.forEach(function(f){ reqBy[t.worker][f]=true; }); });
+    var head="<thead><tr><th class='mx-worker'>Travailleur</th>"+comps.map(function(c){return "<th>"+FMT_SHORT[c]+"</th>";}).join("")+"</tr></thead>";
+    var alarms=[];
+    var body=Object.keys(WORKERS).map(function(m){
+      var w=WORKERS[m], cert=CERT[m]||{}, req=reqBy[m]||{};
+      var cells=comps.map(function(c){
+        var has=w.form.indexOf(c)>=0, st, lab, date="";
+        if(!has && req[c]){ st="miss"; lab="✕ Manquante"; alarms.push(w.name+" — "+FMT[c]); }
+        else if(!has){ st="none"; lab="—"; }
+        else { var ce=cert[c]||{st:"valid",d:""}; date=ce.d||"";
+          if(ce.st==="review"){ st="review"; lab="↻ À réviser"; }
+          else if(ce.st==="exp"){ st="exp"; lab="⌛ Expire"; }
+          else { st="valid"; lab="✓ Valide"; }
+        }
+        return "<td><span class='mx-c "+st+"'>"+lab+(date?"<small>"+date+"</small>":"")+"</span></td>";
+      }).join("");
+      return "<tr><td class='mx-worker'><div class='mx-wname'>"+w.name+"</div><div class='mx-wid'>"+m+"</div></td>"+cells+"</tr>";
+    }).join("");
+    $("#matrixTbl").innerHTML=head+"<tbody>"+body+"</tbody>";
+    var mxa=$("#mxAlarm");
+    if(alarms.length){ mxa.style.display=""; mxa.innerHTML="<span>⛔</span><div><b>Alarme d'assignation :</b> "+alarms.length+" compétence(s) manquante(s) pour des tâches déjà planifiées — "+alarms.join(" · ")+". La carte de travail correspondante reste <b>bloquée</b> tant que la formation n'est pas complétée.</div>"; }
+    else { mxa.style.display="none"; }
+  }
+
+  // Time -> payroll
+  $("#payBtn").addEventListener("click",function(){
+    var h=$("#hours").value;
+    $("#payState").textContent="✓ "+h+" h transmises à la paie";
+    toast("⏱️","Temps envoyé à la paie : "+h+" h · "+$("#actcode").value);
+  });
+
+  // Theme toggle (partagé par l'écran d'ouverture et l'appli)
+  function toggleTheme(){
+    var root=document.documentElement;
+    var cur=root.getAttribute("data-theme");
+    if(!cur){ var dark=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches; cur=dark?"dark":"light"; }
+    root.setAttribute("data-theme", cur==="dark"?"light":"dark");
+  }
+  $("#themeBtn").addEventListener("click",toggleTheme);
+  var themeBtnLogin=$("#themeBtnLogin"); if(themeBtnLogin) themeBtnLogin.addEventListener("click",toggleTheme);
+
+  // Écran d'ouverture → entrée dans la console
+  function enterConsole(){ var l=$("#loginScreen"); if(!l)return; l.classList.add("hide"); setTimeout(function(){ l.style.display="none"; },520); }
+  var loginGo=$("#loginGo"); if(loginGo) loginGo.addEventListener("click",enterConsole);
+  var loginScreen=$("#loginScreen"); if(loginScreen) loginScreen.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); enterConsole(); } });
+
+  // Selectors
+  $("#taskSel").addEventListener("change",function(e){state.task=e.target.value;state.resolved={};state.docs=[];state.signed={w:false,s:false};state.att={};state.fin={};state.authorized=false;render();});
+  $("#workerSel").addEventListener("change",function(e){state.worker=e.target.value;state.resolved={};state.signed={w:false,s:false};state.att={};state.fin={};state.authorized=false;render();});
+
+  $("#backBtn").addEventListener("click",function(){ showView("plan"); renderBoard(); window.scrollTo(0,0); });
+  initSelects(); renderRef(); renderDepts(); renderBoard(); render(); showView("dash");
+})();
+</script>
+
+</body>
+</html>
