@@ -1,0 +1,928 @@
+<div id="app">
+  <header class="appbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26"><path d="M16 3l11 5v7c0 7-4.7 11.3-11 14-6.3-2.7-11-7-11-14V8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 16.5l4.5 4.5L23 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="brand-txt">
+        <strong>Permis de tâche</strong>
+        <span>Console SST minière</span>
+      </div>
+      <span class="chip chip-demo">prototype</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab is-active" role="tab" aria-selected="true" data-tab="plan">Planification</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="carte">Carte de travail</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="ref">Référentiel</button>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Changer le thème">
+      <span class="theme-ico" aria-hidden="true">◐</span><span class="theme-lbl">Thème</span>
+    </button>
+  </header>
+  <div class="hazard" aria-hidden="true"></div>
+
+  <section class="board" id="view-plan">
+    <div class="board-head">
+      <div>
+        <div class="eyebrow">Planification du quart</div>
+        <h2 class="board-title">Répartition — 31 juill. 2026 · Quart de jour</h2>
+      </div>
+      <div class="board-hint">Sélectionne une tâche pour l'aperçu · « Remplir la carte » pour l'ouvrir.</div>
+    </div>
+    <div class="depts" id="deptTabs" role="tablist" aria-label="Départements"></div>
+    <div class="plan-layout">
+      <div class="board-wrap"><table class="board-tbl" id="boardTbl"></table></div>
+      <aside class="preview" id="previewPane" aria-label="Aperçu de la carte de travail"></aside>
+    </div>
+  </section>
+
+  <main class="console" id="view-carte" hidden>
+    <!-- LEFT: the card -->
+    <section class="col-card" aria-label="Carte de travail">
+      <button class="backlink" id="backBtn" type="button">← Planification</button>
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Carte de travail</div>
+          <div class="cardno" id="cardNo">CT-2026-0731-014</div>
+        </div>
+        <dl class="meta">
+          <div><dt>Date</dt><dd id="mDate">31 juill. 2026</dd></div>
+          <div><dt>Quart</dt><dd>Jour · <span class="mono">06:00–18:00</span></dd></div>
+          <div><dt>Superviseur</dt><dd>S. Paquin</dd></div>
+          <div><dt>Secteur</dt><dd class="mono" id="mSector">4-B</dd></div>
+        </dl>
+      </div>
+
+      <div class="pickers">
+        <label class="field">
+          <span>Tâche</span>
+          <select id="taskSel"></select>
+        </label>
+        <label class="field">
+          <span>Travailleur assigné</span>
+          <select id="workerSel"></select>
+        </label>
+      </div>
+
+      <div class="task-detail" id="taskDetail"></div>
+
+      <div class="block" id="analyseBlock"></div>
+
+      <div class="block time-block">
+        <div class="block-head"><h3>Temps &amp; travail effectué</h3><span class="hint">→ transmis à la paie</span></div>
+        <div class="time-grid">
+          <label class="field small"><span>Heures</span><input id="hours" class="mono" type="text" inputmode="decimal" value="8.0"></label>
+          <label class="field small"><span>Code d'activité</span><input id="actcode" class="mono" type="text" value="OP-FORAGE"></label>
+          <label class="field grow"><span>Travail effectué</span><input id="workdone" type="text" value="Forage production — 14 trous, niveau 210"></label>
+        </div>
+        <div class="time-actions">
+          <button class="btn btn-ghost" id="payBtn" type="button">Envoyer à la paie</button>
+          <span class="pay-state" id="payState" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="block docs-block">
+        <div class="block-head"><h3>Documents joints à la carte</h3><span class="count" id="docCount">0</span></div>
+        <ul class="docs" id="docsList"><li class="docs-empty">Aucun document joint. Les procédures et plans requis s'ajoutent ici.</li></ul>
+      </div>
+
+      <div class="block" id="supBlock"></div>
+    </section>
+
+    <!-- RIGHT: status + alerts -->
+    <aside class="col-rail" aria-label="État et alertes">
+      <div class="status" id="statusBanner" aria-live="polite">
+        <div class="status-hazard" aria-hidden="true"></div>
+        <div class="status-body">
+          <span class="status-ico" id="statusIco">⛔</span>
+          <div>
+            <div class="status-title" id="statusTitle">Autorisation bloquée</div>
+            <div class="status-sub" id="statusSub">3 point(s) à régler avant de descendre</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alerts-head">
+        <h2>Vérifications</h2>
+        <span class="legend"><i class="dot crit"></i>bloquant <i class="dot warn"></i>à régler <i class="dot info"></i>info</span>
+      </div>
+      <ul class="alerts" id="alertsList"></ul>
+    </aside>
+  </main>
+
+  <!-- REFERENTIEL -->
+  <section class="ref" id="view-ref" hidden>
+    <div class="ref-head">
+      <div>
+        <h2>Référentiel</h2>
+        <p class="ref-sub">Règlement sur la SST dans les mines (RSSM) + procédures internes — toujours à jour.</p>
+      </div>
+      <input id="refSearch" class="ref-search" type="search" placeholder="Rechercher un article ou une procédure…" aria-label="Rechercher">
+    </div>
+    <div class="ref-cols">
+      <div><h3 class="ref-cat">Réglementation minière (RSSM)</h3><ul class="ref-list" id="refReg"></ul></div>
+      <div><h3 class="ref-cat">Procédures internes</h3><ul class="ref-list" id="refProc"></ul></div>
+    </div>
+  </section>
+
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+</div>
+
+<style>
+  :root{
+    --bg:#EEF2F5; --surface:#FFFFFF; --surface-2:#F5F8FA; --surface-3:#EDF1F5;
+    --border:#D6DFE7; --border-2:#C4D0DA;
+    --text:#152029; --muted:#5B6975; --faint:#8494A0;
+    --accent:#0E7490; --accent-2:#0B5E74; --on-accent:#FFFFFF; --accent-soft:#DFF1F5;
+    --crit:#C93944; --crit-bg:#FBEAEC; --crit-line:#E4A9AE;
+    --warn:#9A6A12; --warn-bg:#F8F0DA; --warn-line:#E0C489;
+    --info:#2160D8; --info-bg:#E6EDFC; --info-line:#AFC4F1;
+    --conflict:#7C4DD6; --conflict-bg:#F0EAFB; --conflict-line:#CDB9F0;
+    --ok:#188A5F; --ok-bg:#E1F4EC; --ok-line:#A6DCC5;
+    --hz-a:#F2B01E; --hz-b:#1c1c1c;
+    --shadow:0 1px 2px rgba(20,35,50,.06),0 8px 24px rgba(20,35,50,.06);
+    --radius:12px; --radius-s:9px;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  :root{ --faint:#8494A0; }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0C1219; --surface:#131C25; --surface-2:#1A2530; --surface-3:#213040;
+      --border:#293745; --border-2:#35485A;
+      --text:#E7EEF4; --muted:#93A2AF; --faint:#6C7E8C;
+      --accent:#25A9C4; --accent-2:#3ABAD2; --on-accent:#042028; --accent-soft:#0F2E37;
+      --crit:#F0616B; --crit-bg:#2A171A; --crit-line:#5B2A2F;
+      --warn:#E4AC53; --warn-bg:#2A2314; --warn-line:#584A28;
+      --info:#7AA6FF; --info-bg:#161F38; --info-line:#2C3D63;
+      --conflict:#B79BFA; --conflict-bg:#1E1934; --conflict-line:#3A2E5C;
+      --ok:#48C48D; --ok-bg:#0F2A20; --ok-line:#24503C;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1219; --surface:#131C25; --surface-2:#1A2530; --surface-3:#213040;
+    --border:#293745; --border-2:#35485A;
+    --text:#E7EEF4; --muted:#93A2AF; --faint:#6C7E8C;
+    --accent:#25A9C4; --accent-2:#3ABAD2; --on-accent:#042028; --accent-soft:#0F2E37;
+    --crit:#F0616B; --crit-bg:#2A171A; --crit-line:#5B2A2F;
+    --warn:#E4AC53; --warn-bg:#2A2314; --warn-line:#584A28;
+    --info:#7AA6FF; --info-bg:#161F38; --info-line:#2C3D63;
+    --conflict:#B79BFA; --conflict-bg:#1E1934; --conflict-line:#3A2E5C;
+    --ok:#48C48D; --ok-bg:#0F2A20; --ok-line:#24503C;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"]{
+    --bg:#EEF2F5; --surface:#FFFFFF; --surface-2:#F5F8FA; --surface-3:#EDF1F5;
+    --border:#D6DFE7; --border-2:#C4D0DA;
+    --text:#152029; --muted:#5B6975; --faint:#8494A0;
+    --accent:#0E7490; --accent-2:#0B5E74; --on-accent:#FFFFFF; --accent-soft:#DFF1F5;
+    --crit:#C93944; --crit-bg:#FBEAEC; --crit-line:#E4A9AE;
+    --warn:#9A6A12; --warn-bg:#F8F0DA; --warn-line:#E0C489;
+    --info:#2160D8; --info-bg:#E6EDFC; --info-line:#AFC4F1;
+    --conflict:#7C4DD6; --conflict-bg:#F0EAFB; --conflict-line:#CDB9F0;
+    --ok:#188A5F; --ok-bg:#E1F4EC; --ok-line:#A6DCC5;
+    --shadow:0 1px 2px rgba(20,35,50,.06),0 8px 24px rgba(20,35,50,.06);
+  }
+
+  *{box-sizing:border-box}
+  html,body{background:var(--bg)}
+  #app{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
+  button{font-family:inherit}
+
+  /* App bar */
+  .appbar{display:flex;align-items:center;gap:18px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand-mark{color:var(--accent);display:flex}
+  .brand-txt{display:flex;flex-direction:column;line-height:1.15}
+  .brand-txt strong{font-size:15px;letter-spacing:-.01em}
+  .brand-txt span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .chip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:100px}
+  .chip-demo{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-2)}
+  .tabs{display:flex;gap:4px;margin-left:8px}
+  .tab{appearance:none;border:none;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:8px;cursor:pointer}
+  .tab:hover{background:var(--surface-2);color:var(--text)}
+  .tab.is-active{background:var(--accent-soft);color:var(--accent)}
+  .theme-btn{margin-left:auto;display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer}
+  .theme-btn:hover{color:var(--text);border-color:var(--border-2)}
+  .theme-ico{font-size:14px}
+  .hazard{height:6px;background:repeating-linear-gradient(45deg,var(--hz-a) 0 13px,var(--hz-b) 13px 26px);opacity:.9}
+
+  /* Console layout */
+  .console{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;max-width:1180px;margin:0 auto;padding:20px}
+  .col-card,.col-rail{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+  .card-head{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:700}
+  .cardno{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:2px;letter-spacing:-.02em}
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;margin:0}
+  .meta div{display:flex;flex-direction:column}
+  .meta dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
+  .meta dd{margin:0;font-size:13.5px;font-weight:600}
+
+  .pickers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field>span{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  select,input{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--border-2);border-radius:var(--radius-s);padding:10px 11px;font-size:14px;font-family:inherit}
+  select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 18px,calc(100% - 12px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
+  input:focus,select:focus,.tab:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .task-detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .td-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--border)}
+  .td-row:first-child{border-top:none;padding-top:2px}
+  .td-k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;flex:0 0 116px;padding-top:3px}
+  .td-v{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border-2)}
+  .tag.mono{font-family:var(--mono);font-weight:600}
+  .tag.ok{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok)}
+  .tag.miss{background:var(--crit-bg);border-color:var(--crit-line);color:var(--crit)}
+
+  .block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .block-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .block-head h3{font-size:13.5px;letter-spacing:-.01em}
+  .block-head .hint{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .count{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:1px 9px}
+  .time-grid{display:grid;grid-template-columns:90px 140px 1fr;gap:10px}
+  .field.small,.field.grow{gap:5px}
+  .time-actions{display:flex;align-items:center;gap:12px;margin-top:11px}
+  .pay-state{font-size:12.5px;color:var(--ok);font-weight:600}
+
+  .btn{appearance:none;border:1px solid transparent;border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .btn-ghost{background:var(--surface-2);border-color:var(--border-2);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-sm{padding:6px 10px;font-size:12px}
+  .btn-print{background:var(--accent);color:var(--on-accent)}
+  .btn-print:hover{background:var(--accent-2)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+
+  .docs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .docs-empty{font-size:12.5px;color:var(--faint);font-style:italic}
+  .doc{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px}
+  .doc .di{color:var(--accent)}
+  .doc .dn{font-family:var(--mono);font-weight:600}
+  .doc .dl{color:var(--muted)}
+  .doc .dstamp{margin-left:auto;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+  /* Status banner */
+  .status{border-radius:var(--radius);overflow:hidden;border:1px solid var(--crit-line);background:var(--crit-bg);box-shadow:var(--shadow)}
+  .status.ready{border-color:var(--ok-line);background:var(--ok-bg)}
+  .status-hazard{height:6px;background:repeating-linear-gradient(45deg,var(--hz-a) 0 13px,var(--hz-b) 13px 26px)}
+  .status.ready .status-hazard{background:var(--ok)}
+  .status-body{display:flex;align-items:center;gap:14px;padding:15px 17px}
+  .status-ico{font-size:26px;line-height:1}
+  .status-title{font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--crit)}
+  .status.ready .status-title{color:var(--ok)}
+  .status-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+
+  .alerts-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:2px}
+  .alerts-head h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .legend{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--faint)}
+  .legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+  .dot.crit{background:var(--crit)} .dot.warn{background:var(--warn)} .dot.info{background:var(--info)}
+
+  .alerts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .alert{position:relative;display:flex;gap:12px;padding:13px 14px 13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-s);box-shadow:var(--shadow)}
+  .alert::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--radius-s) 0 0 var(--radius-s)}
+  .alert.crit::before{background:var(--crit)} .alert.warn::before{background:var(--warn)}
+  .alert.info::before{background:var(--info)} .alert.conflict::before{background:var(--conflict)}
+  .alert.maint::before{background:var(--warn)} .alert.ok::before{background:var(--ok)}
+  .alert.resolved{opacity:.62}
+  .a-ico{flex:0 0 30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:15px}
+  .alert.crit .a-ico{background:var(--crit-bg);color:var(--crit)}
+  .alert.warn .a-ico,.alert.maint .a-ico{background:var(--warn-bg);color:var(--warn)}
+  .alert.info .a-ico{background:var(--info-bg);color:var(--info)}
+  .alert.conflict .a-ico{background:var(--conflict-bg);color:var(--conflict)}
+  .alert.ok .a-ico{background:var(--ok-bg);color:var(--ok)}
+  .a-body{flex:1;min-width:0}
+  .a-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .a-title{font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+  .a-badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:100px}
+  .alert.crit .a-badge{background:var(--crit-bg);color:var(--crit)}
+  .alert.warn .a-badge,.alert.maint .a-badge{background:var(--warn-bg);color:var(--warn)}
+  .alert.info .a-badge{background:var(--info-bg);color:var(--info)}
+  .alert.conflict .a-badge{background:var(--conflict-bg);color:var(--conflict)}
+  .alert.ok .a-badge{background:var(--ok-bg);color:var(--ok)}
+  .a-detail{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .a-detail .mono{color:var(--text)}
+  .a-actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .a-resolved-lbl{font-size:11.5px;color:var(--ok);font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .countdown{font-family:var(--mono);font-weight:700;color:var(--warn);font-size:12.5px}
+
+  /* Referentiel */
+  .ref{max-width:1000px;margin:0 auto;padding:22px 20px}
+  .ref-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .ref-head h2{font-size:20px;letter-spacing:-.02em}
+  .ref-sub{margin:4px 0 0;font-size:13px;color:var(--muted)}
+  .ref-search{max-width:340px}
+  .ref-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .ref-cat{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:9px}
+  .ref-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .ref-item{display:flex;gap:11px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-s);align-items:baseline}
+  .ref-id{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);flex:0 0 auto}
+  .ref-t{font-size:13px}
+  .ref-item.hidden{display:none}
+
+  /* Toasts */
+  .toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;flex-direction:column;gap:9px;z-index:60;width:min(420px,92vw)}
+  .toast{display:flex;align-items:center;gap:10px;background:var(--text);color:var(--bg);padding:11px 15px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.28);animation:tin .25s ease}
+  .toast .ti{color:var(--hz-a)}
+  @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (max-width:860px){
+    .console{grid-template-columns:1fr}
+    .col-rail{order:-1}
+    .meta{grid-template-columns:1fr 1fr}
+    .tabs .tab{padding:8px 10px}
+    .brand-txt span{display:none}
+  }
+  @media (max-width:520px){
+    .pickers,.time-grid{grid-template-columns:1fr}
+    .ref-cols{grid-template-columns:1fr}
+    .theme-lbl{display:none}
+  }
+  /* Analyse de risques (carte AMQ) */
+  .amq-head{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap}
+  .amq-head h3{font-size:13.5px;letter-spacing:-.01em}
+  .amq-badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);background:var(--accent-soft);border:1px solid var(--border-2);padding:2px 7px;border-radius:100px}
+  .amq-head .hint{font-size:11px;color:var(--faint);margin-left:auto}
+  .steps{display:flex;flex-direction:column;gap:11px}
+  .step{border:1px solid var(--border);border-radius:var(--radius-s);overflow:hidden}
+  .step-h{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+  .step-n{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surface-3);border-radius:6px;padding:1px 7px;white-space:nowrap}
+  .step-t{font-size:12.5px;font-weight:700}
+  .risk{display:grid;grid-template-columns:92px 1fr;gap:11px;padding:9px 11px;border-top:1px solid var(--border)}
+  .risk:first-of-type{border-top:none}
+  .risk-lvl{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+  .lvl-chip{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:6px;white-space:nowrap}
+  .lvl-score{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .lvl-low{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .lvl-med{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+  .lvl-high{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .lvl-crit{background:var(--crit);color:#fff;border:1px solid var(--crit)}
+  .risk-txt{min-width:0}
+  .risk-haz{font-size:12.5px;font-weight:600}
+  .risk-ctl{font-size:12px;color:var(--muted);margin-top:2px}
+  .risk-ctl b{color:var(--text);font-weight:700}
+
+  /* Formule de supervision */
+  .sup-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .sup-head h3{font-size:13.5px}
+  .sup-audit{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:100px;padding:2px 9px}
+  .sup-obs{font-size:12.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:11px}
+  .signs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .sign{border:1px dashed var(--border-2);border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+  .sign-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700}
+  .sign-name{font-size:13px;font-weight:600}
+  .sign.signed{border-style:solid;border-color:var(--ok-line);background:var(--ok-bg)}
+  .sign-done{font-size:12px;color:var(--ok);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .sign-done .mono{color:var(--ok)}
+  .authorize{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .btn-authorize{background:var(--ok);color:#fff;border-color:var(--ok);font-size:13.5px;padding:10px 16px}
+  .btn-authorize:hover:not(:disabled){filter:brightness(1.06)}
+  .auth-note{font-size:12px;color:var(--muted)}
+  .auth-done{font-size:13px;color:var(--ok);font-weight:700}
+
+  /* Planification (accueil) */
+  .board{max-width:1240px;margin:0 auto;padding:18px 20px}
+  .board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .board-title{font-size:18px;letter-spacing:-.01em;margin-top:2px}
+  .board-hint{font-size:12px;color:var(--muted)}
+  .depts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  .dept{appearance:none;border:1px solid var(--border-2);background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:100px;cursor:pointer;font-family:inherit}
+  .dept:hover{color:var(--text);border-color:var(--accent)}
+  .dept.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .dept .dept-n{font-family:var(--mono);opacity:.7;margin-left:5px}
+  .plan-layout{display:grid;grid-template-columns:1.55fr .95fr;gap:16px;align-items:start}
+  .board-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  .board-tbl{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+  .board-tbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+  .board-tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  .board-tbl tr:last-child td{border-bottom:none}
+  .b-row{cursor:pointer}
+  .b-row:hover td{background:var(--surface-2)}
+  .b-row.sel td{background:var(--accent-soft)}
+  .b-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .b-task{font-weight:700}
+  .b-task .b-dept{display:block;font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .st-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:100px;white-space:nowrap}
+  .st-pret{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+  .st-bloque{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-line)}
+  .pl-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+  .pl-name{font-weight:600}
+  .plan-link{appearance:none;border:1px solid var(--border-2);background:var(--surface-2);color:var(--accent);font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;text-align:left}
+  .plan-link:hover{border-color:var(--accent)}
+  .eq-cell{display:flex;flex-direction:column;gap:3px}
+  .eq-name{font-size:11.5px}
+  .eq-ok{font-size:11px;font-weight:700;color:var(--ok)}
+  .eq-maint{font-size:11px;font-weight:700;color:var(--warn)}
+  .eq-bris{font-size:11px;font-weight:700;color:var(--crit)}
+  .wk-cell{display:flex;flex-direction:column;gap:5px}
+  .wk-name{font-weight:600}
+  .wk-id{font-size:11px;color:var(--muted);font-weight:600}
+  .wk-forms{display:flex;flex-wrap:wrap;gap:4px}
+  .mini-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border-2);color:var(--muted)}
+  .mini-tag.miss{background:var(--crit-bg);border-color:var(--crit-line);color:var(--crit)}
+  .rev-flag{font-size:10.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:5px;padding:2px 6px;align-self:flex-start}
+  .co-flag{font-size:10.5px;font-weight:700;color:var(--conflict);background:var(--conflict-bg);border:1px solid var(--conflict-line);border-radius:5px;padding:2px 6px;align-self:flex-start}
+
+  /* Aperçu de la carte (preview) */
+  .preview{position:sticky;top:78px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);padding:15px 16px}
+  .pv-eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:700}
+  .pv-title{font-size:16px;letter-spacing:-.01em;margin:2px 0 4px}
+  .pv-sub{font-size:12px;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .pv-row{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .pv-k{flex:0 0 90px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700;padding-top:2px}
+  .pv-v{flex:1;font-size:12.5px;min-width:0}
+  .pv-forms{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .pv-co{background:var(--conflict-bg);border:1px solid var(--conflict-line);border-radius:8px;padding:9px 11px;margin-top:11px;font-size:12px;line-height:1.5}
+  .pv-co b{color:var(--conflict)}
+  .pv-open{margin-top:13px;width:100%;justify-content:center}
+  .backlink{align-self:flex-start;appearance:none;background:var(--surface-2);border:1px solid var(--border-2);color:var(--accent);font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .backlink:hover{border-color:var(--accent)}
+  @media (max-width:900px){ .plan-layout{grid-template-columns:1fr} .preview{position:static} }
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<script>
+(function(){
+  "use strict";
+  var FMT={ CADENASSAGE:"Cadenassage (LOTO)", ESPACES_CLOS:"Travail en espace clos", FOREUSE:"Conduite de foreuse", CHARGEUSE:"Conduite chargeuse-navette", HAUTEUR:"Travail en hauteur", PREMIERS_SOINS:"Premiers soins", CONTROLE_TERRAIN:"Contrôle de terrain" };
+  var WORKERS={
+    "M-1187":{name:"Marc Gagné", form:["CADENASSAGE","HAUTEUR","CHARGEUSE"], proc:["PR-CAD-03"]},
+    "M-1042":{name:"Jean Tremblay", form:["CADENASSAGE","ESPACES_CLOS","FOREUSE","CHARGEUSE"], proc:["PR-CAD-03","PR-FOR-11","PR-EC-07"], rev:["PR-CAD-03"]},
+    "M-1203":{name:"Sophie Roy", form:["ESPACES_CLOS","PREMIERS_SOINS"], proc:["PR-EC-07"]}
+  };
+  var PROC={ "PR-CAD-03":"Cadenassage de convoyeur", "PR-FOR-11":"Cadenassage et opération de foreuse", "PR-EC-07":"Entrée en espace clos" };
+  var EQUIP={
+    "F-07":{label:"Foreuse Sandvik DD421 #F-07", maint:{state:"planifiee", inMs:(2*24+14)*3600e3}},
+    "CN-12":{label:"Chargeuse-navette #CN-12", maint:{state:"encours"}},
+    "JP-02":{label:"Jeep #JP-02", maint:{state:"bris", desc:"Fuite hydraulique — hors service"}},
+    "SC-04":{label:"Scoop R1700 #SC-04", maint:null},
+    "CV-2":{label:"Convoyeur CV-2", maint:null},
+    "DET-4G":{label:"Détecteur 4 gaz #DG-05", maint:null}
+  };
+  var SECTORS={
+    "1250":{co:null},
+    "170-22":{co:null},
+    "22-50":{co:{dept:"Ventilation", task:"Réfection de gaine d'aérage", win:"07:00–19:00", prio:"Ventilation prioritaire (qualité d'air) — reprendre le muck après libération du secteur."}},
+    "1420":{co:{dept:"Électrique", task:"Tirage de câble", win:"06:00–14:00", prio:"Travaux électriques (cadenassage) prioritaires — forage en attente de libération du secteur."}},
+    "2-A":{co:null},
+    "5-C":{co:{dept:"Ventilation", task:"Réfection de gaine d'aérage", win:"07:00–19:00", prio:"Ventilation prioritaire avant l'entrée en espace clos."}}
+  };
+  var TASKS={
+    "T-DEV-1250":{label:"Développement — avancement (niveau 1250)", short:"Dév. — avancement", dept:"Développement", chantier:"Niveau 1250", sector:"1250", worker:"M-1042",
+      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-1250-DEV", label:"Plan de développement 1250"}], equip:["SC-04"],
+      materiel:"Aucun", terrain:"Niveau humide — bonne aération"},
+    "T-DEV-170":{label:"Développement — avancement (170-22)", short:"Dév. — avancement", dept:"Développement", chantier:"Chantier 170-22", sector:"170-22", worker:"M-1187",
+      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-170-DEV", label:"Plan de développement 170-22"}], equip:["JP-02"],
+      materiel:"Aucun", terrain:"Galerie étroite — signalisation requise"},
+    "T-TR-4B":{label:"Muck — chantier 22-50", short:"Muck (soutirage)", dept:"Production", chantier:"Chantier 22-50", sector:"22-50", worker:"M-1042",
+      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-4B-CIRC", label:"Plan de circulation 22-50"}], equip:["CN-12"],
+      materiel:"Aucun", terrain:"Point de soutirage actif — risque d'éboulement"},
+    "T-FOR-4B":{label:"Forage production — chantier 1420", short:"Forage production", dept:"Forage", chantier:"Chantier 1420", sector:"1420", worker:"M-1187",
+      form:["FOREUSE"], proc:[{id:"PR-FOR-11", equip:"Foreuse Sandvik DD421"}],
+      plans:[{id:"PL-1420-MIN", label:"Plan de minage 1420"},{id:"DV-1420-BOUL", label:"Devis de boulonnage 1420"}], equip:["F-07"],
+      materiel:"Explosifs (selon plan de sautage)", terrain:"Venue d'eau au front 1420"},
+    "T-CAD-2A":{label:"Cadenassage convoyeur — niveau 2-A", short:"Cadenassage convoyeur", dept:"Entretien", chantier:"Niveau 2-A", sector:"2-A", worker:"M-1042",
+      form:["CADENASSAGE"], proc:[{id:"PR-CAD-03", equip:"Convoyeur CV-2"}],
+      plans:[{id:"SC-2A-CV", label:"Schéma d'isolement CV-2"}], equip:["CV-2"],
+      materiel:"Cadenas + moraillon", terrain:"—"},
+    "T-EC-5C":{label:"Inspection espace clos — réservoir R-12 (5-C)", short:"Inspection espace clos", dept:"Services", chantier:"Niveau 5-C", sector:"5-C", worker:"M-1203",
+      form:["ESPACES_CLOS"], proc:[{id:"PR-EC-07", equip:"Détecteur 4 gaz"}],
+      plans:[{id:"FT-R12", label:"Fiche technique réservoir R-12"}], equip:["DET-4G"],
+      materiel:"Détecteur 4 gaz, trépied, harnais", terrain:"Espace clos — accès restreint"}
+  };
+  var STEPS={
+    "T-DEV-1250":[
+      {t:"Purge et écaillage du front", r:[
+        {h:"Chute de blocs (contrôle de terrain)", c:"Purge mécanisée; ne pas s'engager sous du terrain non purgé", s:5, p:2}]},
+      {t:"Chargement et transport au scoop", r:[
+        {h:"Écrasement / angle mort", c:"Klaxon; feux; zone piéton interdite près de l'équipement", s:5, p:2},
+        {h:"Poussière", c:"Arrosage; cabine pressurisée", s:2, p:3}]}
+    ],
+    "T-DEV-170":[
+      {t:"Inspection avant quart du véhicule", r:[
+        {h:"Véhicule défectueux (bris signalé)", c:"Ne pas utiliser un équipement hors service; remplir le rapport de bris", s:5, p:3}]},
+      {t:"Déplacement du personnel", r:[
+        {h:"Collision en galerie", c:"Vitesse réduite; priorité aux équipements lourds; communication radio", s:4, p:2}]}
+    ],
+    "T-FOR-4B":[
+      {t:"Accès et inspection du secteur", r:[
+        {h:"Chute de pierres / mauvais contrôle de terrain", c:"Purge et écaillage; vérifier le boulonnage", s:4, p:2},
+        {h:"Poussière de silice cristalline", c:"Ventilation; masque P100; arrosage", s:3, p:3}]},
+      {t:"Cadenassage et mise en service de la foreuse", r:[
+        {h:"Énergie résiduelle / démarrage intempestif", c:"Cadenassage (LOTO) selon PR-FOR-11; essai « point zéro »", s:5, p:2}]},
+      {t:"Forage des trous", r:[
+        {h:"Happement par la tige rotative", c:"Gardes en place; gants ajustés; zone dégagée", s:4, p:2},
+        {h:"Bruit &gt; 90 dBA", c:"Double protection auditive", s:2, p:4}]},
+      {t:"Repli et nettoyage", r:[
+        {h:"Glissade / trébuchement (boyaux, boue)", c:"Ranger les boyaux; éclairage adéquat", s:2, p:3}]}
+    ],
+    "T-CAD-2A":[
+      {t:"Identification des sources d'énergie", r:[
+        {h:"Source d'énergie non identifiée", c:"Fiche de cadenassage CV-2; schéma d'isolement", s:5, p:2}]},
+      {t:"Isolement et cadenassage", r:[
+        {h:"Démarrage intempestif du convoyeur", c:"Cadenas personnel; essai de démarrage (test zéro)", s:5, p:2}]},
+      {t:"Vérification d'absence d'énergie", r:[
+        {h:"Énergie résiduelle (tension de la bande)", c:"Bloquer et caler; libérer la tension", s:4, p:2}]}
+    ],
+    "T-EC-5C":[
+      {t:"Test d'atmosphère avant entrée", r:[
+        {h:"Atmosphère déficiente en O₂ ou gaz toxiques", c:"Détecteur 4 gaz étalonné; test en continu", s:5, p:3}]},
+      {t:"Surveillant et ventilation", r:[
+        {h:"Absence de surveillant / de plan de sauvetage", c:"Surveillant dédié; plan de sauvetage; harnais", s:5, p:1}]},
+      {t:"Entrée et inspection", r:[
+        {h:"Chute / engloutissement", c:"Harnais + treuil; communication continue", s:4, p:2}]}
+    ],
+    "T-TR-4B":[
+      {t:"Inspection avant quart de la chargeuse-navette", r:[
+        {h:"Défaillance des freins ou de la direction", c:"Ronde de sécurité; carte d'inspection", s:4, p:2}]},
+      {t:"Circulation en galerie", r:[
+        {h:"Collision piéton / véhicule (co-activité)", c:"Feux et klaxon; radio; règles de priorité", s:5, p:3}]},
+      {t:"Chargement au point de soutirage", r:[
+        {h:"Éboulement au soutirage (hang-up)", c:"Ne pas se placer sous la charge; procédure de débourrage", s:5, p:2}]}
+    ]
+  };
+  var REF_REG=[
+    ["RSSM 8.1","Programme de prévention et méthodes de travail sécuritaires"],
+    ["RSSM 25","Cadenassage et contrôle des énergies dangereuses"],
+    ["RSSM 40","Aérage et qualité de l'air en milieu souterrain"],
+    ["RSSM 51","Contrôle de terrain et soutènement"],
+    ["RSSM 130","Travail en espace clos — surveillance et sauvetage"],
+    ["RSSM 213","Équipement mobile — circulation et signalisation"]
+  ];
+  var REF_PROC=[
+    ["PR-CAD-03","Cadenassage de convoyeur"],
+    ["PR-FOR-11","Cadenassage et opération de foreuse"],
+    ["PR-EC-07","Entrée et travail en espace clos"],
+    ["PR-CT-02","Purge et écaillage — contrôle de terrain"],
+    ["PR-CIR-05","Circulation des véhicules lourds — secteurs actifs"],
+    ["PR-URG-01","Intervention d'urgence et évacuation"]
+  ];
+
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var state={task:"T-FOR-4B", worker:"M-1187", resolved:{}, docs:[], signed:{w:false,s:false}, authorized:false, blocked:true, startTs:Date.now()};
+
+  function opt(sel,val,label,cur){var o=document.createElement("option");o.value=val;o.textContent=label;if(val===cur)o.selected=true;sel.appendChild(o);return o;}
+  function initSelects(){
+    var t=$("#taskSel"); for(var k in TASKS)opt(t,k,TASKS[k].label,state.task);
+    var w=$("#workerSel"); for(var m in WORKERS)opt(w,m,WORKERS[m].name+" · "+m,state.worker);
+  }
+
+  function computeAlerts(){
+    var t=TASKS[state.task], w=WORKERS[state.worker], a=[];
+    // missing training (hard block, not resolvable now)
+    t.form.forEach(function(f){
+      if(w.form.indexOf(f)<0){
+        a.push({id:"form:"+f, sev:"crit", ico:"🎓", badge:"Bloquant", title:"Formation manquante",
+          detail:w.name+" n'a pas la formation <b>"+FMT[f]+"</b> requise pour cette tâche.",
+          act:{label:"Planifier la formation", kind:"schedule"}, block:true, resolvable:false});
+      }
+    });
+    // equipment maintenance
+    t.equip.forEach(function(e){
+      var eq=EQUIP[e], m=eq&&eq.maint; if(!m)return;
+      if(m.state==="bris"){
+        a.push({id:"equip:"+e, sev:"crit", ico:"⛔", badge:"Bris", title:"Équipement brisé",
+          detail:"<span class='mono'>"+eq.label+"</span> est <b>hors service</b> : "+m.desc+".",
+          act:{label:"Signaler / remplacer", kind:"info"}, block:true, resolvable:false});
+      } else if(m.state==="encours"){
+        a.push({id:"equip:"+e, sev:"crit", ico:"🔧", badge:"Indisponible", title:"Équipement en maintenance",
+          detail:"<span class='mono'>"+eq.label+"</span> est <b>en maintenance</b> — indisponible pour le quart.",
+          act:{label:"Voir le calendrier", kind:"info"}, block:true, resolvable:false});
+      } else {
+        a.push({id:"equip:"+e, sev:"maint", ico:"🔧", badge:"Maintenance", title:"Maintenance planifiée",
+          detail:"<span class='mono'>"+eq.label+"</span> — arrêt planifié dans <span class='countdown' data-in='"+m.inMs+"'>—</span>.",
+          block:false, resolvable:false});
+      }
+    });
+    // procedures to read before equipment
+    t.proc.forEach(function(p){
+      if(w.proc.indexOf(p.id)<0){
+        a.push({id:"proc:"+p.id, sev:"warn", ico:"📋", badge:"À régler", title:"Procédure à lire",
+          detail:"Procédure <span class='mono'>"+p.id+"</span> — "+PROC[p.id]+", à lire et signer <b>avant d'utiliser "+p.equip+"</b>.",
+          act:{label:"Imprimer et joindre", kind:"printProc", doc:{n:p.id, l:PROC[p.id]}}, block:true, resolvable:true});
+      }
+    });
+    // co-activity
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    if(co){
+      a.push({id:"co:"+t.sector, sev:"conflict", ico:"⚠️", badge:"À régler", title:"Conflit de co-activité",
+        detail:"Le département <b>"+co.dept+"</b> effectue « "+co.task+" » dans le secteur <span class='mono'>"+t.sector+"</span> ("+co.win+").<br><b>Priorité :</b> "+(co.prio||"à coordonner entre superviseurs")+"",
+        act:{label:"Coordonner et acquitter", kind:"ack"}, block:true, resolvable:true});
+    }
+    // plans & devis (info, attach)
+    t.plans.forEach(function(pl){
+      a.push({id:"plan:"+pl.id, sev:"info", ico:"📐", badge:"Document", title:"Plan / devis lié à la tâche",
+        detail:"<span class='mono'>"+pl.id+"</span> — "+pl.label+".",
+        act:{label:"Imprimer et joindre", kind:"printPlan", doc:{n:pl.id, l:pl.label}}, block:false, resolvable:true});
+    });
+    return a;
+  }
+
+  function unresolvedBlockers(alerts){
+    return alerts.filter(function(a){return a.block && !state.resolved[a.id];});
+  }
+
+  function render(){
+    var t=TASKS[state.task], w=WORKERS[state.worker];
+    $("#mSector").textContent=t.sector;
+    // task detail
+    var td=$("#taskDetail"), rows="";
+    var formTags=t.form.map(function(f){var ok=w.form.indexOf(f)>=0;return "<span class='tag "+(ok?"ok":"miss")+"'>"+(ok?"✓":"✕")+" "+FMT[f]+"</span>";}).join("");
+    var equipTags=t.equip.map(function(e){return "<span class='tag mono'>"+EQUIP[e].label+"</span>";}).join("");
+    var procTags=t.proc.length?t.proc.map(function(p){return "<span class='tag mono'>"+p.id+"</span>";}).join(""):"<span class='tag'>—</span>";
+    rows+="<div class='td-row'><div class='td-k'>Secteur</div><div class='td-v'><span class='tag mono'>"+t.sector+"</span></div></div>";
+    rows+="<div class='td-row'><div class='td-k'>Formations req.</div><div class='td-v'>"+(formTags||"<span class='tag'>—</span>")+"</div></div>";
+    rows+="<div class='td-row'><div class='td-k'>Procédures</div><div class='td-v'>"+procTags+"</div></div>";
+    rows+="<div class='td-row'><div class='td-k'>Équipement</div><div class='td-v'>"+(equipTags||"<span class='tag'>—</span>")+"</div></div>";
+    rows+="<div class='td-row'><div class='td-k'>Matériel requis</div><div class='td-v'><span class='tag'>"+(t.materiel||"—")+"</span></div></div>";
+    rows+="<div class='td-row'><div class='td-k'>Conditions terrain</div><div class='td-v'><span class='tag'>"+(t.terrain||"—")+"</span></div></div>";
+    td.innerHTML=rows;
+
+    var alerts=computeAlerts();
+    // status
+    var blockers=unresolvedBlockers(alerts);
+    state.blocked=blockers.length>0;
+    var sb=$("#statusBanner");
+    if(blockers.length===0){
+      sb.className="status ready";
+      $("#statusIco").textContent="✅";
+      $("#statusTitle").textContent="Prêt à autoriser";
+      $("#statusSub").textContent="Toutes les vérifications sont satisfaites pour "+w.name+".";
+    } else {
+      sb.className="status";
+      $("#statusIco").textContent="⛔";
+      $("#statusTitle").textContent="Autorisation bloquée";
+      $("#statusSub").textContent=blockers.length+" point(s) à régler avant de descendre.";
+    }
+    // alerts list
+    var ul=$("#alertsList"); ul.innerHTML="";
+    if(alerts.length===0){ul.innerHTML="<li class='alert ok'><div class='a-ico'>✓</div><div class='a-body'><div class='a-title'>Aucune anomalie</div></div></li>";}
+    alerts.forEach(function(a){
+      var li=document.createElement("li");
+      var resolved=state.resolved[a.id];
+      li.className="alert "+a.sev+(resolved?" resolved":"");
+      var actHtml="";
+      if(resolved){ actHtml="<span class='a-resolved-lbl'>✓ "+(a.sev==="conflict"?"Coordonné":a.sev==="info"?"Joint":"Réglé")+"</span>"; }
+      else if(a.act){
+        var cls=(a.act.kind==="printProc"||a.act.kind==="printPlan")?"btn-print":"btn-ghost";
+        actHtml="<button class='btn btn-sm "+cls+"' data-act='"+a.id+"'>"+a.act.label+"</button>";
+      }
+      li.innerHTML="<div class='a-ico'>"+a.ico+"</div><div class='a-body'><div class='a-top'><span class='a-title'>"+a.title+"</span><span class='a-badge'>"+a.badge+"</span></div><div class='a-detail'>"+a.detail+"</div><div class='a-actions'>"+actHtml+"</div></div>";
+      ul.appendChild(li);
+    });
+    // wire actions
+    Array.prototype.forEach.call(ul.querySelectorAll("[data-act]"),function(btn){
+      btn.addEventListener("click",function(){onAlertAction(btn.getAttribute("data-act"),alerts);});
+    });
+    renderAnalyse();
+    renderSupervision();
+    renderDocs();
+    startCountdowns();
+  }
+
+  function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  function riskLevel(s,p){
+    var sc=s*p, cls, lab;
+    if(sc<=4){cls="lvl-low";lab="Faible";}
+    else if(sc<=9){cls="lvl-med";lab="Modéré";}
+    else if(sc<=14){cls="lvl-high";lab="Élevé";}
+    else {cls="lvl-crit";lab="Critique";}
+    return {cls:cls, lab:lab, sc:sc};
+  }
+  function renderAnalyse(){
+    var steps=STEPS[state.task]||[], el=$("#analyseBlock");
+    var html="<div class='amq-head'><h3>Analyse de risques</h3><span class='amq-badge'>Carte AMQ</span><span class='hint'>tâche → étapes → risques → mesures</span></div><div class='steps'>";
+    steps.forEach(function(st,i){
+      html+="<div class='step'><div class='step-h'><span class='step-n'>Étape "+(i+1)+"</span><span class='step-t'>"+st.t+"</span></div>";
+      st.r.forEach(function(rk){
+        var lv=riskLevel(rk.s,rk.p);
+        html+="<div class='risk'><div class='risk-lvl'><span class='lvl-chip "+lv.cls+"'>"+lv.lab+"</span><span class='lvl-score'>G"+rk.s+"×P"+rk.p+"="+lv.sc+"</span></div>"
+          +"<div class='risk-txt'><div class='risk-haz'>"+rk.h+"</div><div class='risk-ctl'><b>Mesure :</b> "+rk.c+"</div></div></div>";
+      });
+      html+="</div>";
+    });
+    html+="</div>";
+    el.innerHTML=html;
+  }
+  function renderSupervision(){
+    var w=WORKERS[state.worker], el=$("#supBlock");
+    var sw=state.signed.w, ss=state.signed.s;
+    function signBox(kind,role,name,done){
+      if(done) return "<div class='sign signed'><span class='sign-k'>"+role+"</span><span class='sign-name'>"+name+"</span><span class='sign-done'>✓ Signé <span class='mono'>"+done+"</span></span></div>";
+      return "<div class='sign'><span class='sign-k'>"+role+"</span><span class='sign-name'>"+name+"</span><button class='btn btn-sm btn-ghost' data-sign='"+kind+"' type='button'>Signer</button></div>";
+    }
+    var canAuth = !state.blocked && sw && ss && !state.authorized;
+    var authHtml;
+    if(state.authorized){ authHtml="<span class='auth-done'>✅ Carte autorisée — bon quart de travail.</span>"; }
+    else {
+      var note = state.blocked ? "Régler les points bloquants avant d'autoriser." : (!(sw&&ss) ? "Signatures requises pour autoriser." : "Prêt à autoriser.");
+      authHtml="<button class='btn btn-authorize' id='authBtn' type='button'"+(canAuth?"":" disabled")+">Autoriser la carte de travail</button><span class='auth-note'>"+note+"</span>";
+    }
+    el.innerHTML="<div class='sup-head'><h3>Formule de supervision</h3><span class='sup-audit'>Audits FSCT : 1 / 2</span></div>"
+      +"<div class='sup-obs'>Carte revue avec le travailleur avant le quart. Observation ciblée : contrôle de terrain et cadenassage.</div>"
+      +"<div class='signs'>"+signBox("w","Travailleur",w.name,sw?state.signed.wt:null)+signBox("s","Superviseur","S. Paquin",ss?state.signed.st:null)+"</div>"
+      +"<div class='authorize'>"+authHtml+"</div>";
+    Array.prototype.forEach.call(el.querySelectorAll("[data-sign]"),function(b){
+      b.addEventListener("click",function(){
+        var k=b.getAttribute("data-sign"), hh=nowHM();
+        if(k==="w"){state.signed.w=true;state.signed.wt=hh;} else {state.signed.s=true;state.signed.st=hh;}
+        toast("✍️","Signature enregistrée.");
+        render();
+      });
+    });
+    var ab=el.querySelector("#authBtn");
+    if(ab) ab.addEventListener("click",function(){ state.authorized=true; toast("✅","Carte de travail autorisée."); render(); });
+  }
+
+  function onAlertAction(id,alerts){
+    var a=alerts.filter(function(x){return x.id===id;})[0]; if(!a)return;
+    var k=a.act.kind;
+    if(k==="schedule"){ toast("📅","Demande de formation créée pour "+WORKERS[state.worker].name+"."); return; }
+    if(k==="info"){ toast("🔧","Calendrier de maintenance ouvert."); return; }
+    if(k==="ack"){ state.resolved[id]=true; toast("🤝","Co-activité coordonnée et acquittée."); render(); return; }
+    if(k==="printProc"||k==="printPlan"){
+      addDoc(a.act.doc.n, a.act.doc.l, k==="printProc"?"Procédure":"Plan/Devis");
+      state.resolved[id]=true;
+      toast("🖨️","Document généré et joint : "+a.act.doc.n);
+      render(); return;
+    }
+  }
+
+  function addDoc(n,l,kind){
+    if(state.docs.some(function(d){return d.n===n;}))return;
+    var d=new Date(); var hh=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+    state.docs.push({n:n,l:l,kind:kind,t:hh});
+  }
+  function renderDocs(){
+    var ul=$("#docsList"); $("#docCount").textContent=state.docs.length;
+    if(state.docs.length===0){ul.innerHTML="<li class='docs-empty'>Aucun document joint. Les procédures et plans requis s'ajoutent ici.</li>";return;}
+    ul.innerHTML=state.docs.map(function(d){
+      return "<li class='doc'><span class='di'>"+(d.kind==="Procédure"?"📋":"📐")+"</span><span class='dn'>"+d.n+"</span><span class='dl'>"+d.l+"</span><span class='dstamp'>imprimé "+d.t+"</span></li>";
+    }).join("");
+  }
+
+  var cdTimer=null;
+  function startCountdowns(){
+    if(cdTimer){clearInterval(cdTimer);cdTimer=null;}
+    var els=document.querySelectorAll(".countdown"); if(!els.length)return;
+    function tick(){
+      Array.prototype.forEach.call(els,function(el){
+        var target=state.startTs+parseInt(el.getAttribute("data-in"),10);
+        var ms=target-Date.now(); if(ms<0)ms=0;
+        var d=Math.floor(ms/86400e3), h=Math.floor(ms%86400e3/3600e3), m=Math.floor(ms%3600e3/60e3), s=Math.floor(ms%60e3/1e3);
+        el.textContent=d+" j "+("0"+h).slice(-2)+" h "+("0"+m).slice(-2)+" m "+("0"+s).slice(-2)+" s";
+      });
+    }
+    tick(); cdTimer=setInterval(tick,1000);
+  }
+
+  var toastN=0;
+  function toast(ico,msg){
+    var wrap=$("#toasts"); var el=document.createElement("div"); el.className="toast";
+    el.innerHTML="<span class='ti'>"+ico+"</span><span>"+msg+"</span>"; wrap.appendChild(el);
+    var mine=++toastN;
+    setTimeout(function(){ el.style.transition="opacity .3s,transform .3s"; el.style.opacity="0"; el.style.transform="translateY(6px)"; setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},320); },2600);
+  }
+
+  // Tabs
+  function showView(which){
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(t){var on=t.getAttribute("data-tab")===which;t.classList.toggle("is-active",on);t.setAttribute("aria-selected",on?"true":"false");});
+    $("#view-plan").hidden=(which!=="plan");
+    $("#view-carte").hidden=(which!=="carte");
+    $("#view-ref").hidden=(which!=="ref");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(tab){
+    tab.addEventListener("click",function(){ showView(tab.getAttribute("data-tab")); });
+  });
+
+  // Referentiel
+  function renderRef(){
+    $("#refReg").innerHTML=REF_REG.map(function(r){return "<li class='ref-item' data-txt='"+(r[0]+" "+r[1]).toLowerCase()+"'><span class='ref-id'>"+r[0]+"</span><span class='ref-t'>"+r[1]+"</span></li>";}).join("");
+    $("#refProc").innerHTML=REF_PROC.map(function(r){return "<li class='ref-item' data-txt='"+(r[0]+" "+r[1]).toLowerCase()+"'><span class='ref-id'>"+r[0]+"</span><span class='ref-t'>"+r[1]+"</span></li>";}).join("");
+  }
+  $("#refSearch").addEventListener("input",function(e){
+    var q=e.target.value.toLowerCase().trim();
+    Array.prototype.forEach.call(document.querySelectorAll(".ref-item"),function(it){
+      it.classList.toggle("hidden", q && it.getAttribute("data-txt").indexOf(q)<0);
+    });
+  });
+
+  // Planification : tableau + aperçu + départements
+  var boardState={dept:"Tous", sel:null};
+  function boardStatus(t){
+    var w=WORKERS[t.worker];
+    var missTrain=t.form.some(function(f){return w.form.indexOf(f)<0;});
+    var equipBad=t.equip.some(function(e){var m=EQUIP[e]&&EQUIP[e].maint; return m&&(m.state==="bris"||m.state==="encours");});
+    return (missTrain||equipBad)?"bloque":"pret";
+  }
+  function equipCellHtml(t){
+    return t.equip.map(function(e){
+      var eq=EQUIP[e], m=eq.maint, s;
+      if(!m) s="<span class='eq-ok'>OK</span>";
+      else if(m.state==="bris") s="<span class='eq-bris'>⛔ Bris : "+m.desc+"</span>";
+      else if(m.state==="encours") s="<span class='eq-bris'>🔧 En maintenance — indisponible</span>";
+      else s="<span class='eq-maint'>🔧 Maintenance dans <span class='countdown' data-in='"+m.inMs+"'>—</span></span>";
+      return "<div class='eq-cell'><span class='eq-name mono'>"+eq.label+"</span>"+s+"</div>";
+    }).join("");
+  }
+  function workerCellHtml(t){
+    var w=WORKERS[t.worker];
+    var forms=w.form.map(function(f){return "<span class='mini-tag'>"+FMT[f]+"</span>";}).join("");
+    var miss=t.form.filter(function(f){return w.form.indexOf(f)<0;}).map(function(f){return "<span class='mini-tag miss'>✕ "+FMT[f]+"</span>";}).join("");
+    var revDue=t.proc.some(function(p){return w.proc.indexOf(p.id)<0 || (w.rev&&w.rev.indexOf(p.id)>=0);});
+    var flag=revDue?"<span class='rev-flag'>⚠ Révision de procédure due</span>":"";
+    return "<div class='wk-cell'><span class='wk-name'>"+w.name+" <span class='wk-id mono'>"+t.worker+"</span></span><div class='wk-forms'>"+forms+miss+"</div>"+flag+"</div>";
+  }
+  function placeCellHtml(t){
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    var coFlag=co?"<span class='co-flag'>⚠ Co-activité — "+co.dept+"</span>":"";
+    return "<div class='pl-cell'><span class='pl-name'>"+t.chantier+"</span>"+(t.plans.length?"<button class='plan-link' data-plan='"+t.id+"' type='button'>🖨 Imprimer le plan</button>":"")+coFlag+"</div>";
+  }
+  function renderDepts(){
+    var depts=["Tous"]; Object.keys(TASKS).forEach(function(id){var d=TASKS[id].dept; if(depts.indexOf(d)<0)depts.push(d);});
+    var el=$("#deptTabs");
+    el.innerHTML=depts.map(function(d){
+      var n=d==="Tous"?Object.keys(TASKS).length:Object.keys(TASKS).filter(function(id){return TASKS[id].dept===d;}).length;
+      return "<button class='dept"+(boardState.dept===d?" on":"")+"' data-dept='"+d+"' type='button'>"+d+"<span class='dept-n'>"+n+"</span></button>";
+    }).join("");
+    Array.prototype.forEach.call(el.querySelectorAll("[data-dept]"),function(b){
+      b.addEventListener("click",function(){ boardState.dept=b.getAttribute("data-dept"); renderDepts(); renderBoard(); });
+    });
+  }
+  function renderBoard(){
+    var ids=Object.keys(TASKS).filter(function(id){return boardState.dept==="Tous"||TASKS[id].dept===boardState.dept;});
+    if(ids.indexOf(boardState.sel)<0) boardState.sel=ids[0]||null;
+    var head="<thead><tr><th>État</th><th>Tâche</th><th>Place de travail</th><th>Équipement</th><th>Travailleur assigné</th></tr></thead>";
+    var body=ids.map(function(id){
+      var t=TASKS[id]; t.id=id; var st=boardStatus(t);
+      var chip=st==="pret"?"<span class='st-chip st-pret'>● Prêt</span>":"<span class='st-chip st-bloque'>● Bloqué</span>";
+      return "<tr class='b-row"+(id===boardState.sel?" sel":"")+"' data-open='"+id+"' tabindex='0' role='button' aria-label='Ouvrir "+t.short+"'>"
+        +"<td>"+chip+"</td><td class='b-task'>"+t.short+"<span class='b-dept'>"+t.dept+"</span></td>"
+        +"<td>"+placeCellHtml(t)+"</td><td>"+equipCellHtml(t)+"</td><td>"+workerCellHtml(t)+"</td></tr>";
+    }).join("");
+    $("#boardTbl").innerHTML=head+"<tbody>"+body+"</tbody>";
+    Array.prototype.forEach.call($("#boardTbl").querySelectorAll("[data-plan]"),function(b){
+      b.addEventListener("click",function(e){e.stopPropagation(); var t=TASKS[b.getAttribute("data-plan")]; toast("🖨️","Plan imprimé : "+t.plans[0].id+" — "+t.plans[0].label);});
+    });
+    Array.prototype.forEach.call($("#boardTbl").querySelectorAll("[data-open]"),function(r){
+      var id=r.getAttribute("data-open");
+      r.addEventListener("click",function(){ boardState.sel=id; renderBoard(); });
+      r.addEventListener("dblclick",function(){ openCarte(id); });
+      r.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();openCarte(id);} else if(e.key===" "){e.preventDefault();boardState.sel=id;renderBoard();} });
+    });
+    renderPreview(boardState.sel);
+    startCountdowns();
+  }
+  function renderPreview(id){
+    var el=$("#previewPane"); if(!id){el.innerHTML="";return;}
+    var t=TASKS[id]; t.id=id; var w=WORKERS[t.worker]; var st=boardStatus(t);
+    var chip=st==="pret"?"<span class='st-chip st-pret'>● Prêt</span>":"<span class='st-chip st-bloque'>● Bloqué</span>";
+    var forms=w.form.map(function(f){return "<span class='mini-tag'>"+FMT[f]+"</span>";}).join("");
+    var miss=t.form.filter(function(f){return w.form.indexOf(f)<0;}).map(function(f){return "<span class='mini-tag miss'>✕ "+FMT[f]+"</span>";}).join("");
+    var planLink=t.plans.length?"<button class='plan-link' data-ppplan='"+id+"' type='button'>🖨 Imprimer le plan — "+t.plans[0].label+"</button>":"—";
+    var co=SECTORS[t.sector]&&SECTORS[t.sector].co;
+    var coHtml=co?"<div class='pv-co'>⚠ <b>Co-activité</b> — secteur "+t.sector+" : "+co.dept+" (« "+co.task+" », "+co.win+").<br><b>Priorité :</b> "+co.prio+"</div>":"";
+    el.innerHTML="<div class='pv-eyebrow'>Aperçu — carte de travail</div><h3 class='pv-title'>"+t.short+"</h3><div class='pv-sub'>"+chip+"<span>"+t.chantier+"</span></div>"
+      +"<div class='pv-row'><div class='pv-k'>Travailleur</div><div class='pv-v'>"+w.name+" <span class='mono'>"+t.worker+"</span><div class='pv-forms'>"+forms+miss+"</div></div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Équipement</div><div class='pv-v'>"+equipCellHtml(t)+"</div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Lieu de travail</div><div class='pv-v'>"+t.chantier+"<div style='margin-top:6px'>"+planLink+"</div></div></div>"
+      +"<div class='pv-row'><div class='pv-k'>Matériel</div><div class='pv-v'>"+t.materiel+"</div></div>"
+      +coHtml
+      +"<button class='btn btn-print pv-open' id='pvOpen' type='button'>Remplir / imprimer la carte →</button>";
+    var pl=el.querySelector("[data-ppplan]"); if(pl) pl.addEventListener("click",function(){toast("🖨️","Plan imprimé : "+t.plans[0].id+" — "+t.plans[0].label);});
+    var ob=el.querySelector("#pvOpen"); if(ob) ob.addEventListener("click",function(){openCarte(id);});
+  }
+  function openCarte(id){
+    state.task=id; state.worker=TASKS[id].worker; state.resolved={}; state.docs=[]; state.signed={w:false,s:false}; state.authorized=false;
+    var ts=$("#taskSel"); if(ts) ts.value=id; var ws=$("#workerSel"); if(ws) ws.value=state.worker;
+    render(); showView("carte"); window.scrollTo(0,0);
+  }
+
+  // Time -> payroll
+  $("#payBtn").addEventListener("click",function(){
+    var h=$("#hours").value;
+    $("#payState").textContent="✓ "+h+" h transmises à la paie";
+    toast("⏱️","Temps envoyé à la paie : "+h+" h · "+$("#actcode").value);
+  });
+
+  // Theme toggle
+  $("#themeBtn").addEventListener("click",function(){
+    var root=document.documentElement;
+    var cur=root.getAttribute("data-theme");
+    if(!cur){ var dark=window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches; cur=dark?"dark":"light"; }
+    root.setAttribute("data-theme", cur==="dark"?"light":"dark");
+  });
+
+  // Selectors
+  $("#taskSel").addEventListener("change",function(e){state.task=e.target.value;state.resolved={};state.docs=[];state.signed={w:false,s:false};state.authorized=false;render();});
+  $("#workerSel").addEventListener("change",function(e){state.worker=e.target.value;state.resolved={};state.signed={w:false,s:false};state.authorized=false;render();});
+
+  $("#backBtn").addEventListener("click",function(){ showView("plan"); renderBoard(); window.scrollTo(0,0); });
+  initSelects(); renderRef(); renderDepts(); renderBoard(); render(); showView("plan");
+})();
+</script>

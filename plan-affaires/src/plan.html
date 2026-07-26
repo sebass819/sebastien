@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Plan d'affaires — Firme de santé et sécurité minière (Québec)</title>
+<style>
+  :root{
+    --navy:#1B3A5B; --steel:#2F6690; --orange:#D2691E;
+    --headerbg:#1B3A5B; --alt:#F5F8FA; --grey:#6B7280; --line:#C9D6DF; --text:#222;
+  }
+  @page{
+    size: Letter;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-center{ content: "Page " counter(page) " / " counter(pages); color:#6B7280; font-size:9px; font-family:Calibri,Arial,sans-serif; }
+    @top-right{ content: "Plan d'affaires — Firme SST minière"; color:#9aa6b2; font-size:8px; font-family:Calibri,Arial,sans-serif; }
+  }
+  @page:first{ @top-right{content:""} @bottom-center{content:""} }
+  *{ box-sizing:border-box; }
+  body{ font-family:Calibri,"Segoe UI",Arial,sans-serif; color:var(--text); font-size:10.8pt; line-height:1.42; margin:0; }
+  h1{ color:var(--navy); font-size:16.5pt; margin:22px 0 8px; padding-bottom:4px; border-bottom:2px solid var(--orange); break-after:avoid; }
+  h2{ color:var(--steel); font-size:12.5pt; margin:14px 0 5px; break-after:avoid; }
+  p{ margin:0 0 8px; text-align:justify; }
+  ul{ margin:0 0 8px; padding-left:20px; }
+  li{ margin:0 0 4px; break-inside:avoid; }
+  li::marker{ color:var(--orange); }
+  strong{ color:var(--text); }
+  table{ border-collapse:collapse; width:100%; margin:4px 0 6px; font-size:9.8pt; break-inside:auto; }
+  th{ background:var(--headerbg); color:#fff; text-align:left; padding:5px 8px; font-weight:700; border:1px solid var(--line); }
+  td{ padding:5px 8px; border:1px solid var(--line); vertical-align:top; }
+  tr:nth-child(even) td{ background:var(--alt); }
+  tr{ break-inside:avoid; }
+  .caption{ font-style:italic; color:var(--grey); font-size:8.6pt; margin:2px 0 12px; }
+  .warn strong{ color:var(--orange); }
+
+  /* Title page */
+  .title{ height:228mm; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; break-after:page; }
+  .title .kicker{ color:var(--orange); font-weight:700; letter-spacing:3px; font-size:13pt; margin-bottom:6px; }
+  .title h1.big{ color:var(--navy); font-size:30pt; border:none; margin:0 0 6px; padding:0; line-height:1.15; }
+  .title .sub{ color:var(--navy); font-size:16pt; margin-bottom:14px; }
+  .title .rule{ width:120px; border-top:3px solid var(--orange); margin:6px auto 16px; }
+  .title .tag{ color:var(--steel); font-style:italic; font-size:12pt; max-width:70%; }
+  .title .meta{ margin-top:60px; color:var(--grey); font-size:11pt; }
+
+  /* TOC */
+  .toc{ break-after:page; }
+  .toc h1{ border-bottom:none; }
+  .toc ol{ padding-left:0; list-style:none; counter-reset:toc; }
+  .toc ol > li{ counter-increment:toc; padding:4px 0; border-bottom:1px dotted var(--line); }
+  .toc ol > li::before{ content:counter(toc) ". "; color:var(--orange); font-weight:700; }
+  .note{ font-style:italic; color:var(--grey); font-size:8.6pt; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<!-- TITLE PAGE -->
+<section class="title">
+  <div class="kicker">PLAN D'AFFAIRES</div>
+  <h1 class="big">Firme de santé et sécurité<br>du travail</h1>
+  <div class="sub">spécialisée dans le secteur minier — Québec</div>
+  <div class="rule"></div>
+  <div class="tag">Modèle hybride : abonnement de contenu SST mensuel + services-conseils et formation</div>
+  <div class="meta">Document de travail — version 1<br>Juillet 2026</div>
+</section>
+
+<!-- TOC -->
+<section class="toc">
+  <h1>Table des matières</h1>
+  <ol>
+    <li>Sommaire exécutif</li>
+    <li>Le projet et l'entreprise</li>
+    <li>L'équipe entrepreneuriale et la stratégie de crédibilité</li>
+    <li>Analyse du marché</li>
+    <li>Concurrence et avantages concurrentiels</li>
+    <li>Offre de produits et services</li>
+    <li>Stratégie de mise en marché</li>
+    <li>Plan des opérations</li>
+    <li>Cadre juridique et réglementaire</li>
+    <li>Plan financier</li>
+    <li>Échéancier de démarrage (12 mois)</li>
+    <li>Analyse des risques et mitigations</li>
+    <li>Annexes</li>
+  </ol>
+  <div class="note">Les données financières de ce document sont illustratives et doivent être validées avec un comptable et un juriste.</div>
+</section>
+
+<!-- 1 -->
+<h1>1. Sommaire exécutif</h1>
+<p><strong>Le concept.</strong> La firme offre aux entreprises minières du Québec un programme complet de santé et de sécurité du travail (SST), articulé autour d'un produit phare : un « Kit SST mensuel » clé en main qui alimente la réunion de sécurité mensuelle de chaque équipe. Chaque mois, l'abonné reçoit une présentation interactive prête à animer et 3 à 4 affiches prêtes à imprimer, accompagnées d'un guide d'animation, d'une feuille de présence et d'un quiz de validation. Ce contenu récurrent est complété par des services-conseils (audits, analyses de risques, enquêtes d'accident, accompagnement CNESST) et de la formation.</p>
+<p><strong>Le problème.</strong> Le secteur minier demeure l'un des milieux de travail les plus exigeants en matière de prévention, et la modernisation récente du régime québécois de SST a élargi les obligations (programme de prévention, comité de SST, représentant en santé et sécurité) à un nombre beaucoup plus grand d'employeurs. Résultat : les mines et surtout leurs nombreux sous-traitants doivent tenir des rencontres de sécurité régulières et documentées, mais manquent de temps et de matériel de qualité pour le faire mois après mois.</p>
+<p><strong>La solution et le modèle d'affaires.</strong> Un modèle hybride combinant un revenu récurrent (abonnement mensuel à paliers) et des services à plus forte marge (conseil et formation). Le contenu est livré à distance partout au Québec via un portail web, et les services sont rendus sur place selon la région.</p>
+<p><strong>L'équipe.</strong> La firme est fondée par un entrepreneur qui connaît intimement le milieu minier (réseau, réalité terrain, développement d'affaires), associé à un ou des spécialistes détenant des titres et de l'expérience reconnus en SST. Cette complémentarité — connaissance du secteur d'un côté, crédibilité technique de l'autre — est au cœur de la stratégie.</p>
+<p><strong>Le marché.</strong> Le Québec compte une vingtaine de mines actives et des dizaines de projets, auxquels s'ajoute un large bassin de sous-traitants (forage, dynamitage, transport, entretien, construction) qui gravitent autour des sites. Ce sont ces sous-traitants, souvent moins bien outillés en SST, qui constituent le cœur de la clientèle initiale.</p>
+<p><strong>Le financement.</strong> Démarrage autofinancé et allégé : les besoins en capital sont modestes (image de marque, site/portail, logiciels, production du contenu initial). L'investissement de départ estimé se situe autour de 16 000 $ à 26 000 $, réparti entre les associés.</p>
+<p><strong>Les objectifs (an 1).</strong> Valider l'offre avec 2 à 3 clients pilotes, lancer commercialement, atteindre le seuil de rentabilité des frais d'exploitation et bâtir un catalogue de thèmes couvrant l'année.</p>
+
+<!-- 2 -->
+<h1>2. Le projet et l'entreprise</h1>
+<h2>2.1 Mission</h2>
+<p>Rendre la prévention simple, professionnelle et constante dans les entreprises minières du Québec, en fournissant du contenu SST clé en main et un accompagnement crédible, aligné sur la réglementation.</p>
+<h2>2.2 Vision</h2>
+<p>Devenir la référence québécoise du contenu SST minier clé en main — le partenaire qui fait gagner du temps aux responsables de la sécurité tout en élevant la qualité des rencontres mensuelles sur le terrain.</p>
+<h2>2.3 Valeurs</h2>
+<ul>
+  <li><strong>Rigueur :</strong> un contenu exact, à jour et aligné sur la réglementation.</li>
+  <li><strong>Terrain :</strong> des outils conçus pour la réalité des travailleurs miniers, pas de la théorie.</li>
+  <li><strong>Constance :</strong> la prévention est une habitude mensuelle, pas un événement annuel.</li>
+  <li><strong>Bilinguisme :</strong> du contenu offert en français et en anglais, un atout dans plusieurs milieux.</li>
+</ul>
+<h2>2.4 Forme juridique et propriété</h2>
+<p>La firme sera constituée en société par actions (incorporation) afin de protéger le patrimoine des associés et de faciliter le partage de la propriété et l'ajout futur d'associés ou d'employés. Une <strong>convention entre actionnaires</strong> sera signée dès le départ pour préciser les rôles, la répartition des parts, la prise de décision, la rémunération et les scénarios de départ. (À valider avec un comptable et un juriste; cette section est informative et ne constitue pas un avis professionnel.)</p>
+
+<!-- 3 -->
+<h1>3. L'équipe entrepreneuriale et la stratégie de crédibilité</h1>
+<p><strong>Le pivot du projet.</strong> Une firme de SST se vend sur la confiance. Le fondateur connaît le milieu minier mais n'est pas un spécialiste SST; la crédibilité technique doit donc être assurée par la structure de l'équipe. C'est pourquoi la firme démarre avec au moins un associé détenant une expertise SST reconnue.</p>
+<h2>3.1 Rôles complémentaires</h2>
+<ul>
+  <li><strong>Fondateur — Direction générale et développement des affaires.</strong> Connaissance du secteur minier, réseau de contacts, relations-clients, ventes, gestion de la production du contenu et des opérations.</li>
+  <li><strong>Associé(s) — Direction technique SST.</strong> Titulaire de titres et d'expérience reconnus en SST (technique, certificat ou baccalauréat en SST; expérience de préventionniste ou de conseiller SST; appartenance à une association professionnelle). Garant de la conformité, responsable de la prestation des services-conseils et de la formation, et validateur de tout le contenu diffusé.</li>
+</ul>
+<h2>3.2 Stratégie de crédibilité</h2>
+<ul>
+  <li>S'assurer qu'au moins un associé détient des qualifications SST vérifiables, mises de l'avant dans le matériel de vente.</li>
+  <li>Nouer des partenariats ponctuels avec des spécialistes (hygiéniste du travail, ingénieur, formateur accrédité) pour les mandats qui l'exigent.</li>
+  <li>Souscrire une assurance responsabilité professionnelle dès le lancement.</li>
+  <li><strong>Positionnement prudent :</strong> la firme offre du conseil en prévention et du contenu; elle ne prétend pas exécuter des actes réservés (hygiène du travail, ingénierie) qu'elle confie en sous-traitance au besoin.</li>
+  <li>Rehausser la crédibilité personnelle du fondateur par une formation SST de base (ex. cours reconnus en prévention) et l'adhésion aux associations du secteur.</li>
+  <li>Bâtir une preuve sociale rapide : témoignages de clients pilotes, études de cas, présence professionnelle sur LinkedIn.</li>
+</ul>
+
+<!-- 4 -->
+<h1>4. Analyse du marché</h1>
+<h2>4.1 Le secteur minier québécois</h2>
+<p>En 2025, le Québec comptait une vingtaine de mines en exploitation (autour de 21 selon les relevés gouvernementaux les plus récents), auxquelles s'ajoutent quelques sites en maintenance et une trentaine de projets à divers stades de développement. La production se concentre dans l'or (environ huit mines), le fer, le nickel et quelques autres substances (niobium, titane, graphite, etc.). L'<strong>Abitibi-Témiscamingue</strong> est le cœur minier de la province (environ sept mines actives), suivie du Nord-du-Québec et de la Côte-Nord.</p>
+<p><strong>Le bassin réel de clients dépasse largement les mines elles-mêmes.</strong> Chaque site fait travailler un écosystème de sous-traitants : forage, dynamitage, transport lourd, entretien mécanique, électricité, construction, services d'urgence. Ces entreprises — souvent des PME — ont les mêmes obligations de prévention, mais rarement une équipe SST à temps plein. C'est un segment nombreux, accessible et mal servi.</p>
+<h2>4.2 Cadre réglementaire (moteur de la demande)</h2>
+<ul>
+  <li><strong>LSST et RSSM.</strong> La Loi sur la santé et la sécurité du travail et le Règlement sur la santé et la sécurité du travail dans les mines encadrent strictement l'industrie : rencontres de sécurité, comités, inspections, formation, tenue de registres.</li>
+  <li><strong>Modernisation du régime (loi de 2021).</strong> La réforme a élargi les mécanismes de prévention obligatoires (programme de prévention, comité de SST, représentant en santé et sécurité) à un éventail beaucoup plus large d'employeurs, en déploiement progressif. Cela crée une demande structurelle pour du contenu et de l'accompagnement, particulièrement chez les sous-traitants qui n'étaient pas outillés. (Dates et modalités précises à valider auprès de la CNESST.)</li>
+  <li><strong>Enjeux de santé de l'heure.</strong> Poussières de silice cristalline, bruit et vibrations, santé psychologique, fatigue et gestion des quarts : autant de thèmes réglementés et médiatisés qui alimentent le besoin de sensibilisation continue.</li>
+</ul>
+<h2>4.3 Ampleur du besoin</h2>
+<p>Bon an mal an, le secteur minier québécois enregistre de l'ordre de <strong>370 lésions professionnelles indemnisées par année</strong> (en forte majorité des accidents), selon le portrait statistique publié par l'association paritaire du secteur (chiffre approximatif, année de référence 2022). Chaque lésion représente un coût humain et financier important et une justification directe d'investir dans la prévention continue — le créneau exact de la firme.</p>
+<h2>4.4 Clientèle cible</h2>
+<ul>
+  <li><strong>PME et sous-traitants miniers (cœur de cible initial).</strong> Peu de ressources SST internes, grand besoin de contenu clé en main, cycle de vente court, prix d'abonnement facilement justifiable.</li>
+  <li><strong>Grandes sociétés minières.</strong> Budgets plus importants et exigences élevées, mais cycles de vente plus longs; visées surtout pour les services-conseils, la formation et les abonnements « Sur mesure » multi-sites.</li>
+</ul>
+
+<!-- 5 -->
+<h1>5. Concurrence et avantages concurrentiels</h1>
+<h2>5.1 Paysage concurrentiel</h2>
+<ul>
+  <li><strong>L'APSM (association paritaire du secteur minier).</strong> Créée en 1985 en vertu de la Loi sur la SST, elle offre formation, information et conseil technique aux mines, à coût nul ou minime, car financée par une cotisation sectorielle. C'est le joueur incontournable à comprendre et à respecter.</li>
+  <li><strong>Consultants et firmes SST généralistes.</strong> Offrent audits, formation et accompagnement, mais rarement spécialisés minier et rarement sous forme de contenu récurrent clé en main.</li>
+  <li><strong>Contenu générique en ligne.</strong> Gabarits d'affiches et de causeries gratuits, mais génériques, non adaptés au minier québécois et exigeant beaucoup de temps de mise en forme.</li>
+</ul>
+<h2>5.2 Se positionner face à l'APSM : complémenter, pas concurrencer</h2>
+<p>L'APSM offre d'excellents services, mais son contenu est partagé, générique et pensé d'abord pour les mines membres. La firme se distingue en étant le prolongement « clé en main » de cet écosystème :</p>
+<ul>
+  <li>Elle cible en priorité les sous-traitants et PME, souvent moins couverts par les services sectoriels.</li>
+  <li>Elle vend le gain de temps et la qualité de présentation : du contenu prêt à animer, sans travail de mise en forme.</li>
+  <li>Elle personnalise (marque blanche) aux couleurs, au logo et aux risques propres de chaque client.</li>
+  <li>Elle assure une constance mensuelle, avec un calendrier annuel structuré.</li>
+</ul>
+<h2>5.3 Avantages concurrentiels durables</h2>
+<ul>
+  <li><strong>Spécialisation minière</strong> — un contenu qui parle la langue du terrain (souterrain, à ciel ouvert, sous-traitants).</li>
+  <li><strong>Clé en main et interactif</strong> — présentations prêtes à animer, quiz, « trouve le danger », affiches prêtes à imprimer.</li>
+  <li><strong>Marque blanche</strong> — le contenu aux couleurs du client renforce sa propre culture de sécurité.</li>
+  <li><strong>Bilingue et à jour</strong> — un différenciateur au Québec, et une veille réglementaire intégrée.</li>
+  <li><strong>Revenu récurrent</strong> — l'abonnement fidélise et stabilise les revenus.</li>
+</ul>
+
+<!-- 6 -->
+<h1>6. Offre de produits et services</h1>
+<h2>6.1 Produit phare — l'abonnement « Kit SST mensuel »</h2>
+<p>Chaque mois, l'abonné reçoit un ensemble prêt à utiliser pour sa réunion de sécurité :</p>
+<ul>
+  <li>Une présentation interactive (sondage, quiz avec pointage, « trouve le danger » sur photo, étude de cas).</li>
+  <li>3 à 4 affiches prêtes à imprimer (formats 11 × 17 et 24 × 36).</li>
+  <li>Un guide d'animation d'une page pour le superviseur.</li>
+  <li>Une feuille de présence et un quiz de validation des acquis.</li>
+  <li>Une causerie éclair (toolbox talk) d'une page pour les équipes sur le terrain.</li>
+</ul>
+<table>
+  <thead><tr><th style="width:16%">Palier</th><th style="width:20%">Prix indicatif</th><th>Inclus</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Essentiel</strong></td><td>125 – 175 $/mois</td><td>Contenu mensuel standard en français : présentation, 3 affiches, guide, feuille de présence, quiz.</td></tr>
+    <tr><td><strong>Pro</strong></td><td>300 – 450 $/mois</td><td>Tout Essentiel + personnalisation marque blanche (logo/couleurs) + version bilingue + soutien + accès au portail.</td></tr>
+    <tr><td><strong>Site / Sur mesure</strong></td><td>750 – 2 000 $+/mois</td><td>Contenu adapté au site et aux risques spécifiques (facturé par site) + langues additionnelles + accompagnement d'un conseiller + rapports de participation.</td></tr>
+  </tbody>
+</table>
+<div class="caption">Grille tarifaire indicative — à ajuster selon le positionnement et les coûts réels.</div>
+<h2>6.2 Services-conseils (à la carte)</h2>
+<ul>
+  <li>Audits et inspections SST, tournées de conformité.</li>
+  <li>Analyses de risques et analyses sécuritaires de tâches (AST).</li>
+  <li>Enquêtes et analyses d'accident, plans d'action correctifs.</li>
+  <li>Accompagnement CNESST, soutien aux comités de SST et aux programmes de prévention.</li>
+</ul>
+<h2>6.3 Formation</h2>
+<ul>
+  <li>Sessions sur mesure (cadenassage, espaces clos, travail en hauteur, SIMDUT, etc.) et animation de rencontres thématiques.</li>
+</ul>
+<h2>6.4 Calendrier des 12 thèmes</h2>
+<p>Un calendrier annuel structure la production et donne de la visibilité aux abonnés (détaillé en annexe A), incluant des modules propres au minier : contrôle de terrain, ventilation, sautage.</p>
+
+<!-- 7 -->
+<h1>7. Stratégie de mise en marché</h1>
+<h2>7.1 Positionnement</h2>
+<p>« Vos réunions de sécurité, prêtes chaque mois. » La firme se positionne comme le partenaire qui fait gagner du temps aux responsables et élève la qualité de la prévention, à un coût très inférieur à celui d'un conseiller interne (dont le salaire dépasse aisément 56 000 $ à 111 000 $ par année au Québec).</p>
+<h2>7.2 Prix et justification (les « ancres »)</h2>
+<p>Le prix ne se justifie pas par le coût de production du contenu, mais par ce que le client <strong>évite ou économise</strong>. Les points de comparaison rendent l'abonnement évident :</p>
+<table>
+  <thead><tr><th>Ce que le client paie déjà…</th><th style="width:24%">Coût réel</th><th>Implication</th></tr></thead>
+  <tbody>
+    <tr><td>Préparer la réunion à l'interne</td><td>150 – 400 $/mois</td><td>4 à 8 h d'un superviseur (35-55 $/h); résultat souvent moyen. Le kit fait mieux, pour moins.</td></tr>
+    <tr><td>Un conseiller SST à temps plein</td><td>56 000 – 111 000 $/an</td><td>Hors de portée d'un sous-traitant; le kit livre l'essentiel à une fraction du coût.</td></tr>
+    <tr><td>Un consultant qui anime sur place</td><td>800 – 1 200 $/jour</td><td>Une seule rencontre animée dépasse un mois d'abonnement.</td></tr>
+    <tr><td>Un seul accident avec perte de temps</td><td>30 000 – 100 000 $+</td><td>Coûts directs + indirects + hausse de cotisation CNESST. La prévention est une assurance bon marché.</td></tr>
+  </tbody>
+</table>
+<div class="caption">Ordres de grandeur; salaires selon Indeed Québec (2026), tarifs de consultation estimés à valider.</div>
+<p>Trois leviers augmentent le prix moyen :</p>
+<ul>
+  <li><strong>Facturer par site, pas par entreprise</strong> — une société minière à trois sites représente trois abonnements. C'est le principal multiplicateur de revenus.</li>
+  <li><strong>Contenu basé sur de vrais événements du secteur</strong> — s'appuyer sur des accidents et incidents réels (anonymisés) et sur les risques précis du site fait passer l'offre du « générique » au « sur mesure » et justifie le palier supérieur.</li>
+  <li><strong>Rabais annuel prépayé</strong> (≈ 2 mois gratuits) — verrouille le revenu récurrent et améliore la trésorerie.</li>
+</ul>
+<p>Pour les services et la formation : taux journalier estimé autour de 800 $ à 1 200 $/jour et forfaits de formation de ≈ 1 000 $ à 2 000 $/session (à valider selon le marché).</p>
+<p><strong>Positionnement de départ recommandé :</strong> un revenu moyen mélangé d'environ 250 à 300 $/mois par abonné. À valider auprès de 5 à 10 clients potentiels avant de figer la grille — ce type de service est souvent sous-évalué.</p>
+<h2>7.3 Canaux d'acquisition</h2>
+<ul>
+  <li>Réseau du fondateur dans le milieu minier (approche directe, références).</li>
+  <li>LinkedIn et contenu d'expertise (publications, capsules prévention).</li>
+  <li>Salons et événements du secteur (ex. Xplor, Québec Mines &amp; Énergie).</li>
+  <li>Partenariats avec des fournisseurs et associations gravitant autour des mines.</li>
+</ul>
+<h2>7.4 Offre d'essai</h2>
+<p>Un « Kit SST mensuel » gratuit offert en démonstration à 2 ou 3 clients pilotes (une mine, un ou deux sous-traitants) pour valider la valeur, récolter des témoignages et amorcer le bouche-à-oreille.</p>
+
+<!-- 8 -->
+<h1>8. Plan des opérations</h1>
+<ul>
+  <li><strong>Production du contenu.</strong> Rédaction et validation SST par l'associé technique; conception graphique des présentations et affiches (interne ou sous-traitée); révision bilingue.</li>
+  <li><strong>Livraison.</strong> Portail web où les abonnés téléchargent le kit du mois; envoi d'une infolettre de rappel; contenu personnalisé pour les paliers Pro et Sur mesure.</li>
+  <li><strong>Outils.</strong> Suite bureautique et outils de conception (présentations, affiches), plateforme d'infolettre et de paiement, espace client, comptabilité en ligne.</li>
+  <li><strong>Répartition.</strong> Le fondateur pilote ventes, relations-clients et coordination; l'associé technique pilote le contenu, la conformité et les mandats de services.</li>
+  <li><strong>Qualité.</strong> Chaque contenu diffusé est validé par un responsable SST crédité avant publication — c'est la garantie de la marque.</li>
+</ul>
+
+<!-- 9 -->
+<h1>9. Cadre juridique et réglementaire</h1>
+<ul>
+  <li><strong>Constitution.</strong> Société par actions; convention entre actionnaires; immatriculation au Registraire des entreprises du Québec.</li>
+  <li><strong>Assurances.</strong> Responsabilité civile et responsabilité professionnelle (erreurs et omissions) dès le départ.</li>
+  <li><strong>Propriété intellectuelle.</strong> Le catalogue de contenu est l'actif central et récurrent : gabarits, présentations, affiches et marque doivent être protégés (droits d'auteur, licences d'utilisation encadrées pour les abonnés).</li>
+  <li><strong>Conformité et prudence.</strong> Mise en garde claire dans les contrats : le contenu soutient la démarche de prévention du client mais ne remplace pas ses obligations légales ni un avis professionnel spécialisé lorsque requis.</li>
+</ul>
+
+<!-- 10 -->
+<h1>10. Plan financier</h1>
+<p class="warn"><strong>Avertissement :</strong> les chiffres ci-dessous sont des scénarios illustratifs fondés sur des hypothèses clairement identifiées. Ils servent à cadrer la réflexion et devront être remplacés par vos données réelles (prix négociés, coûts réels, rémunération des associés) avant toute utilisation auprès d'un prêteur.</p>
+<h2>10.1 Investissement de départ (estimé)</h2>
+<table>
+  <thead><tr><th>Poste</th><th style="width:32%">Montant estimé</th></tr></thead>
+  <tbody>
+    <tr><td>Constitution et frais professionnels initiaux</td><td>1 500 – 3 000 $</td></tr>
+    <tr><td>Image de marque (nom, logo, identité)</td><td>1 500 – 3 000 $</td></tr>
+    <tr><td>Site web et portail abonnés</td><td>2 000 – 5 000 $</td></tr>
+    <tr><td>Logiciels et plateformes (année 1)</td><td>1 500 – 2 500 $</td></tr>
+    <tr><td>Assurance responsabilité professionnelle (année 1)</td><td>1 500 – 3 000 $</td></tr>
+    <tr><td>Production du contenu initial (1er trimestre)</td><td>3 000 – 5 000 $</td></tr>
+    <tr><td>Fonds de roulement et marketing de lancement</td><td>≈ 5 000 $</td></tr>
+    <tr><td><strong>Total estimé</strong></td><td><strong>≈ 16 000 – 26 000 $</strong></td></tr>
+  </tbody>
+</table>
+<div class="caption">Compatible avec un démarrage autofinancé partagé entre associés.</div>
+<h2>10.2 Hypothèses de revenus</h2>
+<ul>
+  <li>Revenu moyen par abonné (souvent par site) : ≈ 250 $/mois (3 000 $/an), reflétant un mélange des paliers Essentiel, Pro et Site / Sur mesure.</li>
+  <li>Services-conseils : taux moyen ≈ 900 – 1 000 $/jour.</li>
+  <li>Formation : quelques sessions par année à ≈ 1 000 – 2 000 $ chacune.</li>
+</ul>
+<table>
+  <thead><tr><th>Revenus annuels (arrondis)</th><th>Prudent</th><th>Réaliste</th><th>Optimiste</th></tr></thead>
+  <tbody>
+    <tr><td>Année 1</td><td>≈ 48 000 $</td><td>≈ 72 000 $</td><td>≈ 109 000 $</td></tr>
+    <tr><td>Année 2</td><td>≈ 104 000 $</td><td>≈ 157 000 $</td><td>≈ 245 000 $</td></tr>
+    <tr><td>Année 3</td><td>≈ 170 000 $</td><td>≈ 265 000 $</td><td>≈ 410 000 $</td></tr>
+  </tbody>
+</table>
+<div class="caption">Ex. scénario réaliste an 1 : ≈ 12 abonnés + ≈ 30 jours de services + formation. Hypothèses à ajuster.</div>
+<h2>10.3 Frais d'exploitation annuels (récurrents)</h2>
+<table>
+  <thead><tr><th>Poste</th><th style="width:32%">Estimation annuelle</th></tr></thead>
+  <tbody>
+    <tr><td>Logiciels et plateformes</td><td>≈ 3 000 $</td></tr>
+    <tr><td>Assurances</td><td>≈ 2 500 $</td></tr>
+    <tr><td>Sous-traitance graphique (contenu mensuel)</td><td>12 000 – 18 000 $</td></tr>
+    <tr><td>Marketing et représentation</td><td>4 000 – 8 000 $</td></tr>
+    <tr><td>Frais administratifs et comptables</td><td>≈ 3 000 $</td></tr>
+    <tr><td>Déplacements (services sur place)</td><td>3 000 – 8 000 $</td></tr>
+    <tr><td><strong>Total (hors rémunération des associés)</strong></td><td><strong>≈ 28 000 – 42 000 $</strong></td></tr>
+  </tbody>
+</table>
+<h2>10.4 Seuil de rentabilité</h2>
+<p>Pour couvrir des frais d'exploitation d'environ 35 000 $, il faut l'équivalent d'une douzaine d'abonnements Pro (≈ 350 $/mois), ou un mélange abonnements + services équivalent. Cet objectif est atteignable dès la première année dans le scénario réaliste; au-delà, la marge sert à rémunérer les associés et à réinvestir dans le contenu et le marketing.</p>
+
+<!-- 11 -->
+<h1>11. Échéancier de démarrage (12 mois)</h1>
+<table>
+  <thead><tr><th style="width:22%">Période</th><th>Jalons</th></tr></thead>
+  <tbody>
+    <tr><td>Mois 1 – 2</td><td>Entente entre associés, constitution, image de marque, assurance; validation des titres SST de l'associé.</td></tr>
+    <tr><td>Mois 2 – 3</td><td>Développement du 1er Kit SST et de 3 thèmes; site web et portail; grille tarifaire.</td></tr>
+    <tr><td>Mois 3 – 4</td><td>Programme pilote gratuit (1 mine + 1-2 sous-traitants); collecte de témoignages.</td></tr>
+    <tr><td>Mois 4 – 6</td><td>Lancement commercial; démarchage réseau et LinkedIn; premiers abonnements payants.</td></tr>
+    <tr><td>Mois 6 – 9</td><td>Catalogue étoffé (6-9 thèmes); premiers mandats de services et de formation.</td></tr>
+    <tr><td>Mois 9 – 12</td><td>Bilan; ajustement de l'offre et des prix; atteinte du seuil de rentabilité; planification de l'an 2.</td></tr>
+  </tbody>
+</table>
+
+<!-- 12 -->
+<h1>12. Analyse des risques et mitigations</h1>
+<table>
+  <thead><tr><th style="width:35%">Risque</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr><td>Crédibilité SST (fondateur non-spécialiste)</td><td>Associé crédité, partenariats d'experts, assurance professionnelle, positionnement prudent.</td></tr>
+    <tr><td>Concurrence de l'APSM (services gratuits)</td><td>Complémentarité, marque blanche, gain de temps, cibler les sous-traitants moins couverts.</td></tr>
+    <tr><td>Dépendance à quelques clients</td><td>Diversifier la base d'abonnés et de mandats; prioriser le revenu récurrent.</td></tr>
+    <tr><td>Copie du contenu</td><td>Protéger la PI, mettre à jour en continu, miser sur la relation-client et la personnalisation.</td></tr>
+    <tr><td>Cyclicité minière (prix des métaux)</td><td>Le récurrent stabilise; diversification possible vers l'industriel et la construction connexes.</td></tr>
+    <tr><td>Évolution réglementaire</td><td>La veille devient un argument de vente : le contenu est toujours à jour.</td></tr>
+  </tbody>
+</table>
+
+<!-- 13 -->
+<h1>13. Annexes</h1>
+<h2>Annexe A — Calendrier des 12 thèmes SST</h2>
+<table>
+  <thead><tr><th style="width:22%">Mois</th><th>Thème</th></tr></thead>
+  <tbody>
+    <tr><td>Janvier</td><td>Travail par temps froid et conditions hivernales</td></tr>
+    <tr><td>Février</td><td>Cadenassage et contrôle des énergies dangereuses</td></tr>
+    <tr><td>Mars</td><td>Poussières et silice cristalline (silicose)</td></tr>
+    <tr><td>Avril</td><td>Espaces clos</td></tr>
+    <tr><td>Mai</td><td>Travail en hauteur et protection contre les chutes</td></tr>
+    <tr><td>Juin</td><td>Fatigue et gestion des quarts de travail</td></tr>
+    <tr><td>Juillet</td><td>Coup de chaleur et hydratation</td></tr>
+    <tr><td>Août</td><td>Circulation lourde, interaction piéton-machinerie, angles morts</td></tr>
+    <tr><td>Septembre</td><td>Bruit et vibrations</td></tr>
+    <tr><td>Octobre</td><td>Troubles musculo-squelettiques, ergonomie, manutention</td></tr>
+    <tr><td>Novembre</td><td>Premiers soins et intervention d'urgence</td></tr>
+    <tr><td>Décembre</td><td>Santé psychologique et gestion du stress</td></tr>
+  </tbody>
+</table>
+<div class="caption">Modules souterrain additionnels : contrôle de terrain, ventilation, sautage.</div>
+<h2>Annexe B — Aperçu d'un « Kit SST mensuel »</h2>
+<ul>
+  <li>Présentation interactive (10-15 diapositives) : rappel du thème, statistiques, « trouve le danger », étude de cas, quiz, engagements.</li>
+  <li>3 à 4 affiches (11 × 17 et 24 × 36) : un message clé par affiche, visuel fort, QR code, zone personnalisable.</li>
+  <li>Guide d'animation (1 page), feuille de présence, quiz de validation, causerie éclair (1 page).</li>
+</ul>
+<h2>Annexe C — Propositions de noms de firme</h2>
+<p>Cinq pistes à valider (disponibilité au Registraire des entreprises du Québec, recherche NUANS et nom de domaine web) :</p>
+<ul>
+  <li><strong>Boréa SST</strong> — évoque le Nord et le Québec minier; moderne et sobre.</li>
+  <li><strong>Filon Prévention</strong> — « filon » = veine de minerai; connotation positive (« un bon filon »).</li>
+  <li><strong>Roc Sécurité</strong> — solidité et ancrage minier, facile à retenir.</li>
+  <li><strong>Vigie Minière</strong> — surveillance et prévention, message clair.</li>
+  <li><strong>Aplomb SST</strong> — stabilité et sérieux; clin d'œil à la verticalité des galeries.</li>
+</ul>
+<p class="note">Document de travail — les données financières sont illustratives et doivent être validées avec un comptable et un juriste avant toute démarche de financement.</p>
+
+</body>
+</html>

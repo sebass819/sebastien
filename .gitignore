@@ -1,0 +1,13 @@
+# Dépendances
+node_modules/
+
+# Artéfacts de build / rendu
+*.log
+chrome-profile/
+lotmp/
+lo_*/
+un/
+
+# Fichiers temporaires
+*.tmp
+.DS_Store
