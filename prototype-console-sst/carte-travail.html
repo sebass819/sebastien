@@ -624,84 +624,157 @@
 <script>
 (function(){
   "use strict";
-  var FMT={ CADENASSAGE:"Cadenassage (LOTO)", ESPACES_CLOS:"Travail en espace clos", FOREUSE:"Conduite de foreuse", CHARGEUSE:"Conduite chargeuse-navette", HAUTEUR:"Travail en hauteur", PREMIERS_SOINS:"Premiers soins", CONTROLE_TERRAIN:"Contrôle de terrain" };
-  var FMT_SHORT={ CADENASSAGE:"Cadenassage", ESPACES_CLOS:"Espace clos", FOREUSE:"Foreuse", CHARGEUSE:"Chargeuse-nav.", HAUTEUR:"Hauteur", PREMIERS_SOINS:"Premiers soins", CONTROLE_TERRAIN:"Contrôle terrain" };
+  var FMT={ CADENASSAGE:"Cadenassage (LOTO)", CONTROLE_TERRAIN:"Contrôle de terrain", ESPACES_CLOS:"Travail en espace clos", HAUTEUR:"Travail en hauteur", PREMIERS_SOINS:"Premiers soins", JUMBO:"Conduite de jumbo (dév.)", BOULONNAGE:"Boulonnage (Boltec)", CHARGEUSE:"Chargeuse-navette (scoop)", FOREUSE:"Foreuse de production", CAMION:"Conduite de camion", BOUTEFEU:"Sautage / boutefeu" };
+  var FMT_SHORT={ CADENASSAGE:"Cadenassage", CONTROLE_TERRAIN:"Contrôle terrain", ESPACES_CLOS:"Espace clos", HAUTEUR:"Hauteur", PREMIERS_SOINS:"Premiers soins", JUMBO:"Jumbo", BOULONNAGE:"Boulonnage", CHARGEUSE:"Scoop", FOREUSE:"Foreuse prod.", CAMION:"Camion", BOUTEFEU:"Boutefeu" };
   var WORKERS={
-    "M-1187":{name:"Marc Gagné", form:["CADENASSAGE","HAUTEUR","CHARGEUSE"], proc:["PR-CAD-03"]},
-    "M-1042":{name:"Jean Tremblay", form:["CADENASSAGE","ESPACES_CLOS","FOREUSE","CHARGEUSE"], proc:["PR-CAD-03","PR-FOR-11","PR-EC-07"], rev:["PR-CAD-03"]},
-    "M-1203":{name:"Sophie Roy", form:["ESPACES_CLOS","PREMIERS_SOINS"], proc:["PR-EC-07"]}
+    "M-1042":{name:"Jean Tremblay", role:"Foreur de production", form:["FOREUSE","CONTROLE_TERRAIN","CADENASSAGE","CHARGEUSE"], proc:["PR-FOR-11","PR-CT-02"]},
+    "M-1187":{name:"Marc Gagné", role:"Opérateur jumbo / scoop", form:["JUMBO","CHARGEUSE","CADENASSAGE","HAUTEUR","CONTROLE_TERRAIN"], proc:["PR-JU-04","PR-CAD-03","PR-CT-02"]},
+    "M-1203":{name:"Sophie Roy", role:"Service & secourisme minier", form:["ESPACES_CLOS","PREMIERS_SOINS","CADENASSAGE"], proc:["PR-EC-07"]},
+    "M-1256":{name:"Éric Bouchard", role:"Boulonneur (Boltec)", form:["BOULONNAGE","CONTROLE_TERRAIN","CADENASSAGE","HAUTEUR"], proc:["PR-BO-06","PR-CT-02"], rev:["PR-BO-06"]},
+    "M-1301":{name:"Nadia Fortin", role:"Foreuse jumbo (dév.)", form:["JUMBO","CONTROLE_TERRAIN","CADENASSAGE"], proc:["PR-JU-04","PR-CT-02"]},
+    "M-1330":{name:"Luc Bergeron", role:"Opérateur camion / scoop", form:["CAMION","CHARGEUSE","CADENASSAGE"], proc:["PR-CA-02"]},
+    "M-1298":{name:"Steeve Côté", role:"Boutefeu / dynamiteur", form:["BOUTEFEU","CONTROLE_TERRAIN","CADENASSAGE","ESPACES_CLOS"], proc:["PR-SAU-09","PR-CT-02"]},
+    "M-1377":{name:"Karine Lavoie", role:"Mécanicienne d'entretien", form:["CADENASSAGE","HAUTEUR","ESPACES_CLOS"], proc:["PR-EC-07"]},
+    "M-1405":{name:"Patrick Roy", role:"Opérateur camion / scoop", form:["CAMION","CHARGEUSE","CADENASSAGE"], proc:["PR-CA-02"]},
+    "M-1421":{name:"Mélanie Gauthier", role:"Chef d'équipe (superviseure)", form:["CONTROLE_TERRAIN","CADENASSAGE","PREMIERS_SOINS","ESPACES_CLOS"], proc:["PR-CT-02","PR-EC-07"]}
   };
   // Certifications par compétence détenue : st = valid | exp (expire bientôt) | review (à réviser). Cohérent avec WORKERS.form.
   var CERT={
-    "M-1187":{ CADENASSAGE:{st:"valid",d:"03-2027"}, HAUTEUR:{st:"exp",d:"08-2026"}, CHARGEUSE:{st:"valid",d:"01-2027"} },
-    "M-1042":{ CADENASSAGE:{st:"review",d:"02-2026"}, ESPACES_CLOS:{st:"valid",d:"05-2027"}, FOREUSE:{st:"valid",d:"11-2026"}, CHARGEUSE:{st:"valid",d:"02-2027"} },
-    "M-1203":{ ESPACES_CLOS:{st:"valid",d:"04-2027"}, PREMIERS_SOINS:{st:"exp",d:"08-2026"} }
+    "M-1042":{ FOREUSE:{st:"valid",d:"11-2026"}, CONTROLE_TERRAIN:{st:"valid",d:"03-2027"}, CADENASSAGE:{st:"review",d:"02-2026"}, CHARGEUSE:{st:"valid",d:"02-2027"} },
+    "M-1187":{ JUMBO:{st:"valid",d:"09-2026"}, CHARGEUSE:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"03-2027"}, HAUTEUR:{st:"exp",d:"08-2026"}, CONTROLE_TERRAIN:{st:"valid",d:"06-2027"} },
+    "M-1203":{ ESPACES_CLOS:{st:"valid",d:"04-2027"}, PREMIERS_SOINS:{st:"exp",d:"08-2026"}, CADENASSAGE:{st:"valid",d:"12-2026"} },
+    "M-1256":{ BOULONNAGE:{st:"valid",d:"05-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"10-2026"}, HAUTEUR:{st:"valid",d:"07-2027"} },
+    "M-1301":{ JUMBO:{st:"valid",d:"04-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"03-2027"}, CADENASSAGE:{st:"valid",d:"11-2026"} },
+    "M-1330":{ CAMION:{st:"valid",d:"02-2027"}, CHARGEUSE:{st:"exp",d:"09-2026"}, CADENASSAGE:{st:"valid",d:"05-2027"} },
+    "M-1298":{ BOUTEFEU:{st:"valid",d:"06-2027"}, CONTROLE_TERRAIN:{st:"valid",d:"02-2027"}, CADENASSAGE:{st:"valid",d:"01-2027"}, ESPACES_CLOS:{st:"review",d:"03-2026"} },
+    "M-1377":{ CADENASSAGE:{st:"valid",d:"12-2026"}, HAUTEUR:{st:"valid",d:"08-2027"}, ESPACES_CLOS:{st:"valid",d:"04-2027"} },
+    "M-1405":{ CAMION:{st:"valid",d:"03-2027"}, CHARGEUSE:{st:"valid",d:"01-2027"}, CADENASSAGE:{st:"valid",d:"09-2026"} },
+    "M-1421":{ CONTROLE_TERRAIN:{st:"valid",d:"05-2027"}, CADENASSAGE:{st:"valid",d:"02-2027"}, PREMIERS_SOINS:{st:"valid",d:"11-2026"}, ESPACES_CLOS:{st:"valid",d:"06-2027"} }
   };
-  var PROC={ "PR-CAD-03":"Cadenassage de convoyeur", "PR-FOR-11":"Cadenassage et opération de foreuse", "PR-EC-07":"Entrée en espace clos" };
+  var PROC={
+    "PR-CAD-03":"Cadenassage de convoyeur",
+    "PR-FOR-11":"Cadenassage et opération de foreuse de production",
+    "PR-EC-07":"Entrée en espace clos",
+    "PR-JU-04":"Opération de jumbo de développement",
+    "PR-BO-06":"Boulonnage mécanisé (Boltec)",
+    "PR-CA-02":"Conduite de camion — rampes et circulation",
+    "PR-SAU-09":"Chargement d'explosifs et sautage souterrain",
+    "PR-CT-02":"Purge et écaillage — contrôle de terrain"
+  };
+  // Flotte : JU=jumbo · BO=boulonneuse (Boltec) · CN=chargeuse-navette (scoop) · CA=camion · JP=jeep · FO=foreuse de production · CE=chargeuse d'explosifs
   var EQUIP={
-    "F-07":{label:"Foreuse Sandvik DD421 #F-07", maint:{state:"planifiee", inMs:(2*24+14)*3600e3}},
-    "CN-12":{label:"Chargeuse-navette #CN-12", maint:{state:"encours"}},
-    "JP-02":{label:"Jeep #JP-02", maint:{state:"bris", desc:"Fuite hydraulique"}},
-    "SC-04":{label:"Scoop R1700 #SC-04", maint:null},
+    "JU-201":{label:"Jumbo Epiroc Boomer #JU-201", maint:null},
+    "JU-202":{label:"Jumbo Epiroc Boomer #JU-202", maint:{state:"planifiee", inMs:(1*24+8)*3600e3}},
+    "JU-203":{label:"Jumbo Sandvik DD421 #JU-203", maint:{state:"bris", desc:"Bras de forage — vérin défectueux"}},
+    "BO-301":{label:"Boulonneuse Boltec #BO-301", maint:null},
+    "BO-302":{label:"Boulonneuse Boltec #BO-302", maint:{state:"planifiee", inMs:(2*24+6)*3600e3}},
+    "CN-401":{label:"Chargeuse-navette Scooptram #CN-401", maint:null},
+    "CN-402":{label:"Chargeuse-navette Scooptram #CN-402", maint:{state:"encours"}},
+    "CN-403":{label:"Chargeuse-navette Scooptram #CN-403", maint:null},
+    "CA-501":{label:"Camion Toro TH #CA-501", maint:null},
+    "CA-502":{label:"Camion Toro TH #CA-502", maint:{state:"planifiee", inMs:(4*24+3)*3600e3}},
+    "JP-01":{label:"Jeep de service #JP-01", maint:null},
+    "JP-02":{label:"Jeep de service #JP-02", maint:{state:"bris", desc:"Fuite hydraulique"}},
+    "FO-701":{label:"Foreuse de production Sandvik DL #FO-701", maint:null},
+    "FO-702":{label:"Foreuse de production Simba #FO-702", maint:null},
+    "CE-901":{label:"Chargeuse d'explosifs (émulsion) #CE-901", maint:null},
     "CV-2":{label:"Convoyeur CV-2", maint:null},
-    "DET-4G":{label:"Détecteur 4 gaz #DG-05", maint:null}
+    "DG-05":{label:"Détecteur 4 gaz #DG-05", maint:null}
   };
   var SECTORS={
     "1250":{co:null},
     "170-22":{co:null},
-    "22-50":{co:{dept:"Ventilation", task:"Réfection de gaine d'aérage", win:"07:00–19:00", prio:"Ventilation prioritaire (qualité d'air) — reprendre le muck après libération du secteur."}},
+    "4-D":{co:null},
     "1420":{co:{dept:"Électrique", task:"Tirage de câble", win:"06:00–14:00", prio:"Travaux électriques (cadenassage) prioritaires — forage en attente de libération du secteur."}},
+    "830":{co:null},
+    "6-B":{co:null},
     "2-A":{co:null},
     "5-C":{co:{dept:"Ventilation", task:"Réfection de gaine d'aérage", win:"07:00–19:00", prio:"Ventilation prioritaire avant l'entrée en espace clos."}}
   };
   var TASKS={
-    "T-DEV-1250":{label:"Développement — avancement (niveau 1250)", short:"Dév. — avancement", dept:"Développement", chantier:"Niveau 1250", sector:"1250", worker:"M-1042",
-      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-1250-DEV", label:"Plan de développement 1250"}], equip:["SC-04"],
+    "T-DEV-1250":{label:"Développement — avancement (niveau 1250)", short:"Dév. — avancement", dept:"Développement", chantier:"Niveau 1250", sector:"1250", worker:"M-1301",
+      form:["JUMBO","CONTROLE_TERRAIN"], proc:[{id:"PR-JU-04", equip:"Jumbo Epiroc Boomer"}], plans:[{id:"PL-1250-DEV", label:"Plan de développement 1250"}], equip:["JU-201"],
       materiel:"Aucun", terrain:"Niveau humide — bonne aération"},
     "T-DEV-170":{label:"Développement — avancement (170-22)", short:"Dév. — avancement", dept:"Développement", chantier:"Chantier 170-22", sector:"170-22", worker:"M-1187",
-      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-170-DEV", label:"Plan de développement 170-22"}], equip:["JP-02"],
+      form:["JUMBO","CONTROLE_TERRAIN"], proc:[{id:"PR-JU-04", equip:"Jumbo Sandvik DD421"}], plans:[{id:"PL-170-DEV", label:"Plan de développement 170-22"}], equip:["JU-203"],
       materiel:"Aucun", terrain:"Galerie étroite — signalisation requise"},
-    "T-TR-4B":{label:"Muck — chantier 22-50", short:"Muck (soutirage)", dept:"Production", chantier:"Chantier 22-50", sector:"22-50", worker:"M-1042",
-      form:["CHARGEUSE"], proc:[], plans:[{id:"PL-4B-CIRC", label:"Plan de circulation 22-50"}], equip:["CN-12"],
-      materiel:"Aucun", terrain:"Point de soutirage actif — risque d'éboulement"},
-    "T-FOR-4B":{label:"Forage production — chantier 1420", short:"Forage production", dept:"Forage", chantier:"Chantier 1420", sector:"1420", worker:"M-1187",
-      form:["FOREUSE"], proc:[{id:"PR-FOR-11", equip:"Foreuse Sandvik DD421"}],
-      plans:[{id:"PL-1420-MIN", label:"Plan de minage 1420"},{id:"DV-1420-BOUL", label:"Devis de boulonnage 1420"}], equip:["F-07"],
-      materiel:"Explosifs (selon plan de sautage)", terrain:"Venue d'eau au front 1420"},
-    "T-CAD-2A":{label:"Cadenassage convoyeur — niveau 2-A", short:"Cadenassage convoyeur", dept:"Entretien", chantier:"Niveau 2-A", sector:"2-A", worker:"M-1042",
+    "T-BO-1250":{label:"Boulonnage du toit — galerie 1250", short:"Boulonnage du toit", dept:"Boulonnage", chantier:"Galerie 1250-N", sector:"1250", worker:"M-1256",
+      form:["BOULONNAGE","CONTROLE_TERRAIN"], proc:[{id:"PR-BO-06", equip:"Boulonneuse Boltec #BO-301"}], plans:[{id:"PL-1250-BOUL", label:"Plan de boulonnage 1250"}], equip:["BO-301"],
+      materiel:"Boulons + résine", terrain:"Toit écaillé — purge complétée"},
+    "T-BO-4D":{label:"Boulonnage du toit — chantier 4-D", short:"Boulonnage du toit", dept:"Boulonnage", chantier:"Chantier 4-D", sector:"4-D", worker:"M-1405",
+      form:["BOULONNAGE","CONTROLE_TERRAIN"], proc:[{id:"PR-BO-06", equip:"Boulonneuse Boltec #BO-302"}], plans:[{id:"PL-4D-BOUL", label:"Plan de boulonnage 4-D"}], equip:["BO-302"],
+      materiel:"Boulons + résine", terrain:"Terrain fracturé — vigilance accrue"},
+    "T-FOR-1420":{label:"Forage production — chantier 1420", short:"Forage production", dept:"Forage", chantier:"Chantier 1420", sector:"1420", worker:"M-1042",
+      form:["FOREUSE","CONTROLE_TERRAIN"], proc:[{id:"PR-FOR-11", equip:"Foreuse Sandvik DL #FO-701"}],
+      plans:[{id:"PL-1420-MIN", label:"Plan de minage 1420"},{id:"DV-1420-BOUL", label:"Devis de boulonnage 1420"}], equip:["FO-701"],
+      materiel:"Aucun", terrain:"Venue d'eau au front 1420"},
+    "T-TR-830":{label:"Transport de minerai — rampe 830", short:"Transport de minerai", dept:"Production", chantier:"Rampe 830", sector:"830", worker:"M-1330",
+      form:["CAMION"], proc:[{id:"PR-CA-02", equip:"Camion Toro TH #CA-501"}], plans:[{id:"PL-830-CIRC", label:"Plan de circulation rampe 830"}], equip:["CA-501"],
+      materiel:"Aucun", terrain:"Rampe en pente — croisements fréquents"},
+    "T-SAU-6B":{label:"Chargement d'explosifs — chantier 6-B", short:"Chargement / sautage", dept:"Sautage", chantier:"Chantier 6-B", sector:"6-B", worker:"M-1298",
+      form:["BOUTEFEU","CONTROLE_TERRAIN"], proc:[{id:"PR-SAU-09", equip:"Unité d'émulsion #CE-901"}], plans:[{id:"PL-6B-SAUT", label:"Plan de sautage 6-B"}], equip:["CE-901"],
+      materiel:"Émulsion + détonateurs (selon plan)", terrain:"Front prêt — secteur à évacuer avant le tir"},
+    "T-CAD-2A":{label:"Cadenassage convoyeur — niveau 2-A", short:"Cadenassage convoyeur", dept:"Entretien", chantier:"Niveau 2-A", sector:"2-A", worker:"M-1377",
       form:["CADENASSAGE"], proc:[{id:"PR-CAD-03", equip:"Convoyeur CV-2"}],
       plans:[{id:"SC-2A-CV", label:"Schéma d'isolement CV-2"}], equip:["CV-2"],
       materiel:"Cadenas + moraillon", terrain:"—"},
     "T-EC-5C":{label:"Inspection espace clos — réservoir R-12 (5-C)", short:"Inspection espace clos", dept:"Services", chantier:"Niveau 5-C", sector:"5-C", worker:"M-1203",
-      form:["ESPACES_CLOS"], proc:[{id:"PR-EC-07", equip:"Détecteur 4 gaz"}],
-      plans:[{id:"FT-R12", label:"Fiche technique réservoir R-12"}], equip:["DET-4G"],
+      form:["ESPACES_CLOS"], proc:[{id:"PR-EC-07", equip:"Détecteur 4 gaz #DG-05"}],
+      plans:[{id:"FT-R12", label:"Fiche technique réservoir R-12"}], equip:["DG-05"],
       materiel:"Détecteur 4 gaz, trépied, harnais", terrain:"Espace clos — accès restreint"}
   };
   var STEPS={
     "T-DEV-1250":[
       {t:"Purge et écaillage du front", r:[
         {h:"Chute de blocs (contrôle de terrain)", c:"Purge mécanisée; ne pas s'engager sous du terrain non purgé", s:5, p:2}]},
-      {t:"Chargement et transport au scoop", r:[
-        {h:"Écrasement / angle mort", c:"Klaxon; feux; zone piéton interdite près de l'équipement", s:5, p:2},
-        {h:"Poussière", c:"Arrosage; cabine pressurisée", s:2, p:3}]}
+      {t:"Positionnement et forage au jumbo", r:[
+        {h:"Happement / pièces en mouvement", c:"Gardes en place; zone d'exclusion autour du bras", s:4, p:2},
+        {h:"Poussière de silice / bruit", c:"Arrosage; cabine pressurisée; protection auditive", s:3, p:3}]}
     ],
     "T-DEV-170":[
-      {t:"Inspection avant quart du véhicule", r:[
-        {h:"Véhicule défectueux (bris signalé)", c:"Ne pas utiliser un équipement hors service; remplir le rapport de bris", s:5, p:3}]},
-      {t:"Déplacement du personnel", r:[
-        {h:"Collision en galerie", c:"Vitesse réduite; priorité aux équipements lourds; communication radio", s:4, p:2}]}
+      {t:"Inspection avant quart du jumbo", r:[
+        {h:"Équipement défectueux (bris signalé)", c:"Ne pas utiliser un équipement hors service; remplir le rapport de bris", s:5, p:3}]},
+      {t:"Accès et contrôle de terrain", r:[
+        {h:"Chute de pierres en galerie étroite", c:"Purge; signalisation; vitesse réduite", s:4, p:2}]}
     ],
-    "T-FOR-4B":[
+    "T-BO-1250":[
+      {t:"Contrôle de terrain préalable", r:[
+        {h:"Effondrement / plaques instables", c:"Purge complète; séquence de boulonnage du bon vers le mauvais terrain", s:5, p:2}]},
+      {t:"Installation des boulons (Boltec)", r:[
+        {h:"Happement par la tête de forage", c:"Gardes; zone d'exclusion; télécommande", s:4, p:2},
+        {h:"Éclaboussures de résine", c:"Lunettes; gants; manutention selon SIMDUT", s:2, p:3}]}
+    ],
+    "T-BO-4D":[
+      {t:"Contrôle de terrain préalable", r:[
+        {h:"Terrain fracturé — chute de blocs", c:"Purge; ne pas s'engager sous terrain non soutenu", s:5, p:3}]},
+      {t:"Installation des boulons (Boltec)", r:[
+        {h:"Happement / pièces en mouvement", c:"Gardes; zone d'exclusion; opérateur qualifié", s:4, p:2}]}
+    ],
+    "T-FOR-1420":[
       {t:"Accès et inspection du secteur", r:[
-        {h:"Chute de pierres / mauvais contrôle de terrain", c:"Purge et écaillage; vérifier le boulonnage", s:4, p:2},
+        {h:"Mauvais contrôle de terrain", c:"Purge et écaillage; vérifier le boulonnage", s:4, p:2},
         {h:"Poussière de silice cristalline", c:"Ventilation; masque P100; arrosage", s:3, p:3}]},
       {t:"Cadenassage et mise en service de la foreuse", r:[
         {h:"Énergie résiduelle / démarrage intempestif", c:"Cadenassage (LOTO) selon PR-FOR-11; essai « point zéro »", s:5, p:2}]},
-      {t:"Forage des trous", r:[
-        {h:"Happement par la tige rotative", c:"Gardes en place; gants ajustés; zone dégagée", s:4, p:2},
-        {h:"Bruit &gt; 90 dBA", c:"Double protection auditive", s:2, p:4}]},
-      {t:"Repli et nettoyage", r:[
-        {h:"Glissade / trébuchement (boyaux, boue)", c:"Ranger les boyaux; éclairage adéquat", s:2, p:3}]}
+      {t:"Forage des trous longs", r:[
+        {h:"Happement par la tige rotative", c:"Gardes en place; zone dégagée", s:4, p:2},
+        {h:"Bruit &gt; 90 dBA", c:"Double protection auditive", s:2, p:4}]}
+    ],
+    "T-TR-830":[
+      {t:"Inspection avant quart du camion", r:[
+        {h:"Défaillance des freins ou de la direction", c:"Ronde de sécurité; carte d'inspection", s:5, p:2}]},
+      {t:"Circulation en rampe", r:[
+        {h:"Collision / perte de contrôle en pente", c:"Vitesse contrôlée; frein moteur; règles de priorité; radio", s:5, p:2}]},
+      {t:"Déchargement au point de transfert", r:[
+        {h:"Renversement / recul dangereux", c:"Butée de recul; klaxon; signaleur au besoin", s:4, p:2}]}
+    ],
+    "T-SAU-6B":[
+      {t:"Sécurisation et gardiennage du secteur", r:[
+        {h:"Présence de personnel dans la zone de tir", c:"Gardiennage; barrières; décompte du personnel; signaux", s:5, p:2}]},
+      {t:"Chargement des trous (émulsion)", r:[
+        {h:"Amorçage prématuré / manipulation d'explosifs", c:"Procédure de sautage; boutefeu certifié; aucune source d'inflammation", s:5, p:2}]},
+      {t:"Raccordement et tir", r:[
+        {h:"Ratés / gaz post-sautage", c:"Séquence de tir; délai de rentrée; ventilation; contrôle des gaz", s:5, p:2}]}
     ],
     "T-CAD-2A":[
       {t:"Identification des sources d'énergie", r:[
@@ -718,14 +791,6 @@
         {h:"Absence de surveillant / de plan de sauvetage", c:"Surveillant dédié; plan de sauvetage; harnais", s:5, p:1}]},
       {t:"Entrée et inspection", r:[
         {h:"Chute / engloutissement", c:"Harnais + treuil; communication continue", s:4, p:2}]}
-    ],
-    "T-TR-4B":[
-      {t:"Inspection avant quart de la chargeuse-navette", r:[
-        {h:"Défaillance des freins ou de la direction", c:"Ronde de sécurité; carte d'inspection", s:4, p:2}]},
-      {t:"Circulation en galerie", r:[
-        {h:"Collision piéton / véhicule (co-activité)", c:"Feux et klaxon; radio; règles de priorité", s:5, p:3}]},
-      {t:"Chargement au point de soutirage", r:[
-        {h:"Éboulement au soutirage (hang-up)", c:"Ne pas se placer sous la charge; procédure de débourrage", s:5, p:2}]}
     ]
   };
   var REF_REG=[
@@ -734,19 +799,22 @@
     ["RSSM 40","Aérage et qualité de l'air en milieu souterrain"],
     ["RSSM 51","Contrôle de terrain et soutènement"],
     ["RSSM 130","Travail en espace clos — surveillance et sauvetage"],
-    ["RSSM 213","Équipement mobile — circulation et signalisation"]
+    ["RSSM 213","Équipement mobile — circulation et signalisation"],
+    ["RSSM 260","Explosifs — transport, chargement et sautage"]
   ];
   var REF_PROC=[
     ["PR-CAD-03","Cadenassage de convoyeur"],
     ["PR-FOR-11","Cadenassage et opération de foreuse"],
     ["PR-EC-07","Entrée et travail en espace clos"],
-    ["PR-CT-02","Purge et écaillage — contrôle de terrain"],
-    ["PR-CIR-05","Circulation des véhicules lourds — secteurs actifs"],
-    ["PR-URG-01","Intervention d'urgence et évacuation"]
+    ["PR-JU-04","Opération de jumbo de développement"],
+    ["PR-BO-06","Boulonnage mécanisé (Boltec)"],
+    ["PR-CA-02","Conduite de camion — rampes et circulation"],
+    ["PR-SAU-09","Chargement d'explosifs et sautage souterrain"],
+    ["PR-CT-02","Purge et écaillage — contrôle de terrain"]
   ];
 
   var $=function(s,r){return (r||document).querySelector(s);};
-  var state={task:"T-FOR-4B", worker:"M-1187", resolved:{}, docs:[], signed:{w:false,s:false}, authorized:false, blocked:true, startTs:Date.now()};
+  var state={task:"T-FOR-1420", worker:"M-1042", resolved:{}, docs:[], signed:{w:false,s:false}, authorized:false, blocked:true, startTs:Date.now()};
 
   function opt(sel,val,label,cur){var o=document.createElement("option");o.value=val;o.textContent=label;if(val===cur)o.selected=true;sel.appendChild(o);return o;}
   function initSelects(){
@@ -1007,7 +1075,9 @@
     var w=WORKERS[t.worker];
     var missTrain=t.form.some(function(f){return w.form.indexOf(f)<0;});
     var equipBad=t.equip.some(function(e){var m=EQUIP[e]&&EQUIP[e].maint; return m&&(m.state==="bris"||m.state==="encours");});
-    return (missTrain||equipBad)?"bloque":"pret";
+    var procDue=t.proc.some(function(p){return w.proc.indexOf(p.id)<0;});
+    var co=!!(SECTORS[t.sector]&&SECTORS[t.sector].co);
+    return (missTrain||equipBad||procDue||co)?"bloque":"pret";
   }
   function equipCellHtml(t){
     return t.equip.map(function(e){
@@ -1118,7 +1188,7 @@
 
     var kpis=[
       {cls:"", k:"Tâches du quart", v:ids.length, sub:"<b class='ok'>"+pret+" prêtes</b> · <b class='crit'>"+bloque+" bloquées</b>", go:"plan"},
-      {cls:"k-crit", k:"Points bloquants", v:crit.length, sub:"formation &amp; équipement — avant descente", go:"plan"},
+      {cls:"k-crit", k:"Points bloquants", v:(crit.length+others.length), sub:"formation · équip. · co-activité · procédure", go:"plan"},
       {cls:"k-warn", k:"Formations à échéance", v:(expCount+revCount), sub:"<b class='warn'>"+expCount+" à renouveler</b> · "+revCount+" à réviser", go:"matrix"},
       {cls:"k-warn", k:"Équipements à surveiller", v:(bris+enc+plan), sub:bris+" bris · "+enc+" en maint. · "+plan+" planifié", go:"plan"}
     ];
